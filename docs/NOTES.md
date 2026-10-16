@@ -49,3 +49,18 @@ Lyras Animationen halten die Waffe auf Brusthöhe, unterhalb des Blickfelds (auc
 - Gegen Clipping in Wände: UE-First-Person-Rendering (`FirstPersonScale` 0.5). Dafür reicht `LyraCameraComponent` jetzt die First-Person-Parameter an den View durch (einzige Änderung am Lyra-Kern, 3 Zeilen, standardmäßig aus).
 - Hinweis: Werte am CDO zur Laufzeit zu ändern wirkte im Test nicht auf neue PIE-Sitzungen; Tuning daher über Code-Defaults bzw. das Blueprint mit anschließendem Speichern und Editor-Neustart.
 ![Ego-Waffe](img/phase1-firstperson-weapon.png)
+
+## Spielmodi (2026-10-16)
+
+Im Menü (Play) stehen nur noch die DH-Modi, Lyras eigene Einträge sind ausgeblendet (`bShowInFrontEnd=false`):
+
+| Modus | Experience | Map |
+| --- | --- | --- |
+| Team Deathmatch | `B_DH_TDM` | L_Expanse |
+| Team Deathmatch (Ego) | `B_DH_TDM_FP` | L_Expanse |
+| Domination | `B_DH_Domination` | L_Convolution_Blockout |
+| Domination (Ego) | `B_DH_Domination_FP` | L_Convolution_Blockout |
+
+3 vs 3 vs 3 (`B_DH_TDM3`, Team-Setup `B_DH_TeamSetup_ThreeTeams`, grünes Team `TeamDA_Green`) ist angelegt, aber ausgeblendet: Lyras Team-UI (Namensschilder, Score-HUD, Scoreboard, Killfeed; ~45 `Select`-Knoten in 8 Widgets) und die TDM-Wertung (`B_TeamDeathMatchScoring`) kennen nur 2 Teams. Umbau gehört zu Phase 4.
+
+NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (siehe Phase 0).
