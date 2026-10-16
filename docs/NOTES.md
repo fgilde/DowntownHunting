@@ -34,6 +34,14 @@ Erledigt:
 Testen im Editor: Editor-Einstellungen > DowntownHunting > Lyra Developer Settings > `ExperienceOverride` auf `B_DH_TDM` oder `B_DH_TDM_FP`, dann PIE auf L_Expanse.
 
 Offen:
-- Ego: Waffe und Arme sind nicht im Bild. Braucht First-Person-Arme + FP-Animationen und UE-First-Person-Rendering (`FirstPersonPrimitiveType`) gegen Clipping. ADS-Zoom (FOV) kommt mit den FP-Waffen.
+- Ego-Waffe v1 steht (siehe unten). Noch offen: Feuer-/Nachlade-Animationen im Ego-Bild, ADS-Zoom (FOV), Clipping in Wände (Lyras Kamera reicht die First-Person-FOV/Scale-Parameter nicht an den View durch; bräuchte eine kleine Änderung in `LyraCameraComponent`).
+- Gewehr/Schrotflinte-Posen sind eingetragen, aber nur die Pistole wurde angesehen.
 - Ego-ADS und Menüeinträge sind nur angelegt, nicht per Eingabe durchgeklickt.
-- Bots im Ego-Modus nutzen dieselben Pawn-Daten, betrifft sie nicht (keine Kamera).
+
+### Ego-Waffe v1 (2026-10-16)
+
+Lyras Animationen halten die Waffe auf Brusthöhe, unterhalb des Blickfelds (auch beim Schießen). `UDHCameraMode_FirstPerson` zeigt dem lokalen Spieler deshalb Kopien:
+- Körper-Kopie spielt eine Halte-Pose (`MM_Pistol/Shotgun/Rifle_Idle_ADS`, gewählt nach Klassenname der Waffe), dreht mit dem Blick, Kopf sitzt an der Kamera (`CameraOffsetFromHead`, Einstellknopf). Kopf und Beine ausgeblendet.
+- Waffen-Kopien hängen am selben Socket der Körper-Kopie. Nur für den Besitzer sichtbar.
+- Echter Körper und echte Waffe werden für den Besitzer per `FirstPersonPrimitiveType=WorldSpaceRepresentation` ausgeblendet, Schatten und Sicht für andere bleiben. Hitboxen und replizierte Attachments bleiben unangetastet.
+![Ego-Waffe](img/phase1-firstperson-weapon.png)
