@@ -3,64 +3,81 @@
 Multiplayer-Shooter in einer großen Stadt. Basis: **Lyra Starter Game** (Gameplay-Framework) + **City Sample** (Stadt-Assets). Engine: UE 5.8.
 Vorgänger `callOfShooter` (Blacksite) dient nur als Asset- und Ideenquelle, Code wird nicht übernommen.
 
+Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screenshots) in `docs/NOTES.md`.
+
 ## Leitlinien
 
 - Lyra-Kern möglichst nicht anfassen. Eigenes Zeug in ein eigenes Game Feature Plugin `DowntownCore` (Muster: `ShooterCore`). Hält Lyra-Upgrades machbar.
 - Erst ein kleiner, spielbarer Stadtausschnitt, dann die große Stadt. Kein Schritt ohne lauffähigen Stand.
 - Jeder Meilenstein endet mit: Build läuft, Match mit Bots spielbar, Listen-Server mit 2. Client getestet, Screenshot/Notiz in `docs/`.
+- Im Projektordner gibt es immer etwas Startbares: `Play.cmd` (Menü), `Play-Downtown.cmd` (direkt in die Stadt), `Package.cmd` (eigenständige EXE).
 
-## Phase 0 – Setup
+## Phase 0 – Setup ✅
 
-1. Lyra auf Fab zur Bibliothek, im Launcher Projekt `DowntownHunting` erstellen (5.8, falls verfügbar; sonst neueste Version und nach Epic-Anleitung hochziehen).
-2. git + Git LFS (`*.uasset`, `*.umap`, Texturen, Audio), `.gitignore` für `Binaries/`, `Intermediate/`, `Saved/`, `DerivedDataCache/`.
-3. **Unreal MCP einrichten** (KI steuert den Editor):
-   - Bevorzugt: Epics offizieller Unreal MCP (Editor-Plugins `ModelContextProtocol` + `AllToolsets`, Server auf Port 8000) plus Epics Claude-Code-Plugin `EpicGames/unreal-engine-skills-for-claude-code-plugin`.
-   - Fallback: `ChiR24/Unreal_mcp` (im alten Projekt vorgeschlagen).
-   - Zusätzlich wie in Blacksite: Python-Skripte über `PythonScriptPlugin` für wiederholbare Batch-Aufgaben (Import, Map-Bau, Validierung).
-4. Lyra unverändert testen: Elimination mit Bots, Listen-Server + Client lokal.
+- ✅ Lyra-Projekt `DowntownHunting` (UE 5.8), git + LFS, privates GitHub-Repo.
+- ✅ Unreal MCP (Port 8765), Python-Skripte über `PythonScriptPlugin` (`Tools/Python`).
+- ✅ Lyra unverändert getestet: Elimination mit Bots, Listen-Server + Client.
 
 ## Phase 1 – Fundament
 
-- Plugin `DowntownCore`, eigene Experience `DH_TDM` auf einer Lyra-Testmap.
-- Branding: Titel, Hauptmenü (CommonUI aus Lyra), Name „Downtown Hunting“.
-- **Perspektive umschaltbar (Ego/Third-Person)**, entschieden 2026-10-16. Third-Person kommt von Lyra. Ego dazu: eigener Lyra-Kamera-Modus, First-Person-Arme + FP-Animationen, UE-First-Person-Rendering (verhindert Waffen-Clipping). Pro Match festlegbar (Server-Regel), damit niemand per Third-Person um Ecken späht.
+- ✅ Plugin `DowntownCore`, eigene Experiences (`B_DH_TDM`, `B_DH_TDM_FP`).
+- ✅ Branding: Titel, Hauptmenü, Name „Downtown Hunting“.
+- 🔶 **Perspektive Ego/Third-Person**: Ego-Kamera mit Körper-/Waffen-Kopien, Zielen mit Zoom, Rückstoß, kein Clipping ✅. Offen: zur Laufzeit umschalten (Taste/Gamepad), sofern die Modus-Regel es erlaubt (`Perspective=Choice`, siehe Phase 4); Nachlade-/Feuer-Animationen im Ego-Bild.
+- ⬜ **Menüs und Einstellungen** (kommen größtenteils von Lyra, prüfen und an DH-Look anpassen): Pause-Menü, Video/Grafik, Audio, Maus/Tastatur inkl. Tastenbelegung, Controller inkl. Belegung und Empfindlichkeit.
+- ⬜ **Controller-Support** durchgehend testen: Menüs, Ego- und Third-Person-Steuerung, Aim-Assist.
 
 ## Phase 2 – Vertical Slice: Stadtausschnitt
 
-- City Sample laden, nur benötigte Assets migrieren (Gebäude, Straßenmodule, Props). Kein MassTraffic/Crowd, keine Fahrzeuge vorerst.
-- Map `DH_Block` aus 2–3 Blöcken: einige Gebäude begehbar, Dachzugänge, zusätzliche Deckung, Sperren an den Rändern.
-- NavMesh für Bots, Spawnpunkte, Elimination + Control darauf.
-- Ziel: stabile 60+ FPS auf eigenem Rechner, Spielgefühl bewerten. **Entscheidungspunkt:** passt City Sample fürs Gameplay? Sonst Asset-Strategie ändern.
+- ✅ City-Sample-Assets selektiv übernommen (Import-Skript + Manifeste, nicht in git).
+- ✅ Map `DH_Block` (2 × 2 Blöcke) mit Spawnpunkten, NavMesh, Randwänden; TDM + Domination darauf.
+- ✅ City-Sample-Hauptfiguren als Charaktere, Teamfarbe über Armbinden.
+- ⬜ Begehbare Gebäude/Dachzugänge, zusätzliche Deckung, Map-Rand kaschieren (Nebel, Kulisse, Absperrungen statt Leere).
+- ⬜ Ziel: stabile 60+ FPS auf eigenem Rechner messen, Spielgefühl bewerten. **Entscheidungspunkt:** passt City Sample fürs Gameplay?
 
 ## Phase 3 – Waffen
 
-- Blacksite-Waffen (AK-47, MP5, M1911) migrieren, Lizenzen laut `THIRD_PARTY_ASSETS.md` prüfen.
-- Als Lyra-Weapon-Definitions mit eigenen Abilities (GAS) aufsetzen.
-- Gunsmith/Aufsätze neu bauen (Lyra hat das nicht), Loadouts speichern.
+- ⬜ Waffenwechsel mit mehreren Startwaffen (Lyra-Quickbar: 1–3, Mausrad, Gamepad), Waffen-Pickups auf den Maps; abschaltbar per Modus-Regel.
+- ⬜ Blacksite-Waffen (AK-47, MP5, M1911) migrieren, Lizenzen laut `THIRD_PARTY_ASSETS.md` prüfen; als Lyra-Weapon-Definitions mit eigenen Abilities (GAS).
+- ⬜ Gunsmith/Aufsätze neu bauen (Lyra hat das nicht), Loadouts speichern.
 
-## Phase 4 – Modi (kleine Maps)
+## Phase 4 – Modi und Maps
 
-- TDM, 3 vs 3 vs 3 (Lyra-Teams auf 3 erweitern), Domination (Lyra Control), später Search & Destroy / Free-for-all.
-- Weitere Stadtausschnitte als eigene Maps (Level Instances aus der großen Stadt wiederverwenden).
+- 🔶 **Modi aus Konfiguration.** Ein Modus ist ein Eintrag (`LyraUserFacingExperienceDefinition` in `/DowntownCore/Playlists`): Spielart + Map + Regeln. Regeln stehen in `ExtraArgs` und kommen als URL-Optionen im Spiel an, damit Bots, LAN und Online gleich funktionieren:
+
+  | Option | Werte | Wirkung |
+  | --- | --- | --- |
+  | `Perspective` | `TP`, `FP`, `Choice` | feste Perspektive oder frei umschaltbar |
+  | `WeaponSwitch` | `1`/`0` | Waffenwechsel erlaubt |
+  | `Loadout` | z. B. `Pistol,Rifle,Shotgun` | Startwaffen |
+  | `NumBots` | Zahl | Anzahl Bots (liest Lyra bereits) |
+  | `ScoreLimit`, `TimeLimit` | Zahl | Siegpunkte, Rundenzeit |
+
+  Werkzeug: kleines Editor-Tool, das aus Vorlage + Regeln einen neuen Modus erzeugt; das Menü listet alle Modi automatisch, der Host-Screen bietet Bots/LAN/Online.
+- ✅ TDM, Domination (Lyra Control), jeweils Third-Person und Ego.
+- 🔶 3 vs 3 vs 3: Teams und Team-Setup fertig, Lyra-Team-UI und Wertung noch auf 2 Teams (ausgeblendet). Später Search & Destroy, Free-for-all.
+- ⬜ Mehr Maps: weitere Stadtausschnitte (andere Viertel und Größen, Level Instances aus der großen Stadt wiederverwenden); Lyras Innen-Map im realistischen Look (Materialien tauschen, weniger Sci-Fi).
+- ⬜ Spielgefühl: Trefferfeedback, Killfeed/Killcam, Scoreboard, Runden-Ende-Screen (teils Lyra).
 
 ## Phase 5 – Große Stadt
 
-- World-Partition-Map für große Modi (Ground-War-artig, viele Spieler + Bots).
-- Server-Streaming, Performance-Budget, LODs/Nanite/Lumen-Settings für Shooter.
-- Optional: Fahrzeuge, ambiente Crowds nur clientseitig.
+- ⬜ World-Partition-Map für große Modi (Ground-War-artig, viele Spieler + Bots).
+- ⬜ Server-Streaming, Performance-Budget, LODs/Nanite/Lumen-Settings für Shooter.
+- ⬜ Optional: Fahrzeuge, ambiente Crowds nur clientseitig.
 
 ## Phase 6 – Online
 
-- Lyra bringt CommonUser/Online-Subsystem-Anbindung (EOS/Steam möglich): Lobby, Freunde einladen, Serversuche.
-- **Achtung:** Dedizierte Server-Builds brauchen eine aus dem Quellcode gebaute Engine (Launcher-Engine kann keinen Server-Target bauen). Bis dahin Listen-Server.
+- 🔶 Listen-Server/LAN: aus dem Editor getestet; aus dem Menü (Host/Join) noch testen.
+- ⬜ Online über Lyras CommonUser/Online-Subsystem (EOS oder Steam): Lobby, Freunde einladen, Serversuche.
+- ⬜ Dedizierte Server brauchen eine aus dem Quellcode gebaute Engine (Launcher-Engine kann keinen Server-Target bauen). Bis dahin Listen-Server.
 
 ## Risiken
 
 - City Sample: kaum Innenräume, riesig (Download/Platte zig GB, Editor will viel RAM), auf Optik statt Shooter-FPS getrimmt.
 - Lyra ist komplex (GAS, Game Features, Experiences): Einarbeitung kostet Zeit, zahlt sich bei Modi aus.
-- Lyra für 5.8 noch nicht bestätigt.
+- RAM auf dem Entwicklungsrechner knapp, solange WSL/Docker laufen.
 
-## Offene Entscheidungen
+## Entscheidungen
 
-- Perspektive: pro Match vom Host festgelegt oder vom Spieler frei wählbar?
-- Online-Dienst später: EOS oder Steam?
+- 2026-10-16: Perspektive Ego und Third-Person, festgelegt pro Modus.
+- 2026-10-17: Perspektive als Modus-Regel `Perspective=TP|FP|Choice`; bei `Choice` schaltet der Spieler selbst um.
+- Offen: Online-Dienst EOS oder Steam?
