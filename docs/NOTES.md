@@ -86,7 +86,9 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - `Plugins/Traffic`: Content-only-Ersatz für City Samples Traffic-Plugin, enthält nur die Material-Funktion, die die Auto-Materialien brauchen.
 - NavMesh gebaut (WP-Builder, Editor vorher schließen spart RAM), Bots laufen. ![Downtown](img/phase2-downtown.png)
 - Beim Builder-Lauf melden 24 Texturen fehlende Quell-Payloads (City-Sample-Pakete ohne eingebettete Editor-Daten); für Navigation und Spiel ohne Folgen.
-- Offen: FPS messen, Licht abstimmen, Dachzugänge/Innenräume, Domination auf DH_Block (Kontrollpunkte).
+- Domination auf DH_Block: Kontrollpunkte A (NW-Kreuzung), B (Mitte), C (SO-Kreuzung). ![Domination](img/phase2-domination.png)
+- Neu platzierte Actors sind in WP-Maps standardmäßig räumlich gestreamt; danach `flatten_dh_block.py` erneut laufen lassen.
+- Offen: Map-Rand (Stadt endet abrupt, weiße Leere), FPS messen, Licht abstimmen, Dachzugänge/Innenräume.
 
 ## Charaktere (2026-10-16)
 

@@ -1,4 +1,5 @@
-"""DH_Block is small: load everything always (no spatial streaming) and drop City Sample's data layers."""
+"""DH_Block is small: load everything always (no spatial streaming) and drop City Sample's data layers.
+Safe to re-run after placing new actors (they default to spatially loaded)."""
 import unreal
 
 MAP = "/Game/DH/Maps/DH_Block"
