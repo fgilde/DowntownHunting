@@ -139,6 +139,11 @@ void UDHCameraMode_FirstPerson::BuildCopies(ACharacter& Character)
 			if (AActor* Part = ChildActor->GetChildActor())
 			{
 				Part->GetComponents<USkeletalMeshComponent>(BodyParts, /*bIncludeFromChildActors=*/ false);
+
+				// Extras on the body (e.g. team bands) are hidden for the owner too, without a first-person copy.
+				TArray<UStaticMeshComponent*> Extras;
+				Part->GetComponents<UStaticMeshComponent>(Extras, /*bIncludeFromChildActors=*/ false);
+				Originals.Append(Extras);
 			}
 		}
 	}

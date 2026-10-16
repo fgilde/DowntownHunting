@@ -92,4 +92,5 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 
 - City Samples Hauptfiguren (MetaHuman-basiert) als Lyra-Cosmetics: `/DowntownCore/Characters/B_DH_PlayerMale`, `B_DH_PlayerFemale` (Body + Head). Zufallsauswahl `B_DH_PickRandomCharacter` in allen DH-Experiences.
 - Animation: Lyras `ABP_Mannequin_CopyPose` läuft auf den City-Sample-Skeletten, weil `SK_Base`/`SK_Base_Head` als kompatibel zu `SK_Mannequin` markiert sind (`setup_citysample.py`).
-- Offen: keine Teamfarbe an den Figuren (Lyra färbt über Material-Parameter, die City-Sample-Materialien nicht haben; Team erkennbar über Namensschilder), Haare (Groom) nicht angehängt, Gesicht ohne Mimik.
+- Teamfarbe: `UDHTeamBandComponent` hängt Armbinden mit `M_TeamColorBasic` an beide Oberarme; Lyras Teamsystem färbt sie wie seine eigenen Cosmetics. Im Ego-Modus sind sie für den Besitzer ausgeblendet. ![Teamband](img/phase2-teamband.png)
+- Offen: männliche Figur ohne Haare (Groom nicht angehängt), Gesichter ohne Mimik.
