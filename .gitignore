@@ -31,3 +31,6 @@ Plugins/**/Intermediate/
 /Content/Vehicle/
 /Content/__ExternalActors__/Map/
 /Content/Character/
+
+# Packaged game output (Package.cmd)
+/Build/Packaged/

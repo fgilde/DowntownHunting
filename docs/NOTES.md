@@ -1,5 +1,12 @@
 # Notizen
 
+## Starten
+
+- `Play.cmd`: Spiel mit Hauptmenü (ohne Editor-Oberfläche, nutzt die installierte UE 5.8).
+- `Play-Downtown.cmd`: direkt Team Deathmatch in der Stadt mit Bots. `Play-Downtown.cmd FP` für Ego.
+- `Package.cmd`: baut eine eigenständige `DowntownHunting.exe` nach `Build\Packaged\Windows` (dauert beim ersten Mal lange).
+- `Start-Editor.cmd`: Editor mit Unreal-MCP auf Port 8765.
+
 ## Phase 0 – abgeschlossen (2026-10-16)
 
 - Lyra Elimination (`/ShooterMaps/Maps/L_Expanse`) mit 3 Bots in PIE: läuft. ![Bots](img/phase0-elimination-bots.png)
@@ -77,7 +84,9 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
   3. `UnrealEditor-Cmd.exe DowntownHunting.uproject -run=pythonscript -script=Tools/Python/setup_citysample.py -nullrhi`
 - Hilfsskripte: `Tools/Python/save_dh_block.py` (Save-As der ausgedünnten Map), `flatten_dh_block.py` (Streaming aus, Data-Layer raus).
 - `Plugins/Traffic`: Content-only-Ersatz für City Samples Traffic-Plugin, enthält nur die Material-Funktion, die die Auto-Materialien brauchen.
-- Offen: NavMesh für DH_Block bauen (Builder-Lauf wurde wegen RAM-Mangel abgebrochen), Spielgefühl/FPS prüfen, Licht abstimmen.
+- NavMesh gebaut (WP-Builder, Editor vorher schließen spart RAM), Bots laufen. ![Downtown](img/phase2-downtown.png)
+- Beim Builder-Lauf melden 24 Texturen fehlende Quell-Payloads (City-Sample-Pakete ohne eingebettete Editor-Daten); für Navigation und Spiel ohne Folgen.
+- Offen: FPS messen, Licht abstimmen, Dachzugänge/Innenräume, Domination auf DH_Block (Kontrollpunkte).
 
 ## Charaktere (2026-10-16)
 
