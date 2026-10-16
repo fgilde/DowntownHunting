@@ -14,8 +14,8 @@ class USkeletalMeshComponent;
  *
  * Lyra's third-person animations hold the weapon at chest height, below the view. For the local
  * viewer this mode hides the real body and weapon (they still cast shadows and stay visible to
- * everyone else) and draws owner-only copies: the body copy plays a weapon-ready pose, is turned
- * with the view and placed so its head sits at the camera. Weapon copies hang in its hand.
+ * everyone else) and draws owner-only copies: the body copy plays a weapon-ready pose and is turned and
+ * moved so the weapon copy in its hand points along the view with its grip at a view-space offset.
  */
 UCLASS(Blueprintable)
 class UDHCameraMode_FirstPerson : public ULyraCameraMode
@@ -29,12 +29,16 @@ protected:
 	virtual void OnDeactivation() override;
 	virtual void UpdateView(float DeltaTime) override;
 
-	// Camera position relative to the head bone, in view space (X forward, Y right, Z up). Tune per feel.
+	// Weapon grip position in view space (X forward, Y right, Z up), from hip and while aiming. Tune per feel.
 	UPROPERTY(EditDefaultsOnly, Category = "First Person")
-	FVector CameraOffsetFromHead = FVector(4.0, 24.0, 14.0);
+	FVector HipWeaponOffset = FVector(22.0, 9.0, -11.0);
 
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|ADS")
+	FVector ADSWeaponOffset = FVector(30.0, 0.0, -10.0);
+
+	// Weapon socket at the barrel end; grip-to-muzzle is turned to point along the view.
 	UPROPERTY(EditDefaultsOnly, Category = "First Person")
-	FName HeadBone = TEXT("head");
+	FName MuzzleSocket = TEXT("Muzzle");
 
 	// Pose for the body copy, picked by a substring of the equipped weapon actor's class name.
 	UPROPERTY(EditDefaultsOnly, Category = "First Person")
@@ -48,7 +52,30 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "First Person")
 	TArray<FName> HiddenBones = { TEXT("neck_01"), TEXT("thigh_l"), TEXT("thigh_r") };
 
+	// Scales first-person copies towards the camera so they do not poke into walls. Looks the same on screen.
+	UPROPERTY(EditDefaultsOnly, Category = "First Person")
+	float FirstPersonScale = 0.5f;
+
+	// While aiming down sights (tag Event.Movement.ADS on the pawn).
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|ADS")
+	float ADSFieldOfView = 60.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|ADS")
+	float ADSBlendSpeed = 12.0f;
+
+	// Kick applied per shot: body copy moves back (cm) and pitches up (deg), then settles.
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Recoil")
+	float RecoilBack = 4.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Recoil")
+	float RecoilPitch = 4.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Recoil")
+	float RecoilRecoverySpeed = 14.0f;
+
 private:
+	void UpdateWeaponState(const ACharacter& Character, float DeltaTime);
+	void SetFirstPersonRendering(bool bEnabled) const;
 	void BuildCopies(ACharacter& Character);
 	void DestroyCopies();
 	void SetOriginalsHidden(bool bHidden);
@@ -58,5 +85,10 @@ private:
 	TArray<TWeakObjectPtr<UMeshComponent>> Originals;
 	TArray<TWeakObjectPtr<UMeshComponent>> Copies;
 	TWeakObjectPtr<USkeletalMeshComponent> BodyCopy;
+	TWeakObjectPtr<UMeshComponent> WeaponCopy;
 	TArray<TWeakObjectPtr<AActor>> CopiedWeapons;
+
+	float ADSAlpha = 0.0f;
+	float Recoil = 0.0f;
+	float LastTimeSinceInteracted = 0.0f;
 };

@@ -67,6 +67,11 @@ void ULyraCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& Desi
 	DesiredView.bUseFieldOfViewForLOD = bUseFieldOfViewForLOD;
 	DesiredView.ProjectionMode = ProjectionMode;
 
+	// Downtown Hunting: pass first-person rendering settings through (off unless a camera mode enables them).
+	DesiredView.FirstPersonFOV = FirstPersonFieldOfView;
+	DesiredView.FirstPersonScale = FirstPersonScale;
+	DesiredView.bUseFirstPersonParameters = bEnableFirstPersonFieldOfView || bEnableFirstPersonScale;
+
 	// See if the CameraActor wants to override the PostProcess settings used.
 	DesiredView.PostProcessBlendWeight = PostProcessBlendWeight;
 	if (PostProcessBlendWeight > 0.0f)

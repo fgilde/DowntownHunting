@@ -1,6 +1,11 @@
 #include "DHCameraMode_FirstPerson.h"
 
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemGlobals.h"
 #include "Animation/AnimSequenceBase.h"
+#include "Camera/LyraCameraComponent.h"
+#include "Equipment/LyraEquipmentManagerComponent.h"
+#include "Weapons/LyraWeaponInstance.h"
 #include "Components/ChildActorComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -19,6 +24,7 @@ UDHCameraMode_FirstPerson::UDHCameraMode_FirstPerson()
 void UDHCameraMode_FirstPerson::OnDeactivation()
 {
 	DestroyCopies();
+	SetFirstPersonRendering(false);
 	Super::OnDeactivation();
 }
 
@@ -53,13 +59,71 @@ void UDHCameraMode_FirstPerson::UpdateView(float DeltaTime)
 		return;
 	}
 
-	// Turn the copy with the full view (incl. pitch), keeping the mesh's own offset to the actor, then
-	// move it so the head bone sits CameraOffsetFromHead behind the camera.
+	UpdateWeaponState(*Character, DeltaTime);
+	View.FieldOfView = FMath::Lerp(FieldOfView, ADSFieldOfView, ADSAlpha);
+	SetFirstPersonRendering(true);
+
+	UMeshComponent* Weapon = WeaponCopy.Get();
+	Body->SetVisibility(Weapon != nullptr, /*bPropagateToChildren=*/ true);
+	if (!Weapon)
+	{
+		return;
+	}
+
+	// Grip and muzzle of the weapon copy in the body copy's component space.
+	const FTransform WeaponInBody = Weapon->GetRelativeTransform() * Body->GetSocketTransform(Weapon->GetAttachSocketName(), RTS_Component);
+	const FVector Grip = WeaponInBody.GetLocation();
+	const FVector Muzzle = Weapon->GetSocketTransform(MuzzleSocket, RTS_Component).GetLocation();
+	const FVector Barrel = WeaponInBody.TransformVector(Muzzle);
+
+	// Face the view like the real mesh does, then correct so the barrel points straight along the view
+	// (the ready poses hold the weapon at an angle to the body), then add recoil pitch.
 	const FQuat ViewQuat = View.Rotation.Quaternion();
-	const FQuat BodyQuat = ViewQuat * Mesh->GetRelativeRotation().Quaternion();
-	const FVector HeadInComponent = Body->GetSocketTransform(HeadBone, RTS_Component).GetLocation();
-	const FVector HeadWorld = View.Location - ViewQuat.RotateVector(CameraOffsetFromHead);
-	Body->SetWorldLocationAndRotation(HeadWorld - BodyQuat.RotateVector(HeadInComponent * Mesh->GetComponentScale()), BodyQuat);
+	const FQuat Facing = ViewQuat * Mesh->GetRelativeRotation().Quaternion();
+	const FQuat Correction = FQuat::FindBetweenNormals(Facing.RotateVector(Barrel).GetSafeNormal(), ViewQuat.GetForwardVector());
+	const FQuat Kick(ViewQuat.GetRightVector(), FMath::DegreesToRadians(-RecoilPitch * Recoil));
+	const FQuat BodyQuat = Kick * Correction * Facing;
+
+	FVector Offset = FMath::Lerp(HipWeaponOffset, ADSWeaponOffset, ADSAlpha);
+	Offset.X -= RecoilBack * Recoil;
+	const FVector Target = View.Location + ViewQuat.RotateVector(Offset);
+	Body->SetWorldLocationAndRotation(Target - BodyQuat.RotateVector(Grip * Body->GetComponentScale()), BodyQuat);
+}
+
+void UDHCameraMode_FirstPerson::UpdateWeaponState(const ACharacter& Character, float DeltaTime)
+{
+	static const FGameplayTag ADSTag = FGameplayTag::RequestGameplayTag(TEXT("Event.Movement.ADS"));
+	const UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(&Character);
+	const bool bADS = ASC && ASC->HasMatchingGameplayTag(ADSTag);
+	ADSAlpha = FMath::FInterpConstantTo(ADSAlpha, bADS ? 1.0f : 0.0f, DeltaTime, ADSBlendSpeed / 2.0f);
+
+	// Lyra stamps the weapon on each shot; a drop in "time since interacted" means it just fired (or was
+	// equipped, which also rebuilds the copies, so the kick is barely visible then).
+	Recoil = FMath::FInterpTo(Recoil, 0.0f, DeltaTime, RecoilRecoverySpeed);
+	ULyraEquipmentManagerComponent* Equipment = Character.FindComponentByClass<ULyraEquipmentManagerComponent>();
+	const ULyraWeaponInstance* Weapon = Equipment ? Equipment->GetFirstInstanceOfType<ULyraWeaponInstance>() : nullptr;
+	if (Weapon)
+	{
+		const float TimeSince = Weapon->GetTimeSinceLastInteractedWith();
+		if (TimeSince < LastTimeSinceInteracted)
+		{
+			Recoil = 1.0f;
+		}
+		LastTimeSinceInteracted = TimeSince;
+	}
+}
+
+void UDHCameraMode_FirstPerson::SetFirstPersonRendering(bool bEnabled) const
+{
+	if (ULyraCameraComponent* Camera = GetLyraCameraComponent())
+	{
+		// The renderer uses the first-person FOV for these primitives as soon as either option is on, so keep
+		// it equal to the world FOV to avoid distortion.
+		Camera->SetEnableFirstPersonScale(bEnabled);
+		Camera->SetFirstPersonScale(FirstPersonScale);
+		Camera->SetEnableFirstPersonFieldOfView(bEnabled);
+		Camera->SetFirstPersonFieldOfView(View.FieldOfView);
+	}
 }
 
 void UDHCameraMode_FirstPerson::BuildCopies(ACharacter& Character)
@@ -160,6 +224,10 @@ void UDHCameraMode_FirstPerson::BuildCopies(ACharacter& Character)
 			Copy->SetupAttachment(Root, Socket);
 			Copy->SetRelativeTransform(WeaponMesh->GetComponentTransform().GetRelativeTransform(SocketTransform));
 			MakeCopy(WeaponMesh, Copy);
+			if (!WeaponCopy.IsValid() && Copy->DoesSocketExist(MuzzleSocket))
+			{
+				WeaponCopy = Copy;
+			}
 		}
 		CopiedWeapons.Add(Weapon);
 	}
@@ -181,6 +249,7 @@ void UDHCameraMode_FirstPerson::DestroyCopies()
 	Copies.Reset();
 	CopiedWeapons.Reset();
 	BodyCopy.Reset();
+	WeaponCopy.Reset();
 }
 
 void UDHCameraMode_FirstPerson::SetOriginalsHidden(bool bHidden)

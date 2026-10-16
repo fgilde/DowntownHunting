@@ -34,14 +34,18 @@ Erledigt:
 Testen im Editor: Editor-Einstellungen > DowntownHunting > Lyra Developer Settings > `ExperienceOverride` auf `B_DH_TDM` oder `B_DH_TDM_FP`, dann PIE auf L_Expanse.
 
 Offen:
-- Ego-Waffe v1 steht (siehe unten). Noch offen: Feuer-/Nachlade-Animationen im Ego-Bild, ADS-Zoom (FOV), Clipping in Wände (Lyras Kamera reicht die First-Person-FOV/Scale-Parameter nicht an den View durch; bräuchte eine kleine Änderung in `LyraCameraComponent`).
+- Ego: Nachlade-Animation fehlt im Ego-Bild (Pose bleibt statisch). ADS-Position ist geschätzt, nicht mit gehaltener rechter Maustaste geprüft.
 - Gewehr/Schrotflinte-Posen sind eingetragen, aber nur die Pistole wurde angesehen.
 - Ego-ADS und Menüeinträge sind nur angelegt, nicht per Eingabe durchgeklickt.
 
-### Ego-Waffe v1 (2026-10-16)
+### Ego-Waffe (2026-10-16)
 
-Lyras Animationen halten die Waffe auf Brusthöhe, unterhalb des Blickfelds (auch beim Schießen). `UDHCameraMode_FirstPerson` zeigt dem lokalen Spieler deshalb Kopien:
-- Körper-Kopie spielt eine Halte-Pose (`MM_Pistol/Shotgun/Rifle_Idle_ADS`, gewählt nach Klassenname der Waffe), dreht mit dem Blick, Kopf sitzt an der Kamera (`CameraOffsetFromHead`, Einstellknopf). Kopf und Beine ausgeblendet.
-- Waffen-Kopien hängen am selben Socket der Körper-Kopie. Nur für den Besitzer sichtbar.
-- Echter Körper und echte Waffe werden für den Besitzer per `FirstPersonPrimitiveType=WorldSpaceRepresentation` ausgeblendet, Schatten und Sicht für andere bleiben. Hitboxen und replizierte Attachments bleiben unangetastet.
+Lyras Animationen halten die Waffe auf Brusthöhe, unterhalb des Blickfelds (auch beim Schießen). `UDHCameraMode_FirstPerson` (Blueprint `/DowntownCore/Camera/CM_DH_FirstPerson`) zeigt dem lokalen Spieler deshalb Kopien:
+- Körper-Kopie spielt eine Halte-Pose (`MM_Pistol/Shotgun/Rifle_Idle_ADS`, gewählt nach Klassenname der Waffe). Sie wird so gedreht, dass der Lauf (Griff → Socket `Muzzle`) in Blickrichtung zeigt, und so verschoben, dass der Griff bei `HipWeaponOffset` bzw. beim Zielen bei `ADSWeaponOffset` im Blickraum sitzt. Kopf und Beine ausgeblendet.
+- Waffen-Kopien hängen am selben Socket der Körper-Kopie, nur für den Besitzer sichtbar.
+- Echter Körper und echte Waffe werden für den Besitzer per `FirstPersonPrimitiveType=WorldSpaceRepresentation` ausgeblendet; Schatten und Sicht für andere bleiben. Hitboxen und replizierte Attachments bleiben unangetastet.
+- Zielen (Tag `Event.Movement.ADS`): FOV 80 → 60, Waffe wandert zur Bildmitte.
+- Rückstoß: kurzer Kick nach hinten/oben pro Schuss (erkannt über `ULyraWeaponInstance::GetTimeSinceLastInteractedWith`).
+- Gegen Clipping in Wände: UE-First-Person-Rendering (`FirstPersonScale` 0.5). Dafür reicht `LyraCameraComponent` jetzt die First-Person-Parameter an den View durch (einzige Änderung am Lyra-Kern, 3 Zeilen, standardmäßig aus).
+- Hinweis: Werte am CDO zur Laufzeit zu ändern wirkte im Test nicht auf neue PIE-Sitzungen; Tuning daher über Code-Defaults bzw. das Blueprint mit anschließendem Speichern und Editor-Neustart.
 ![Ego-Waffe](img/phase1-firstperson-weapon.png)
