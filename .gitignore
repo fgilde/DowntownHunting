@@ -11,3 +11,23 @@ Plugins/**/Intermediate/
 *.opensdf
 *.sdf
 *.suo
+
+# City Sample content, imported locally via Tools/Import-CitySample.ps1 (not in git)
+/Content/Building/
+/Content/City/
+/Content/Crowd/
+/Content/Effect/
+/Content/Environment/
+/Content/HDA/
+/Content/Lighting/
+/Content/Lookdev/
+/Content/MSPresets/
+/Content/Map/
+/Content/Material/
+/Content/Megascans/
+/Content/Prop/
+/Content/Road/
+/Content/Textures/
+/Content/Vehicle/
+/Content/__ExternalActors__/Map/
+/Content/Character/

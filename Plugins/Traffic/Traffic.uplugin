@@ -1,0 +1,12 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Traffic (City Sample content subset)",
+	"Description": "Content-only stand-in for City Sample's Traffic plugin. Holds only the material function that City Sample vehicle materials reference.",
+	"Category": "Downtown Hunting",
+	"CreatedBy": "Epic Games, Inc. (content)",
+	"CanContainContent": true,
+	"EnabledByDefault": true,
+	"Installed": false
+}

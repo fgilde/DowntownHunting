@@ -64,3 +64,23 @@ Im Menü (Play) stehen nur noch die DH-Modi, Lyras eigene Einträge sind ausgebl
 3 vs 3 vs 3 (`B_DH_TDM3`, Team-Setup `B_DH_TeamSetup_ThreeTeams`, grünes Team `TeamDA_Green`) ist angelegt, aber ausgeblendet: Lyras Team-UI (Namensschilder, Score-HUD, Scoreboard, Killfeed; ~45 `Select`-Knoten in 8 Widgets) und die TDM-Wertung (`B_TeamDeathMatchScoring`) kennen nur 2 Teams. Umbau gehört zu Phase 4.
 
 NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (siehe Phase 0).
+
+## Phase 2 – Stadtausschnitt DH_Block (2026-10-16, in Arbeit)
+
+- Quelle: City Sample `Small_City_LVL`, Ausschnitt 250 × 250 m um (-500 m, 250 m) ≈ 2 × 2 Blöcke, Gebäude bis ~50 m.
+- Übernommen: Gebäude (+ Kollision, Dächer, Fassaden-Props), Boden (+ Kollision, Decals), Straßenmöbel, geparkte Autos, Ampeln, Licht. Nicht übernommen: Freeway, Audio, HLOD, Mass/Crowd/Traffic-KI.
+- Map: `/Game/DH/Maps/DH_Block` (812 Actors, alle immer geladen, City-Sample-Data-Layers entfernt). Dazu 16 `LyraPlayerStart`, `NavMeshBoundsVolume`, 4 unsichtbare Randwände (±120 m), `SkyAtmosphere` (Ordner `DH_Gameplay`).
+- Menü: „Team Deathmatch / Downtown“ (Standard für Quickplay) und „Team Deathmatch (Ego) / Downtown“.
+- **City-Sample-Content ist nicht in git** (~15 GB, 8K-Texturen). Einrichtung auf einem neuen Rechner:
+  1. City Sample (5.8) von Fab laden.
+  2. `Tools\Import-CitySample.ps1` (Map-Assets) und `Tools\Import-CitySample.ps1 -Manifest Tools\CitySample_Characters.txt`.
+  3. `UnrealEditor-Cmd.exe DowntownHunting.uproject -run=pythonscript -script=Tools/Python/setup_citysample.py -nullrhi`
+- Hilfsskripte: `Tools/Python/save_dh_block.py` (Save-As der ausgedünnten Map), `flatten_dh_block.py` (Streaming aus, Data-Layer raus).
+- `Plugins/Traffic`: Content-only-Ersatz für City Samples Traffic-Plugin, enthält nur die Material-Funktion, die die Auto-Materialien brauchen.
+- Offen: NavMesh für DH_Block bauen (Builder-Lauf wurde wegen RAM-Mangel abgebrochen), Spielgefühl/FPS prüfen, Licht abstimmen.
+
+## Charaktere (2026-10-16)
+
+- City Samples Hauptfiguren (MetaHuman-basiert) als Lyra-Cosmetics: `/DowntownCore/Characters/B_DH_PlayerMale`, `B_DH_PlayerFemale` (Body + Head). Zufallsauswahl `B_DH_PickRandomCharacter` in allen DH-Experiences.
+- Animation: Lyras `ABP_Mannequin_CopyPose` läuft auf den City-Sample-Skeletten, weil `SK_Base`/`SK_Base_Head` als kompatibel zu `SK_Mannequin` markiert sind (`setup_citysample.py`).
+- Offen: keine Teamfarbe an den Figuren (Lyra färbt über Material-Parameter, die City-Sample-Materialien nicht haben; Team erkennbar über Namensschilder), Haare (Groom) nicht angehängt, Gesicht ohne Mimik.
