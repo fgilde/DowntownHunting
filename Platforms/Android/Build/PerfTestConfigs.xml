@@ -1,0 +1,18 @@
+<?xml version='1.0' ?>
+<BuildGraph xmlns="http://www.epicgames.com/BuildGraph" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.epicgames.com/BuildGraph ../Schema.xsd" >
+
+	<!-- Android may encompass a large number of device models. Performance comparison depends on regularly running 
+	tests with a specific model to determine if values are changing. This configuration is selecting a common model as
+	it may be configured it Horde. 
+	-->
+	<Option Name="PerfTestWithAndroid" DefaultValue="false" Description="Enable the Android configuration for performance tests."/>
+	<Do If="$(PerfTestWithAndroid)">
+		<Expand Name="AddPerfTestConfig"
+			TestConfigName="Android_Adreno6xx_Vulkan"
+			TestPlatform="Android"
+			PerfModel="GalaxyS10"
+			TestIterationCooldownSeconds="360"
+	/>
+	</Do>
+
+</BuildGraph>

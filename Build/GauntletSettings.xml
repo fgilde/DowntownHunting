@@ -1,0 +1,14 @@
+<?xml version='1.0' ?>
+<BuildGraph xmlns="http://www.epicgames.com/BuildGraph" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.epicgames.com/BuildGraph ../../Schema.xsd" >
+	<!-- How long to give Gauntlet before a test is considered timed out (some tests will time out earlier if they detect inactivity)-->
+	<Option Name="GauntletTimeout" DefaultValue="2400" Description="Max running time of a test in Gauntlet"/>
+	<!-- We're passing the buildversion in here as getting the build name within Gauntlet is currently unreliable as it's based on the -build param which can vary per platform. -->
+	<!-- Using BuildNamePath specifically as we want the preflight suffix if it exists. -->
+	<Property Name="ExtraAutomatedPerformanceCommonArgs" Value="-windowed -BuildName=$(BuildNamePath)" />
+	<Option Name="ResX" DefaultValue="1920" Restrict="^[0-9]+$" Description="Resolution width to run tests with" />
+	<Option Name="ResY" DefaultValue="1080" Restrict="^[0-9]+$" Description="Resolution height to run tests with" />
+	<!-- Common AutoTestPerf Gauntlet settings -->
+	<Include Script="$(RootDir)/Engine/Plugins/Performance/AutomatedPerfTesting/Build/Inc/AutomatedPerfTestCommonSettings.xml" />
+	<!-- Common Gauntlet settings -->
+	<Include Script="$(RootDir)/Engine/Build/Graph/Tasks/Inc/GauntletSettings.xml" />
+</BuildGraph>

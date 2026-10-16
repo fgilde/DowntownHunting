@@ -1,0 +1,30 @@
+<?xml version='1.0' ?>
+<BuildGraph xmlns="http://www.epicgames.com/BuildGraph" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.epicgames.com/BuildGraph ../Schema.xsd" >
+
+	<Option Name="PerfTestWithWin64" DefaultValue="false" Description="Enable the Win64 configuration for performance tests."/>
+	<Do If="$(PerfTestWithWin64)">
+		<Expand Name="AddPerfTestConfig"
+			TestConfigName="Windows"
+			TestPlatform="Win64"
+	/>
+	</Do>
+
+	<Option Name="PerfTestWithWin64Vulkan" DefaultValue="false" Description="Enable the Win64 Vulkan configuration for performance tests."/>
+	<Do If="$(PerfTestWithWin64Vulkan)">
+		<Expand Name="AddPerfTestConfig"
+			TestConfigName="Windows_Vulkan"
+			TestPlatform="Win64"
+			AppArguments="-vulkan"
+	/>
+	</Do>
+
+	<Option Name="PerfTestWithWin64EmulateStereo" DefaultValue="false" Description="Enable the Win64 EmulateStereo configuration for performance tests."/>
+	<Do If="$(PerfTestWithWin64EmulateStereo)">
+		<Expand Name="AddPerfTestConfig"
+			TestConfigName="Windows_EmulateStereo"
+			TestPlatform="Win64"
+			AppArguments="-emulatestereo"
+	/>
+	</Do>
+
+</BuildGraph>

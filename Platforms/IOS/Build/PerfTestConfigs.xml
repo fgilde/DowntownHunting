@@ -1,0 +1,18 @@
+<?xml version='1.0' ?>
+<BuildGraph xmlns="http://www.epicgames.com/BuildGraph" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.epicgames.com/BuildGraph ../Schema.xsd" >
+
+	
+	<!-- iOS may encompass a large number of device models. Performance comparison depends on regularly running 
+	tests with a specific model to determine if values are changing. This configuration is selecting a common model as
+	it may be configured it Horde. 
+	-->
+	<Option Name="PerfTestWithIOS" DefaultValue="false" Description="Enable the iOS configuration for performance tests."/>
+	<Do If="$(PerfTestWithIOS)">
+		<Expand Name="AddPerfTestConfig"
+			TestConfigName="IOS"
+			TestPlatform="IOS"
+			PerfModel="iPhone11"
+	/>
+	</Do>
+
+</BuildGraph>

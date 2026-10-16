@@ -1,0 +1,12 @@
+<?xml version='1.0' ?>
+<BuildGraph xmlns="http://www.epicgames.com/BuildGraph" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.epicgames.com/BuildGraph ../Schema.xsd" >
+
+	<Option Name="PerfTestWithLinux" DefaultValue="false" Description="Enable the Linux configuration for performance tests"/>
+	<Do If="$(PerfTestWithLinux)">
+		<Expand Name="AddPerfTestConfig"
+			TestConfigName="Linux"
+			TestPlatform="Linux"
+		/>
+	</Do>
+
+</BuildGraph>

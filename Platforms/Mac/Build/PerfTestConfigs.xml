@@ -1,0 +1,12 @@
+<?xml version='1.0' ?>
+<BuildGraph xmlns="http://www.epicgames.com/BuildGraph" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.epicgames.com/BuildGraph ../Schema.xsd" >
+
+	<Option Name="PerfTestWithMac" DefaultValue="false" Description="Enable the Mac configuration for performance tests"/>
+	<Do If="$(PerfTestWithMac)">
+		<Expand Name="AddPerfTestConfig"
+			TestConfigName="Mac"
+			TestPlatform="Mac"
+	/>
+	</Do>
+
+</BuildGraph>

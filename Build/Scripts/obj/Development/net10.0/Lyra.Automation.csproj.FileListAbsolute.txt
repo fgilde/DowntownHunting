@@ -1,0 +1,5 @@
+C:\dev\privat\github\DowntownHunting\Build\Scripts\obj\Development\net10.0\Lyra.Automation.csproj.AssemblyReference.cache
+C:\dev\privat\github\DowntownHunting\Build\Scripts\obj\Development\net10.0\Lyra.Automation.GeneratedMSBuildEditorConfig.editorconfig
+C:\dev\privat\github\DowntownHunting\Build\Scripts\obj\Development\net10.0\Lyra.Automation.AssemblyInfoInputs.cache
+C:\dev\privat\github\DowntownHunting\Build\Scripts\obj\Development\net10.0\Lyra.Automation.AssemblyInfo.cs
+C:\dev\privat\github\DowntownHunting\Build\Scripts\obj\Development\net10.0\Lyra.Automation.csproj.CoreCompileInputs.cache
