@@ -25,10 +25,10 @@ protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeOnActivated() override;
 	virtual UWidget* NativeGetDesiredFocusTarget() const override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
-	UFUNCTION()
-	void HandleCardClicked();
+	void HandleCardClicked(class UDHCardButton* Card);
 
 	UFUNCTION()
 	void HandleBackClicked();
@@ -41,6 +41,7 @@ private:
 	TArray<TObjectPtr<UButton>> Cards;
 
 	TArray<FString> CardIds;
+	FString CurrentId;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> CurrentText;

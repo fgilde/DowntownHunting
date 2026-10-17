@@ -9,8 +9,8 @@ FDHCharacterChosen UDHCharacterSettings::OnCharacterChosen;
 
 namespace
 {
-	const TCHAR* SettingsSection = TEXT("DowntownHunting");
-	const TCHAR* SettingsKey = TEXT("Character");
+	const TCHAR* CharacterSection = TEXT("DowntownHunting");
+	const TCHAR* CharacterKey = TEXT("Character");
 }
 
 TArray<FDHCharacterEntry> UDHCharacterSettings::GetCharacters()
@@ -23,14 +23,14 @@ FString UDHCharacterSettings::GetPreferredCharacter()
 	FString Id;
 	if (!FParse::Value(FCommandLine::Get(), TEXT("DHCharacter="), Id))
 	{
-		GConfig->GetString(SettingsSection, SettingsKey, Id, GGameUserSettingsIni);
+		GConfig->GetString(CharacterSection, CharacterKey, Id, GGameUserSettingsIni);
 	}
 	return Id;
 }
 
 void UDHCharacterSettings::ChooseCharacter(APlayerController* Player, const FString& Id)
 {
-	GConfig->SetString(SettingsSection, SettingsKey, *Id, GGameUserSettingsIni);
+	GConfig->SetString(CharacterSection, CharacterKey, *Id, GGameUserSettingsIni);
 	GConfig->Flush(false, GGameUserSettingsIni);
 	OnCharacterChosen.Broadcast(Player, Id);
 }

@@ -12,6 +12,7 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "DHCardButton.h"
 #include "DHLoadoutSettings.h"
 #include "DHScreenStyle.h"
 #include "Engine/Texture2D.h"
@@ -84,9 +85,11 @@ void UDHLoadoutScreen::AddRow(UVerticalBox* Column, const FText& Title, int32 Sl
 	Column->AddChildToVerticalBox(Row);
 	for (const FDHWeaponEntry& Weapon : UDHLoadoutSettings::GetWeapons())
 	{
-		UButton* Button = WidgetTree->ConstructWidget<UButton>();
+		UDHCardButton* Button = WidgetTree->ConstructWidget<UDHCardButton>();
 		Button->SetBackgroundColor(DHScreenStyle::Card);
-		Button->OnClicked.AddDynamic(this, &ThisClass::HandleCardClicked);
+		Button->CardId = Weapon.Id;
+		Button->CardSlot = SlotIndex;
+		Button->OnCardClicked.BindUObject(this, &ThisClass::HandleCardClicked);
 
 		UVerticalBox* Content = WidgetTree->ConstructWidget<UVerticalBox>();
 		USizeBox* IconBox = WidgetTree->ConstructWidget<USizeBox>();
@@ -125,17 +128,23 @@ UWidget* UDHLoadoutScreen::NativeGetDesiredFocusTarget() const
 	return Cards.IsEmpty() ? nullptr : Cards[0].Button.Get();
 }
 
-void UDHLoadoutScreen::HandleCardClicked()
+void UDHLoadoutScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-	// UButton's click delegate has no sender; the hovered/focused card is the one that was pressed.
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	// UButton draws no focus state; show which card the gamepad/keyboard is on.
 	for (const FCard& Card : Cards)
 	{
-		if (Card.Button->IsHovered() || Card.Button->HasAnyUserFocus())
-		{
-			Pick(Card.SlotIndex, Card.WeaponId);
-			return;
-		}
+		const bool bFocused = Card.Button->HasAnyUserFocus() || Card.Button->IsHovered();
+		const bool bChosen = CurrentLoadout.IsValidIndex(Card.SlotIndex) && CurrentLoadout[Card.SlotIndex] == Card.WeaponId;
+		Card.Button->SetBackgroundColor(bChosen ? DHScreenStyle::Accent : bFocused ? DHScreenStyle::Focus : DHScreenStyle::Card);
+		Card.Button->SetRenderScale(FVector2D(bFocused ? 1.06f : 1.f));
 	}
+}
+
+void UDHLoadoutScreen::HandleCardClicked(UDHCardButton* Card)
+{
+	Pick(Card->CardSlot, Card->CardId);
 }
 
 void UDHLoadoutScreen::HandleBackClicked()
@@ -162,10 +171,7 @@ void UDHLoadoutScreen::Refresh()
 {
 	TArray<FString> Loadout = UDHLoadoutSettings::GetLoadout();
 	Loadout.SetNum(2);
-	for (const FCard& Card : Cards)
-	{
-		Card.Button->SetBackgroundColor(Loadout[Card.SlotIndex] == Card.WeaponId ? DHScreenStyle::Accent : DHScreenStyle::Card);
-	}
+	CurrentLoadout = Loadout;
 	SummaryText->SetText(FText::Format(
 		NSLOCTEXT("DowntownHunting", "LoadoutSummary", "{0} + {1}\nUsed in modes without a fixed loadout. Applies from your next spawn."),
 		FText::FromString(Loadout[0]), FText::FromString(Loadout[1].IsEmpty() ? TEXT("-") : Loadout[1])));

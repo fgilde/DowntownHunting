@@ -173,3 +173,10 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - `UDHCharacterSelectComponent` heißt jetzt `UDHPlayerChoicesComponent` (CoreRedirect in `DefaultEngine.ini`).
 - UI-Look: `Tools/Python/restyle_ui.py` färbt 112 Material-Instanzen von Menü und HUD (`/Game/UI`) von Lyras Cyan/Blau auf Bernstein/warmes Graphit; Teamfarben bleiben.
 - Sprache: Spiel startet auf Englisch (`[Internationalization] Culture=en`), vorher Mischmasch aus deutschen Lyra-Texten und englischen eigenen. In den Optionen umstellbar.
+
+## UI-Tests ohne Maus/Tastatur (2026-10-17)
+
+- Entwickler-Konsolenbefehle (`Plugins/DowntownUI/.../DHDevCommands.cpp`, nicht im Shipping-Build): `DH.OpenScreen Character|Loadout|Settings`, `DH.Key <Taste> ...` (über Slate, z. B. `Gamepad_DPad_Right`, `Gamepad_FaceButton_Bottom`), `DH.Shot <Name>` (Bild mit UI nach `Saved/DHShots`), `DH.Run befehl; wait 2; befehl`. Beispiel: `-ExecCmds="DH.Run wait 45; DH.OpenScreen Loadout; wait 2; DH.Shot loadout"`.
+- Geprüft: Figuren-Bildschirm mit Gamepad (Startfokus auf aktueller Figur, Navigation, A wählt, B zurück), Loadout-Bildschirm, alle Einstellungs-Tabs (Gameplay/Sprache, Video, Audio, Maus+Tastatur inkl. Belegung, Gamepad inkl. Empfindlichkeit, Deadzones, Vibration).
+- Karten-Klicks melden die Karte selbst (`UDHCardButton`); vorher wurde die Karte unter dem Mauszeiger genommen, auch wenn das Gamepad drückte. Fokussierte Karte wird hervorgehoben.
+- Der erste Gamepad-Druck schaltet CommonUI nur auf Gamepad um (Lyra-Verhalten). Offen: D-Pad direkt nach dem Öffnen der Einstellungen verschiebt den Inhalt um einen Tab gegenüber der Markierung – mit echtem Controller prüfen.

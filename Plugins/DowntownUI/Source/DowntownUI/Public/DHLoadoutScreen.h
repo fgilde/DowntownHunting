@@ -25,10 +25,10 @@ protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeOnActivated() override;
 	virtual UWidget* NativeGetDesiredFocusTarget() const override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
-	UFUNCTION()
-	void HandleCardClicked();
+	void HandleCardClicked(class UDHCardButton* Card);
 
 	UFUNCTION()
 	void HandleBackClicked();
@@ -44,6 +44,7 @@ private:
 		FString WeaponId;
 	};
 	TArray<FCard> Cards;
+	TArray<FString> CurrentLoadout;
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UButton>> CardButtons;  // keeps the buttons referenced for GC

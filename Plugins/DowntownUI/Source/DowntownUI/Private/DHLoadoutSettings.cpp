@@ -8,8 +8,8 @@ FDHLoadoutChosen UDHLoadoutSettings::OnLoadoutChosen;
 
 namespace
 {
-	const TCHAR* SettingsSection = TEXT("DowntownHunting");
-	const TCHAR* SettingsKey = TEXT("Loadout");
+	const TCHAR* LoadoutSection = TEXT("DowntownHunting");
+	const TCHAR* LoadoutKey = TEXT("Loadout");
 }
 
 TArray<FDHWeaponEntry> UDHLoadoutSettings::GetWeapons()
@@ -21,7 +21,7 @@ TArray<FString> UDHLoadoutSettings::GetLoadout()
 {
 	FString Stored;
 	TArray<FString> Loadout;
-	if (GConfig->GetString(SettingsSection, SettingsKey, Stored, GGameUserSettingsIni))
+	if (GConfig->GetString(LoadoutSection, LoadoutKey, Stored, GGameUserSettingsIni))
 	{
 		Stored.ParseIntoArray(Loadout, TEXT(","));
 	}
@@ -30,7 +30,7 @@ TArray<FString> UDHLoadoutSettings::GetLoadout()
 
 void UDHLoadoutSettings::ChooseLoadout(APlayerController* Player, const TArray<FString>& Loadout)
 {
-	GConfig->SetString(SettingsSection, SettingsKey, *FString::Join(Loadout, TEXT(",")), GGameUserSettingsIni);
+	GConfig->SetString(LoadoutSection, LoadoutKey, *FString::Join(Loadout, TEXT(",")), GGameUserSettingsIni);
 	GConfig->Flush(false, GGameUserSettingsIni);
 	OnLoadoutChosen.Broadcast(Player, Loadout);
 }

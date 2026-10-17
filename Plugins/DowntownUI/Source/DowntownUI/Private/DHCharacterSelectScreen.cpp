@@ -13,6 +13,7 @@
 #include "Components/UniformGridSlot.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "DHCardButton.h"
 #include "DHCharacterSettings.h"
 #include "DHScreenStyle.h"
 #include "Engine/Font.h"
@@ -102,9 +103,10 @@ void UDHCharacterSelectScreen::NativeOnInitialized()
 
 UButton* UDHCharacterSelectScreen::MakeCard(const FString& Id, const FText& Label)
 {
-	UButton* Card = WidgetTree->ConstructWidget<UButton>();
+	UDHCardButton* Card = WidgetTree->ConstructWidget<UDHCardButton>();
 	Card->SetBackgroundColor(CardColor);
-	Card->OnClicked.AddDynamic(this, &ThisClass::HandleCardClicked);
+	Card->CardId = Id;
+	Card->OnCardClicked.BindUObject(this, &ThisClass::HandleCardClicked);
 
 	UVerticalBox* Content = WidgetTree->ConstructWidget<UVerticalBox>();
 	USizeBox* PortraitBox = WidgetTree->ConstructWidget<USizeBox>();
@@ -147,17 +149,22 @@ UWidget* UDHCharacterSelectScreen::NativeGetDesiredFocusTarget() const
 	return Cards.IsValidIndex(Index) ? Cards[Index].Get() : (Cards.IsEmpty() ? nullptr : Cards[0].Get());
 }
 
-void UDHCharacterSelectScreen::HandleCardClicked()
+void UDHCharacterSelectScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-	// UButton's click delegate has no sender; the hovered/focused card is the one that was pressed.
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	// UButton draws no focus state; show which card the gamepad/keyboard is on.
 	for (int32 Index = 0; Index < Cards.Num(); ++Index)
 	{
-		if (Cards[Index]->IsHovered() || Cards[Index]->HasKeyboardFocus() || Cards[Index]->HasAnyUserFocus())
-		{
-			Select(CardIds[Index]);
-			return;
-		}
+		const bool bFocused = Cards[Index]->HasAnyUserFocus() || Cards[Index]->IsHovered();
+		Cards[Index]->SetBackgroundColor(CardIds[Index] == CurrentId ? DHScreenStyle::Accent : bFocused ? DHScreenStyle::Focus : CardColor);
+		Cards[Index]->SetRenderScale(FVector2D(bFocused ? 1.06f : 1.f));
 	}
+}
+
+void UDHCharacterSelectScreen::HandleCardClicked(UDHCardButton* Card)
+{
+	Select(Card->CardId);
 }
 
 void UDHCharacterSelectScreen::HandleBackClicked()
@@ -174,10 +181,7 @@ void UDHCharacterSelectScreen::Select(const FString& Id)
 void UDHCharacterSelectScreen::RefreshHighlight()
 {
 	const FString Current = UDHCharacterSettings::GetPreferredCharacter();
-	for (int32 Index = 0; Index < Cards.Num(); ++Index)
-	{
-		Cards[Index]->SetBackgroundColor(CardIds[Index] == Current ? DHScreenStyle::Accent : CardColor);
-	}
+	CurrentId = Current;
 	CurrentText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "Current", "Current: {0}"),
 		FText::FromString(Current.IsEmpty() ? TEXT("Random") : Current)));
 }

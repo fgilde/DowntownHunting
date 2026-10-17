@@ -9,6 +9,7 @@ namespace DHScreenStyle
 {
 	inline const FLinearColor Accent(1.0f, 0.42f, 0.05f);
 	inline const FLinearColor Card(0.05f, 0.05f, 0.06f, 0.85f);
+	inline const FLinearColor Focus(0.32f, 0.27f, 0.22f, 0.95f);  // keyboard/gamepad focus or mouse hover
 	inline const FLinearColor Dim(0.f, 0.f, 0.f, 0.82f);
 	inline const FLinearColor Text(0.85f, 0.82f, 0.78f);
 
