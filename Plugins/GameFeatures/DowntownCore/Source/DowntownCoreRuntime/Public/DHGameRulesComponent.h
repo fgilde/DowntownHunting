@@ -6,6 +6,8 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDHRules, Log, All);
 
+class AController;
+
 UENUM(BlueprintType)
 enum class EDHPerspectiveRule : uint8
 {
@@ -18,7 +20,8 @@ enum class EDHPerspectiveRule : uint8
 /**
  * Match rules of a Downtown Hunting mode, read on the server from the travel URL options that the mode's
  * playlist entry puts there (ExtraArgs), and replicated to clients:
- *   Perspective=TP|FP|Choice   WeaponSwitch=1|0   Loadout=Pistol,Rifle,Shotgun
+ *   Perspective=TP|FP|Choice   WeaponSwitch=1|0   Loadout=Pistol,Rifle,Shotgun | Player
+ * Loadout=Player: each player brings the loadout from the loadout builder (UDHPlayerChoicesComponent), bots get a random primary + pistol.
  * Added to the game state by every DH experience.
  */
 UCLASS(meta = (BlueprintSpawnableComponent))
@@ -34,8 +37,8 @@ public:
 	EDHPerspectiveRule GetPerspectiveRule() const { return Perspective; }
 	bool AllowsWeaponSwitch() const { return bWeaponSwitch; }
 
-	// Server only. Item definition classes to give every pawn, in quick bar order.
-	TArray<UClass*> GetLoadoutItems() const;
+	// Server only. Item definition classes to give the controller's pawn, in quick bar order.
+	TArray<UClass*> GetLoadoutItems(const AController* Controller) const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -52,4 +55,5 @@ protected:
 	bool bWeaponSwitch = true;
 
 	TArray<FName> Loadout;
+	bool bPlayerLoadout = false;
 };

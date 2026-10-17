@@ -1,6 +1,8 @@
 #include "DHGameRulesComponent.h"
 
+#include "DHPlayerChoicesComponent.h"
 #include "Engine/World.h"
+#include "GameFramework/Controller.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -52,6 +54,7 @@ void UDHGameRulesComponent::BeginPlay()
 
 	TArray<FString> Names;
 	UGameplayStatics::ParseOption(Options, TEXT("Loadout")).ParseIntoArray(Names, TEXT(","));
+	bPlayerLoadout = Names.Num() == 1 && Names[0].TrimStartAndEnd().Equals(TEXT("Player"), ESearchCase::IgnoreCase);
 	for (const FString& Name : Names)
 	{
 		Loadout.Add(FName(*Name.TrimStartAndEnd()));
@@ -65,10 +68,25 @@ void UDHGameRulesComponent::BeginPlay()
 		*Options, static_cast<int32>(Perspective), bWeaponSwitch ? 1 : 0, Loadout.Num());
 }
 
-TArray<UClass*> UDHGameRulesComponent::GetLoadoutItems() const
+TArray<UClass*> UDHGameRulesComponent::GetLoadoutItems(const AController* Controller) const
 {
+	TArray<FName> Names = Loadout;
+	if (bPlayerLoadout)
+	{
+		const UDHPlayerChoicesComponent* Choices = Controller ? Controller->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
+		Names = Choices ? Choices->GetLoadout() : TArray<FName>();
+		if (Names.IsEmpty())
+		{
+			Names = { FMath::RandBool() ? FName(TEXT("Rifle")) : FName(TEXT("Shotgun")), FName(TEXT("Pistol")) };
+		}
+		if (!bWeaponSwitch)
+		{
+			Names.SetNum(1);
+		}
+	}
+
 	TArray<UClass*> Items;
-	for (const FName& Name : Loadout)
+	for (const FName& Name : Names)
 	{
 		if (const TSoftClassPtr<UObject>* Item = WeaponItems.Find(Name))
 		{

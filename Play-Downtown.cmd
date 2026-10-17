@@ -8,9 +8,9 @@ rem   Play-Downtown.cmd DEPOT      Depot (Lyra's Convolution, restyled)
 rem Rules are URL options (see docs\PLAN.md, "Modi aus Konfiguration").
 set EXP=B_DH_TDM
 set MAP=/Game/DH/Maps/DH_Block
-set RULES=?Perspective=Choice?Loadout=Pistol,Rifle,Shotgun
+set RULES=?Perspective=Choice?Loadout=Player
 for %%A in (%*) do (
-  if /I "%%A"=="FP" set RULES=?Perspective=FP?Loadout=Pistol,Rifle,Shotgun
+  if /I "%%A"=="FP" set RULES=?Perspective=FP?Loadout=Player
   if /I "%%A"=="DOM" set EXP=B_DH_Domination
   if /I "%%A"=="PARK" set MAP=/Game/DH/Maps/DH_Park
   if /I "%%A"=="DEPOT" set MAP=/DowntownCore/Maps/DH_Depot

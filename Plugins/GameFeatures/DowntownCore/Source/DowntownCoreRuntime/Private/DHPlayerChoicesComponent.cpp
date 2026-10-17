@@ -1,11 +1,12 @@
-#include "DHCharacterSelectComponent.h"
+#include "DHPlayerChoicesComponent.h"
 
 #include "DHCharacterSettings.h"
+#include "DHLoadoutSettings.h"
 #include "DHGameRulesComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerController.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(DHCharacterSelectComponent)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(DHPlayerChoicesComponent)
 
 namespace
 {
@@ -52,13 +53,13 @@ namespace
 	}
 }
 
-UDHCharacterSelectComponent::UDHCharacterSelectComponent(const FObjectInitializer& ObjectInitializer)
+UDHPlayerChoicesComponent::UDHPlayerChoicesComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	SetIsReplicatedByDefault(true);
 }
 
-void UDHCharacterSelectComponent::BeginPlay()
+void UDHPlayerChoicesComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -67,6 +68,8 @@ void UDHCharacterSelectComponent::BeginPlay()
 	{
 		ServerSetCharacter(UDHCharacterSettings::GetPreferredCharacter());
 		ChosenHandle = UDHCharacterSettings::OnCharacterChosen.AddUObject(this, &ThisClass::HandleCharacterChosen);
+		ServerSetLoadout(UDHLoadoutSettings::GetLoadout());
+		LoadoutHandle = UDHLoadoutSettings::OnLoadoutChosen.AddUObject(this, &ThisClass::HandleLoadoutChosen);
 	}
 	else if (Controller && Controller->HasAuthority() && !Controller->IsPlayerController())
 	{
@@ -74,13 +77,14 @@ void UDHCharacterSelectComponent::BeginPlay()
 	}
 }
 
-void UDHCharacterSelectComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void UDHPlayerChoicesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	UDHCharacterSettings::OnCharacterChosen.Remove(ChosenHandle);
+	UDHLoadoutSettings::OnLoadoutChosen.Remove(LoadoutHandle);
 	Super::EndPlay(EndPlayReason);
 }
 
-void UDHCharacterSelectComponent::HandleCharacterChosen(APlayerController* Player, const FString& Id)
+void UDHPlayerChoicesComponent::HandleCharacterChosen(APlayerController* Player, const FString& Id)
 {
 	if (Player == GetOwner())
 	{
@@ -88,12 +92,33 @@ void UDHCharacterSelectComponent::HandleCharacterChosen(APlayerController* Playe
 	}
 }
 
-void UDHCharacterSelectComponent::ServerSetCharacter_Implementation(const FString& Id)
+void UDHPlayerChoicesComponent::HandleLoadoutChosen(APlayerController* Player, const TArray<FString>& NewLoadout)
+{
+	if (Player == GetOwner())
+	{
+		ServerSetLoadout(NewLoadout);
+	}
+}
+
+void UDHPlayerChoicesComponent::ServerSetLoadout_Implementation(const TArray<FString>& NewLoadout)
+{
+	Loadout.Reset();
+	for (const FString& Name : NewLoadout)
+	{
+		if (Loadout.Num() < 2)  // primary and secondary
+		{
+			Loadout.Add(FName(*Name));
+		}
+	}
+	UE_LOG(LogDHRules, Log, TEXT("%s: loadout %s"), *GetNameSafe(GetOwner()), *FString::Join(NewLoadout, TEXT(",")));
+}
+
+void UDHPlayerChoicesComponent::ServerSetCharacter_Implementation(const FString& Id)
 {
 	ApplyCharacter(Id);
 }
 
-void UDHCharacterSelectComponent::ApplyCharacter(const FString& Id)
+void UDHPlayerChoicesComponent::ApplyCharacter(const FString& Id)
 {
 	AController* Controller = GetController<AController>();
 	UActorComponent* Parts = Controller ? FindCharacterParts(Controller) : nullptr;
@@ -107,7 +132,9 @@ void UDHCharacterSelectComponent::ApplyCharacter(const FString& Id)
 	const FDHCharacterEntry* Entry = All.FindByPredicate([&Id](const FDHCharacterEntry& E) { return E.Id == Id; });
 	if (!Entry)
 	{
-		Entry = &All[FMath::RandRange(0, All.Num() - 1)];
+		// FMath::Rand gave every bot of a match the same pick; a stream per call keeps them apart.
+		static FRandomStream Stream(static_cast<int32>(FPlatformTime::Cycles()));
+		Entry = &All[Stream.RandRange(0, All.Num() - 1)];
 	}
 	if (Entry->Id == AppliedId)
 	{

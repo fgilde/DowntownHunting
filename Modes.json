@@ -2,7 +2,7 @@
   "_help": [
     "Game modes shown in the menu (Play). Edit, then run Sync-Modes.cmd (editor must be closed).",
     "game: TDM | Domination   (TDM3 = three teams, not finished yet)",
-    "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = comma list of Pistol, Rifle, Shotgun,",
+    "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = Player (loadout builder) or a fixed comma list of Pistol, Rifle, Shotgun,",
     "       WeaponSwitch = 1 | 0, NumBots = number of bots",
     "maps: /Game/DH/Maps/DH_Block (Downtown), /Game/DH/Maps/DH_Park (Waterfront), /DowntownCore/Maps/DH_Depot (Depot), /ShooterMaps/Maps/L_Expanse, /ShooterMaps/Maps/L_Convolution_Blockout",
     "image: menu tile (1024x512 texture); empty = image of the template"
@@ -17,7 +17,7 @@
       "map": "/Game/DH/Maps/DH_Block",
       "rules": {
         "Perspective": "Choice",
-        "Loadout": "Pistol,Rifle,Shotgun"
+        "Loadout": "Player"
       },
       "default": true,
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Downtown"
@@ -31,7 +31,7 @@
       "map": "/Game/DH/Maps/DH_Block",
       "rules": {
         "Perspective": "FP",
-        "Loadout": "Pistol,Rifle,Shotgun"
+        "Loadout": "Player"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Downtown_FP"
     },
@@ -58,7 +58,7 @@
       "map": "/Game/DH/Maps/DH_Block",
       "rules": {
         "Perspective": "Choice",
-        "Loadout": "Pistol,Rifle,Shotgun"
+        "Loadout": "Player"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Downtown"
     },
@@ -71,7 +71,7 @@
       "map": "/Game/DH/Maps/DH_Block",
       "rules": {
         "Perspective": "FP",
-        "Loadout": "Pistol,Rifle,Shotgun"
+        "Loadout": "Player"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Downtown_FP"
     },
@@ -84,7 +84,7 @@
       "map": "/Game/DH/Maps/DH_Park",
       "rules": {
         "Perspective": "Choice",
-        "Loadout": "Pistol,Rifle,Shotgun"
+        "Loadout": "Player"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Park"
     },
@@ -97,7 +97,7 @@
       "map": "/Game/DH/Maps/DH_Park",
       "rules": {
         "Perspective": "Choice",
-        "Loadout": "Pistol,Rifle,Shotgun"
+        "Loadout": "Player"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Park"
     },
@@ -110,7 +110,7 @@
       "map": "/DowntownCore/Maps/DH_Depot",
       "rules": {
         "Perspective": "Choice",
-        "Loadout": "Pistol,Rifle,Shotgun"
+        "Loadout": "Player"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Depot"
     },
@@ -123,7 +123,7 @@
       "map": "/DowntownCore/Maps/DH_Depot",
       "rules": {
         "Perspective": "Choice",
-        "Loadout": "Pistol,Rifle,Shotgun"
+        "Loadout": "Player"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Depot"
     },
@@ -136,7 +136,7 @@
       "map": "/ShooterMaps/Maps/L_Expanse",
       "rules": {
         "Perspective": "Choice",
-        "Loadout": "Pistol,Rifle,Shotgun"
+        "Loadout": "Player"
       }
     },
     {
@@ -148,7 +148,7 @@
       "map": "/ShooterMaps/Maps/L_Convolution_Blockout",
       "rules": {
         "Perspective": "Choice",
-        "Loadout": "Pistol,Rifle,Shotgun"
+        "Loadout": "Player"
       }
     }
   ]

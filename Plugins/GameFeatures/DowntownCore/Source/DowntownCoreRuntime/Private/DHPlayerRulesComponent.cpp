@@ -144,7 +144,7 @@ void UDHPlayerRulesComponent::GiveLoadout()
 		return;
 	}
 
-	for (UClass* ItemClass : Rules->GetLoadoutItems())
+	for (UClass* ItemClass : Rules->GetLoadoutItems(Controller))
 	{
 		const TSubclassOf<ULyraInventoryItemDefinition> ItemDef(ItemClass);
 		if (!Inventory->FindFirstItemStackByDefinition(ItemDef))

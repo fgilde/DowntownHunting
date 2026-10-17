@@ -14,6 +14,7 @@
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "DHCharacterSettings.h"
+#include "DHScreenStyle.h"
 #include "Engine/Font.h"
 #include "Engine/Texture2D.h"
 
@@ -21,15 +22,8 @@
 
 namespace
 {
-	const FLinearColor Accent(1.0f, 0.42f, 0.05f);
-	const FLinearColor CardColor(0.05f, 0.05f, 0.06f, 0.85f);
 	const int32 Columns = 5;
-
-	FSlateFontInfo Font(const TCHAR* Name, int32 Size)
-	{
-		const FString Path = FString::Printf(TEXT("/Game/UI/Foundation/Fonts/%s.%s"), Name, Name);
-		return FSlateFontInfo(LoadObject<UObject>(nullptr, *Path), Size);
-	}
+	const FLinearColor CardColor = DHScreenStyle::Card;
 
 	UTexture2D* Portrait(const FString& Id)
 	{
@@ -53,7 +47,7 @@ void UDHCharacterSelectScreen::NativeOnInitialized()
 	WidgetTree->RootWidget = Root;
 
 	UBorder* Dim = WidgetTree->ConstructWidget<UBorder>();
-	Dim->SetBrushColor(FLinearColor(0.f, 0.f, 0.f, 0.82f));
+	Dim->SetBrushColor(DHScreenStyle::Dim);
 	UOverlaySlot* DimSlot = Root->AddChildToOverlay(Dim);
 	DimSlot->SetHorizontalAlignment(HAlign_Fill);
 	DimSlot->SetVerticalAlignment(VAlign_Fill);
@@ -65,13 +59,13 @@ void UDHCharacterSelectScreen::NativeOnInitialized()
 
 	UTextBlock* Title = WidgetTree->ConstructWidget<UTextBlock>();
 	Title->SetText(NSLOCTEXT("DowntownHunting", "ChooseHunter", "CHOOSE YOUR HUNTER"));
-	Title->SetFont(Font(TEXT("Orbitron"), 40));
-	Title->SetColorAndOpacity(Accent);
+	Title->SetFont(DHScreenStyle::Font(TEXT("Orbitron"), 40));
+	Title->SetColorAndOpacity(DHScreenStyle::Accent);
 	Column->AddChildToVerticalBox(Title)->SetHorizontalAlignment(HAlign_Center);
 
 	CurrentText = WidgetTree->ConstructWidget<UTextBlock>();
-	CurrentText->SetFont(Font(TEXT("NotoSans"), 18));
-	CurrentText->SetColorAndOpacity(FLinearColor(0.85f, 0.82f, 0.78f));
+	CurrentText->SetFont(DHScreenStyle::Font(TEXT("NotoSans"), 18));
+	CurrentText->SetColorAndOpacity(DHScreenStyle::Text);
 	UVerticalBoxSlot* CurrentSlot = Column->AddChildToVerticalBox(CurrentText);
 	CurrentSlot->SetHorizontalAlignment(HAlign_Center);
 	CurrentSlot->SetPadding(FMargin(0, 6, 0, 24));
@@ -98,7 +92,7 @@ void UDHCharacterSelectScreen::NativeOnInitialized()
 	Back->SetBackgroundColor(CardColor);
 	UTextBlock* BackText = WidgetTree->ConstructWidget<UTextBlock>();
 	BackText->SetText(NSLOCTEXT("DowntownHunting", "Back", "BACK"));
-	BackText->SetFont(Font(TEXT("Orbitron"), 20));
+	BackText->SetFont(DHScreenStyle::Font(TEXT("Orbitron"), 20));
 	Back->AddChild(BackText);
 	Back->OnClicked.AddDynamic(this, &ThisClass::HandleBackClicked);
 	UVerticalBoxSlot* BackSlot = Column->AddChildToVerticalBox(Back);
@@ -130,7 +124,7 @@ UButton* UDHCharacterSelectScreen::MakeCard(const FString& Id, const FText& Labe
 
 	UTextBlock* Name = WidgetTree->ConstructWidget<UTextBlock>();
 	Name->SetText(Label);
-	Name->SetFont(Font(TEXT("Orbitron"), 16));
+	Name->SetFont(DHScreenStyle::Font(TEXT("Orbitron"), 16));
 	UVerticalBoxSlot* NameSlot = Content->AddChildToVerticalBox(Name);
 	NameSlot->SetHorizontalAlignment(HAlign_Center);
 	NameSlot->SetPadding(FMargin(0, 6, 0, 2));
@@ -182,7 +176,7 @@ void UDHCharacterSelectScreen::RefreshHighlight()
 	const FString Current = UDHCharacterSettings::GetPreferredCharacter();
 	for (int32 Index = 0; Index < Cards.Num(); ++Index)
 	{
-		Cards[Index]->SetBackgroundColor(CardIds[Index] == Current ? Accent : CardColor);
+		Cards[Index]->SetBackgroundColor(CardIds[Index] == Current ? DHScreenStyle::Accent : CardColor);
 	}
 	CurrentText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "Current", "Current: {0}"),
 		FText::FromString(Current.IsEmpty() ? TEXT("Random") : Current)));
