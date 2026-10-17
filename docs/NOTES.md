@@ -3,7 +3,7 @@
 ## Starten
 
 - `Play.cmd`: Spiel mit Hauptmenü (ohne Editor-Oberfläche, nutzt die installierte UE 5.8).
-- `Play-Downtown.cmd`: direkt Team Deathmatch in der Stadt mit Bots. `Play-Downtown.cmd FP` für Ego.
+- `Play-Downtown.cmd`: direkt Team Deathmatch in der Stadt mit Bots. Optionen kombinierbar: `FP` (Ego), `DOM` (Domination), `PARK` (Map Waterfront statt Downtown).
 - `Package.cmd`: baut eine eigenständige `DowntownHunting.exe` nach `Build\Packaged\Windows` (dauert beim ersten Mal lange).
 - `Start-Editor.cmd`: Editor mit Unreal-MCP auf Port 8765.
 - `Sync-Modes.cmd`: schreibt die Spielmodi aus `Modes.json` ins Menü (Editor vorher schließen).
@@ -114,3 +114,15 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Ladebildschirme `W_DH_LoadingScreen_Streets` (TDM) und `_Aerial` (Domination) mit Logo, gesetzt von `sync_modes.py`.
 - Hauptmenü-Hintergrund: Stadtbild `T_DH_Menu_Background` statt Lyras Halle. ![Menü](img/branding-menu.png)
 - Alle Branding-Assets liegen in `/Game/DH/UI` (nicht im Game-Feature-Plugin): Lyras Basis-Widgets in `/Game` dürfen nicht auf Plugin-Content verweisen (Asset-Prüfung „Unzulässige Referenz“, im gepackten Spiel nicht sicher geladen).
+
+## Map Waterfront / DH_Park (2026-10-17)
+
+- City-Sample-Ausschnitt 250 × 250 m um (550 m, -225 m): Bürotürme bis ~115 m, Plaza, Baustellenzaun, Ostrand der Stadt. Kulisse: Gebäude bis 400 m um die Mitte. 1222 Actors + Gameplay (16 Starts, 3 Kontrollpunkte, Randwände ±120 m, NavMesh).
+- Modi: `TDM_Waterfront`, `DOM_Waterfront` (Kacheln `/Game/DH/UI/Tiles/T_DH_Tile_*_Park`).
+- Getestet: Domination mit Bots im Spielprozess, Bots laufen zu den Punkten und erobern.
+- Pipeline für weitere Ausschnitte (Editor geschlossen):
+  1. `UnrealEditor-Cmd.exe <CitySample>.uproject -run=pythonscript -script="<repo>/Tools/Python/cs_region.py <Name> <x_cm> <y_cm>" -nullrhi` → `Tools/Maps/<Name>.json` + `Tools/CitySample_<Name>.txt`
+  2. `Tools\Import-CitySample.ps1 -Manifest Tools\CitySample_<Name>.txt`
+  3. `Tools\Build-RegionMap.ps1 <Name>` (Save-As, fremde Regionen raus, Streaming aus)
+  4. Gameplay-Actors per Editor-Skript (Spawns per Boden-Trace, Kontrollpunkte, Wände), NavMesh mit `WorldPartitionNavigationDataBuilder`, Modi in `Modes.json` + `Sync-Modes.cmd`.
+- `p.Chaos.EnableAsyncInitBody=true` in `DefaultEngine.ini` (FastGeoStreaming verlangt es, sonst rote Bildschirmwarnung).

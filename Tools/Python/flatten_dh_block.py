@@ -1,8 +1,10 @@
 """DH_Block is small: load everything always (no spatial streaming) and drop City Sample's data layers.
 Safe to re-run after placing new actors (they default to spatially loaded)."""
+import sys
+
 import unreal
 
-MAP = "/Game/DH/Maps/DH_Block"
+MAP = "/Game/DH/Maps/" + (sys.argv[1] if len(sys.argv) > 1 else "DH_Block")
 
 unreal.EditorLoadingAndSavingUtils.load_map(MAP)
 descs = unreal.WorldPartitionBlueprintLibrary.get_actor_descs()
