@@ -60,7 +60,8 @@
       "rules": {
         "Perspective": "Choice",
         "GunGame": "MP5,AK47,Rifle,Shotgun,M1911,Pistol"
-      }
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_GunGame_Downtown"
     },
     {
       "id": "QuickTDM_Downtown",
@@ -74,7 +75,8 @@
         "Loadout": "Player",
         "ScoreLimit": "10",
         "TimeLimit": "5"
-      }
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_QuickTDM_Downtown"
     },
     {
       "id": "DOM_Downtown",
@@ -164,7 +166,8 @@
       "rules": {
         "Perspective": "Choice",
         "GunGame": "MP5,AK47,Rifle,Shotgun,M1911,Pistol"
-      }
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_GunGame_Depot"
     },
     {
       "id": "TDM_Expanse",

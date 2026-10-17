@@ -1,7 +1,7 @@
 // Developer console commands to drive and check the menus without touching the real mouse/keyboard:
 //   DH.OpenScreen Character|Loadout|Settings|<widget class path>   push a screen onto the menu layer
 //   DH.Key <Key> [<Key> ...]   press keys through Slate, e.g. Gamepad_DPad_Down Gamepad_FaceButton_Bottom Escape
-//   DH.Shot <Name>             screenshot with UI to Saved/DHShots/<Name>.png
+//   DH.Shot <Name> [noui]      screenshot (with UI unless "noui") to Saved/DHShots/<Name>.png
 //   DH.Run cmd; wait 2; cmd    run console commands one after another, "wait N" pauses N seconds
 // Example: -ExecCmds="DH.Run wait 40; DH.OpenScreen Loadout; wait 2; DH.Shot loadout"
 // Not compiled into shipping builds.
@@ -93,7 +93,8 @@ namespace
 	void Shot(const TArray<FString>& Args)
 	{
 		const FString Name = Args.IsEmpty() ? TEXT("shot") : Args[0];
-		FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("DHShots") / (Name + TEXT(".png")), true, false);
+		const bool bShowUI = !(Args.Num() > 1 && Args[1].Equals(TEXT("noui"), ESearchCase::IgnoreCase));
+		FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("DHShots") / (Name + TEXT(".png")), bShowUI, false);
 	}
 
 	void RunSteps(TArray<FString> Steps)
@@ -130,7 +131,7 @@ namespace
 		FConsoleCommandWithArgsDelegate::CreateStatic(&OpenScreen));
 	FAutoConsoleCommand KeyCommand(TEXT("DH.Key"), TEXT("Press keys through Slate, e.g. Gamepad_DPad_Down Gamepad_FaceButton_Bottom"),
 		FConsoleCommandWithArgsDelegate::CreateStatic(&PressKeys));
-	FAutoConsoleCommand ShotCommand(TEXT("DH.Shot"), TEXT("Screenshot with UI to Saved/DHShots/<Name>.png"),
+	FAutoConsoleCommand ShotCommand(TEXT("DH.Shot"), TEXT("Screenshot to Saved/DHShots/<Name>.png, 'noui' as second argument hides the UI"),
 		FConsoleCommandWithArgsDelegate::CreateStatic(&Shot));
 	FAutoConsoleCommand RunCommand(TEXT("DH.Run"), TEXT("Run console commands separated by ';', 'wait N' pauses N seconds"),
 		FConsoleCommandWithArgsDelegate::CreateStatic(&Run));
