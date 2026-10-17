@@ -28,6 +28,16 @@ FString UDHCharacterSettings::GetPreferredCharacter()
 	return Id;
 }
 
+FString UDHCharacterSettings::GetPlayerName()
+{
+	FString Name;
+	if (!FParse::Value(FCommandLine::Get(), TEXT("DHName="), Name))
+	{
+		GConfig->GetString(CharacterSection, TEXT("PlayerName"), Name, GGameUserSettingsIni);
+	}
+	return Name.TrimStartAndEnd().Left(20);
+}
+
 void UDHCharacterSettings::ChooseCharacter(APlayerController* Player, const FString& Id)
 {
 	GConfig->SetString(CharacterSection, CharacterKey, *Id, GGameUserSettingsIni);

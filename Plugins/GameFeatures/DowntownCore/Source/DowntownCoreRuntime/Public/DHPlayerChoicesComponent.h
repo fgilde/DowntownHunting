@@ -25,6 +25,13 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerSetCharacter(const FString& Id);
 
+	/**
+	 * Player name (UDHCharacterSettings::GetPlayerName). With an empty name the server only replaces names that start
+	 * with OfflineName (the computer name the offline online subsystem uses) by a "Hunter <number>" name.
+	 */
+	UFUNCTION(Server, Reliable)
+	void ServerSetPlayerName(const FString& Name, const FString& OfflineName);
+
 	/** Primary and secondary weapon; given from the next spawn. */
 	UFUNCTION(Server, Reliable)
 	void ServerSetLoadout(const TArray<FString>& NewLoadout);

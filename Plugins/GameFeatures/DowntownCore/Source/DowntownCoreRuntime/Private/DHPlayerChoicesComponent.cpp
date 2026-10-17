@@ -4,7 +4,10 @@
 #include "DHLoadoutSettings.h"
 #include "DHGameRulesComponent.h"
 #include "GameFramework/Controller.h"
+#include "GameFramework/GameModeBase.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerState.h"
+#include "HAL/PlatformProcess.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DHPlayerChoicesComponent)
 
@@ -69,6 +72,7 @@ void UDHPlayerChoicesComponent::BeginPlay()
 		ServerSetCharacter(UDHCharacterSettings::GetPreferredCharacter());
 		ChosenHandle = UDHCharacterSettings::OnCharacterChosen.AddUObject(this, &ThisClass::HandleCharacterChosen);
 		ServerSetLoadout(UDHLoadoutSettings::GetLoadout());
+		ServerSetPlayerName(UDHCharacterSettings::GetPlayerName(), FPlatformProcess::ComputerName());
 		LoadoutHandle = UDHLoadoutSettings::OnLoadoutChosen.AddUObject(this, &ThisClass::HandleLoadoutChosen);
 	}
 	else if (Controller && Controller->HasAuthority() && !Controller->IsPlayerController())
@@ -111,6 +115,27 @@ void UDHPlayerChoicesComponent::ServerSetLoadout_Implementation(const TArray<FSt
 		}
 	}
 	UE_LOG(LogDHRules, Log, TEXT("%s: loadout %s"), *GetNameSafe(GetOwner()), *FString::Join(NewLoadout, TEXT(",")));
+}
+
+void UDHPlayerChoicesComponent::ServerSetPlayerName_Implementation(const FString& Name, const FString& OfflineName)
+{
+	AController* Controller = GetController<AController>();
+	APlayerState* PlayerState = Controller ? Controller->PlayerState : nullptr;
+	if (!PlayerState)
+	{
+		return;
+	}
+	FString NewName = Name.TrimStartAndEnd().Left(20);
+	if (NewName.IsEmpty())
+	{
+		if (OfflineName.IsEmpty() || !PlayerState->GetPlayerName().StartsWith(OfflineName))
+		{
+			return;
+		}
+		NewName = FString::Printf(TEXT("Hunter %d"), 100 + GetTypeHash(OfflineName) % 900);
+	}
+	Controller->GetWorld()->GetAuthGameMode()->ChangeName(Controller, NewName, false);
+	UE_LOG(LogDHRules, Log, TEXT("%s: name %s"), *GetNameSafe(Controller), *NewName);
 }
 
 void UDHPlayerChoicesComponent::ServerSetCharacter_Implementation(const FString& Id)

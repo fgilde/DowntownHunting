@@ -41,6 +41,13 @@ public:
 	static FString GetPreferredCharacter();
 
 	/** Stores the choice and tells a running match (UDHCharacterSelectComponent listens). */
+	/**
+	 * Name shown to others: -DHName=<name>, else PlayerName in [DowntownHunting] of GameUserSettings.ini.
+	 * Empty: keep the online name (Steam), offline "Hunter <number>" instead of the computer name.
+	 */
+	UFUNCTION(BlueprintPure, Category = "Character")
+	static FString GetPlayerName();
+
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	static void ChooseCharacter(APlayerController* Player, const FString& Id);
 

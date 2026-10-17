@@ -195,3 +195,7 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 ## Regeln ScoreLimit, TimeLimit, GunGame
 - Lyras Wertung liegt in Blueprints am GameState (`B_TeamDeathMatchScoring`, `B_ControlPointScoring`): `TargetScore` (int, Lyra rechnet ihn bei Spielstart aus der Spielerzahl neu, deshalb setzt `UDHGameRulesComponent` ihn jede Sekunde) und `CountDownTime` (double, Sekunden; erst 15 = Aufwärmen, dann 720 = Spieluhr). Domination hat keine Uhr.
 - Gun Game hört auf `Lyra.Elimination.Message`, Stufe pro PlayerState. Waffentausch einen Tick später über `UDHPlayerRulesComponent::RefreshLoadout` (die Feuer-Ability des Kill-Schusses läuft noch). Sieg: Ziel auf Teampunkte + 1 und den Kill erneut senden, Lyras Wertung beendet das Match (zählt den letzten Kill doppelt in der Statistik).
+
+## Spielername, Killfeed
+- Offline/LAN setzt Unreals NULL-Subsystem den Rechnernamen als Spielernamen. `UDHPlayerChoicesComponent::ServerSetPlayerName` ersetzt ihn durch `PlayerName` aus `[DowntownHunting]` in GameUserSettings.ini (oder `-DHName=`), sonst „Hunter <Zahl aus Rechnername>“. Online-Namen (Steam) bleiben, wenn nichts eingestellt ist.
+- Killfeed (`W_EliminationFeed`, unten links), Hitmarker und Schadenszahlen kommen von Lyra und laufen.
