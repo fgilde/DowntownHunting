@@ -43,8 +43,10 @@ private:
 	void HandleEntryClicked(UDHCardButton* Button);
 	void ShowBackground(const FString& Id);
 	void Open(const FString& Id);
+	void PlayUISound(const TCHAR* Path);
 
 	TArray<FEntry> Entries;
+	int32 LastFocused = INDEX_NONE;
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UObject>> KeepAlive;  // buttons, gradient texture

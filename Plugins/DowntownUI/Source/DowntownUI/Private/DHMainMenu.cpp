@@ -18,7 +18,9 @@
 #include "DHMenuBackground.h"
 #include "DHScreenStyle.h"
 #include "Engine/Texture2D.h"
+#include "Sound/SoundBase.h"
 #include "GameplayTagContainer.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Messaging/CommonGameDialog.h"
 #include "Messaging/CommonMessagingSubsystem.h"
@@ -174,9 +176,22 @@ void UDHMainMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		Entry.Button->SetRenderTranslation(FVector2D(-28.f * Entry.Focus, 0.f));
 		Entry.Button->SetRenderOpacity(0.55f + 0.45f * Entry.Focus);
 	}
-	if (Entries.IsValidIndex(Focused))
+	if (Entries.IsValidIndex(Focused) && Focused != LastFocused)
 	{
+		if (LastFocused != INDEX_NONE)
+		{
+			PlayUISound(TEXT("/Game/Audio/Sounds/UI/sfx_UI_MainMenu_Highlight_nl_meta_Preset.sfx_UI_MainMenu_Highlight_nl_meta_Preset"));
+		}
+		LastFocused = Focused;
 		ShowBackground(Entries[Focused].Id);
+	}
+}
+
+void UDHMainMenu::PlayUISound(const TCHAR* Path)
+{
+	if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, Path))
+	{
+		UGameplayStatics::PlaySound2D(this, Sound);
 	}
 }
 
@@ -196,6 +211,7 @@ void UDHMainMenu::ShowBackground(const FString& Id)
 
 void UDHMainMenu::HandleEntryClicked(UDHCardButton* Button)
 {
+	PlayUISound(TEXT("/Game/Audio/Sounds/UI/sfx_UI_MainMenu_Select_nl_meta_Preset.sfx_UI_MainMenu_Select_nl_meta_Preset"));
 	Open(Button->CardId);
 }
 
