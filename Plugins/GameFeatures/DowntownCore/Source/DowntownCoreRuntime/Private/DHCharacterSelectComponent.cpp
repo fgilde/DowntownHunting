@@ -1,18 +1,14 @@
 #include "DHCharacterSelectComponent.h"
 
+#include "DHCharacterSettings.h"
 #include "DHGameRulesComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerController.h"
-#include "Misc/CommandLine.h"
-#include "Misc/ConfigCacheIni.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DHCharacterSelectComponent)
 
 namespace
 {
-	const TCHAR* SettingsSection = TEXT("DowntownHunting");
-	const TCHAR* SettingsKey = TEXT("Character");
-
 	UActorComponent* FindCharacterParts(AController* Controller)
 	{
 		for (UActorComponent* Component : Controller->GetComponents())
@@ -62,27 +58,6 @@ UDHCharacterSelectComponent::UDHCharacterSelectComponent(const FObjectInitialize
 	SetIsReplicatedByDefault(true);
 }
 
-TArray<FDHCharacterEntry> UDHCharacterSelectComponent::GetCharacters()
-{
-	return GetDefault<UDHCharacterSelectComponent>()->Characters;
-}
-
-FString UDHCharacterSelectComponent::GetPreferredCharacter()
-{
-	FString Id;
-	if (!FParse::Value(FCommandLine::Get(), TEXT("DHCharacter="), Id))
-	{
-		GConfig->GetString(SettingsSection, SettingsKey, Id, GGameUserSettingsIni);
-	}
-	return Id;
-}
-
-void UDHCharacterSelectComponent::SetPreferredCharacter(const FString& Id)
-{
-	GConfig->SetString(SettingsSection, SettingsKey, *Id, GGameUserSettingsIni);
-	GConfig->Flush(false, GGameUserSettingsIni);
-}
-
 void UDHCharacterSelectComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -90,11 +65,26 @@ void UDHCharacterSelectComponent::BeginPlay()
 	AController* Controller = GetController<AController>();
 	if (Controller && Controller->IsLocalPlayerController())
 	{
-		ServerSetCharacter(GetPreferredCharacter());
+		ServerSetCharacter(UDHCharacterSettings::GetPreferredCharacter());
+		ChosenHandle = UDHCharacterSettings::OnCharacterChosen.AddUObject(this, &ThisClass::HandleCharacterChosen);
 	}
 	else if (Controller && Controller->HasAuthority() && !Controller->IsPlayerController())
 	{
 		ApplyCharacter(FString());  // bot
+	}
+}
+
+void UDHCharacterSelectComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UDHCharacterSettings::OnCharacterChosen.Remove(ChosenHandle);
+	Super::EndPlay(EndPlayReason);
+}
+
+void UDHCharacterSelectComponent::HandleCharacterChosen(APlayerController* Player, const FString& Id)
+{
+	if (Player == GetOwner())
+	{
+		ServerSetCharacter(Id);
 	}
 }
 
@@ -107,7 +97,7 @@ void UDHCharacterSelectComponent::ApplyCharacter(const FString& Id)
 {
 	AController* Controller = GetController<AController>();
 	UActorComponent* Parts = Controller ? FindCharacterParts(Controller) : nullptr;
-	const TArray<FDHCharacterEntry>& All = GetDefault<UDHCharacterSelectComponent>()->Characters;
+	const TArray<FDHCharacterEntry> All = UDHCharacterSettings::GetCharacters();
 	if (!Parts || All.IsEmpty())
 	{
 		UE_LOG(LogDHRules, Warning, TEXT("%s: no character parts component or no characters configured"), *GetNameSafe(Controller));

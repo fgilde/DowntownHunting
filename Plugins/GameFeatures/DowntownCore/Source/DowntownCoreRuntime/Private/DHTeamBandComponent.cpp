@@ -39,7 +39,13 @@ void UDHTeamBandComponent::OnRegister()
 		Band->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Band->SetCastShadow(false);
 		Band->SetupAttachment(Mesh, Socket);
-		Band->SetRelativeTransform(BandTransform);
+		// Right-side arm bones point their X axis back towards the body: mirror the offset, otherwise the band sits in the shoulder.
+		FTransform Transform = BandTransform;
+		if (Socket.ToString().EndsWith(TEXT("_r")))
+		{
+			Transform.SetLocation(-Transform.GetLocation());
+		}
+		Band->SetRelativeTransform(Transform);
 		Band->RegisterComponent();
 		Bands.Add(Band);
 	}

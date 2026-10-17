@@ -158,3 +158,10 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Getestet: Viktor, Kim als Spieler; Bots bekommen gemischte Figuren.
 - Armbinde: wird jetzt für den eigenen Spieler ausgeblendet, sobald der Pawn besessen ist (Lyras Kosmetik-Actor hat keinen Owner, `OwnerNoSee` griff deshalb nicht).
 - Offen: Auswahl-Bildschirm im Menü, Statur/Kopf-Abgleich (Übergewicht nutzt den Normalgewicht-Kopf wie City Sample).
+
+## Charakter-Auswahl im Menü (2026-10-17)
+
+- Hauptmenü: Button „Character“ (`W_LyraFrontEnd`, OnButtonBaseClicked → PushContentToLayerForPlayer, Layer `UI.Layer.Menu`) öffnet `UDHCharacterSelectScreen`: Karten mit Porträt und Name, „Random“, Zurück mit Esc / Gamepad B. Wahl wird sofort gespeichert; in einem laufenden Match wechselt die Figur direkt.
+- Neues normales Plugin `Plugins/DowntownUI` (lädt beim Start): Bildschirm und `UDHCharacterSettings` (Liste aus `DefaultGame.ini`, Wahl in `GameUserSettings.ini`, Ereignis `OnCharacterChosen`). Grund: das Game-Feature DowntownCore ist im Hauptmenü noch nicht geladen.
+- Porträts: `Tools/Branding/Portraits` → `/Game/DH/UI/Portraits`; aufgenommen im Editor (Game-View, Figuren über den Dächern von Downtown in der Sonne).
+- Armbinde rechts saß in der Schulter (rechte Armknochen zeigen mit X zur Körpermitte) – das war die „rote Dose“. Versatz für `_r`-Sockets wird jetzt gespiegelt.

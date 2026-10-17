@@ -1,6 +1,6 @@
 """Builds the crowd characters from Tools/Characters.resolved.json (made by cs_crowd_export.py in City Sample) as Lyra
 cosmetic parts: /DowntownCore/Characters/Crowd/<Id>/B_DH_Char_<Id> with baked material instances, and writes the character
-list for the selection (Config/DefaultGame.ini, UDHCharacterSelectComponent). Editor closed; run via Sync-Characters.cmd.
+list for the selection (Config/DefaultGame.ini, UDHCharacterSettings). Editor closed; run via Sync-Characters.cmd.
 
 Each part copies the pawn's pose through Lyra's ABP_Mannequin_CopyPose; the crowd skeletons are marked compatible with
 SK_Mannequin for that. Hair is groom (HairStrands plugin) bound to the face mesh."""
@@ -122,10 +122,10 @@ for c in cfg["characters"]:
     entries.append((cid, "%s.B_DH_Char_%s_C" % (bp_path, cid)))
     unreal.log("CHARS %s: %d parts, %d grooms" % (cid, len(c["components"]), len(c["grooms"])))
 
-# character list for UDHCharacterSelectComponent (replaces the section on every sync)
+# character list for UDHCharacterSettings (replaces the section on every sync)
 ini = os.path.join(REPO, "Config", "DefaultGame.ini")
 text = open(ini, encoding="utf-8").read()
-section = "[/Script/DowntownCoreRuntime.DHCharacterSelectComponent]"
+section = "[/Script/DowntownUI.DHCharacterSettings]"
 text = re.sub(re.escape(section) + r"\n(?:[^\[\n][^\n]*\n?)*", "", text).rstrip() + "\n\n" + section + "\n"
 text += "".join('+Characters=(Id="%s",PartClass="%s")\n' % e for e in entries)
 open(ini, "w", encoding="utf-8").write(text)

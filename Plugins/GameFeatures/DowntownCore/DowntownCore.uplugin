@@ -40,6 +40,10 @@
 		{
 			"Name": "ShooterMaps",
 			"Enabled": true
+		},
+		{
+			"Name": "DowntownUI",
+			"Enabled": true
 		}
 	]
 }

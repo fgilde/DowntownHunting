@@ -272,19 +272,6 @@
 /Game/Crowd/Character/Female/f_005/Materials/M_HeadSynthesized
 /Game/Crowd/Character/Female/f_005/Materials/M_TeethCharacterCreator_Inst
 /Game/Crowd/Character/Female/f_005/Textures/f_005_nrw_LODnormals
-/Game/Crowd/Character/Female/f_006/Face/f_006_nrw_FaceMesh
-/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD1
-/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD2
-/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD3
-/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD4
-/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD5
-/Game/Crowd/Character/Female/f_006/Materials/M_EyeLash_HigherLODs_Inst
-/Game/Crowd/Character/Female/f_006/Materials/M_EyeRefractive_Inst_L
-/Game/Crowd/Character/Female/f_006/Materials/M_EyeRefractive_Inst_R
-/Game/Crowd/Character/Female/f_006/Materials/M_EyelashLowerLODs_Inst
-/Game/Crowd/Character/Female/f_006/Materials/M_HeadSynthesized
-/Game/Crowd/Character/Female/f_006/Materials/M_TeethCharacterCreator_Inst
-/Game/Crowd/Character/Female/f_006/Textures/f_006_nrw_LODnormals
 /Game/Crowd/Character/Male/NormalWeight/Materials/MI_loafers
 /Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_leatherBelt
 /Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_Suspenders
@@ -792,7 +779,6 @@
 /Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Natural_baked/Eyebrows_M_Natural_baked
 /Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_SlightArch_baked/Eyebrows_M_SlightArch_baked
 /Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked
-/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked
 /Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Unruly_baked/Eyebrows_M_Unruly_baked
 /Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Wide_baked/Eyebrows_M_Wide_baked
 /Game/Crowd/Character/Shared/Textures/Hair/Eyelashes_L_SlightCurl_Cards/Eyelashes_L_SlightCurl_Coverage

@@ -4917,13 +4917,13 @@
     },
     {
      "name": "Head",
-     "mesh": "/Game/Crowd/Character/Female/f_006/Face/f_006_nrw_FaceMesh",
+     "mesh": "/Game/Crowd/Character/Female/f_002/Face/f_002_nrw_FaceMesh",
      "materials": [
       {
        "slot": "head_shader_shader",
-       "material": "/Game/Crowd/Character/Female/f_006/Materials/M_HeadSynthesized",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/M_HeadSynthesized",
        "instance": {
-        "parent": "/Game/Crowd/Character/Female/f_006/Materials/M_HeadSynthesized",
+        "parent": "/Game/Crowd/Character/Female/f_002/Materials/M_HeadSynthesized",
         "scalars": {
          "AtlasSelector": 5.0,
          "MelaninRandomSeed": 0.0,
@@ -4944,14 +4944,14 @@
         "textures": {
          "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
          "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
-         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
-         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked"
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked"
         }
        }
       },
       {
        "slot": "teeth_shader_shader",
-       "material": "/Game/Crowd/Character/Female/f_006/Materials/M_TeethCharacterCreator_Inst",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/M_TeethCharacterCreator_Inst",
        "instance": null
       },
       {
@@ -4961,12 +4961,12 @@
       },
       {
        "slot": "eyeLeft_shader_shader",
-       "material": "/Game/Crowd/Character/Female/f_006/Materials/M_EyeRefractive_Inst_L",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/M_EyeRefractive_Inst_L",
        "instance": null
       },
       {
        "slot": "eyeRight_shader_shader",
-       "material": "/Game/Crowd/Character/Female/f_006/Materials/M_EyeRefractive_Inst_R",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/M_EyeRefractive_Inst_R",
        "instance": null
       },
       {
@@ -4976,7 +4976,7 @@
       },
       {
        "slot": "eyelashes_shader_shader",
-       "material": "/Game/Crowd/Character/Female/f_006/Materials/M_EyelashLowerLODs_Inst",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/M_EyelashLowerLODs_Inst",
        "instance": null
       },
       {
@@ -4991,9 +4991,9 @@
       },
       {
        "slot": "head_LOD1_shader_shader",
-       "material": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD1",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD1",
        "instance": {
-        "parent": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD1",
+        "parent": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD1",
         "scalars": {
          "AtlasSelector": 5.0,
          "MelaninRandomSeed": 0.0,
@@ -5014,21 +5014,21 @@
         "textures": {
          "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
          "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
-         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
-         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked"
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked"
         }
        }
       },
       {
        "slot": "eyelashes_HiLOD_shader_shader",
-       "material": "/Game/Crowd/Character/Female/f_006/Materials/M_EyeLash_HigherLODs_Inst",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/M_EyeLash_HigherLODs_Inst",
        "instance": null
       },
       {
        "slot": "head_LOD2_shader_shader",
-       "material": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD2",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD2",
        "instance": {
-        "parent": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD2",
+        "parent": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD2",
         "scalars": {
          "AtlasSelector": 5.0,
          "MelaninRandomSeed": 0.0,
@@ -5049,16 +5049,16 @@
         "textures": {
          "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
          "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
-         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
-         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked"
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked"
         }
        }
       },
       {
        "slot": "head_LOD3_shader_shader",
-       "material": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD3",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD3",
        "instance": {
-        "parent": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD3",
+        "parent": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD3",
         "scalars": {
          "AtlasSelector": 5.0,
          "MelaninRandomSeed": 0.0,
@@ -5079,16 +5079,16 @@
         "textures": {
          "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
          "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
-         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
-         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked"
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked"
         }
        }
       },
       {
        "slot": "head_LOD4_shader_shader",
-       "material": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD4",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD4",
        "instance": {
-        "parent": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD4",
+        "parent": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD4",
         "scalars": {
          "AtlasSelector": 5.0,
          "MelaninRandomSeed": 0.0,
@@ -5109,16 +5109,16 @@
         "textures": {
          "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
          "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
-         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
-         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked"
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked"
         }
        }
       },
       {
        "slot": "head_LOD57_shader_shader",
-       "material": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD5",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD5",
        "instance": {
-        "parent": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD5",
+        "parent": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD5",
         "scalars": {
          "AtlasSelector": 5.0,
          "MelaninRandomSeed": 0.0,
@@ -5139,8 +5139,8 @@
         "textures": {
          "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
          "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
-         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
-         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked"
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked"
         }
        }
       }
@@ -5275,11 +5275,11 @@
    "grooms": [
     {
      "slot": "Hair",
-     "groom": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil",
-     "binding": "/Game/Crowd/Character/Female/f_001/Hair/GroomBinding/Hair_S_Coil_f_head_Archetype_Binding",
+     "groom": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail",
+     "binding": "/Game/Crowd/Character/Female/f_003/Hair/GroomBinding/Hair_S_LowPonytail_f_med_nrw_head_skmesh_lod0_Face_Archetype_Binding",
      "materials": [
-      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards",
       "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards",
       "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
      ],
      "scalars": {
@@ -5290,8 +5290,8 @@
     },
     {
      "slot": "Eyelashes",
-     "groom": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Eyelashes_L_SlightCurl",
-     "binding": "/Game/Crowd/Character/Female/f_001/Hair/GroomBinding/Eyelashes_L_SlightCurl_f_med_nrw_head_skmesh_Face_Archetype_Binding",
+     "groom": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Eyelashes_S_Thin",
+     "binding": "/Game/Crowd/Character/Female/f_003/Hair/GroomBinding/Eyelashes_S_Thin_m_med_nrw_head_skmesh_Face_Archetype_Binding",
      "materials": [
       "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
      ],

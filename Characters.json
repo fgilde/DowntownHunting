@@ -18,6 +18,6 @@
     {"id": "Rosa", "gender": "B", "body": "OverWeight", "head": 2, "outfit": 1, "hair": 2, "skin": 2, "skinTone": 0, "hairColor": 2, "patternColor": 2, "patternOption": 2},
     {"id": "Jade", "gender": "B", "body": "UnderWeight", "head": 3, "outfit": 3, "hair": 3, "skin": 3, "skinTone": 1, "hairColor": 3, "patternColor": 0, "patternOption": 3},
     {"id": "Mara", "gender": "B", "body": "NormalWeight", "head": 4, "outfit": 5, "hair": 4, "skin": 4, "skinTone": 0, "hairColor": 4, "patternColor": 1, "patternOption": 1},
-    {"id": "Lou", "gender": "B", "body": "NormalWeight", "head": 5, "outfit": 1, "hair": 5, "skin": 5, "skinTone": 1, "hairColor": 0, "patternColor": 2, "patternOption": 0}
+    {"id": "Lou", "gender": "B", "body": "NormalWeight", "head": 1, "outfit": 1, "hair": 2, "skin": 5, "skinTone": 1, "hairColor": 0, "patternColor": 2, "patternOption": 0}
   ]
 }

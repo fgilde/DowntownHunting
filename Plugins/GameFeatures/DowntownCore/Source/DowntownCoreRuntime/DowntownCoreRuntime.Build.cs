@@ -27,6 +27,7 @@ public class DowntownCoreRuntime : ModuleRules
 			{
 				"Core",
 				"LyraGame",
+				"DowntownUI",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

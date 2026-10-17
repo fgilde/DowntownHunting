@@ -413,6 +413,10 @@
 		{
 			"Name": "RigLogic",
 			"Enabled": true
+		},
+		{
+			"Name": "DowntownUI",
+			"Enabled": true
 		}
 	],
 	"EpicSampleNameHash": "451731683"
