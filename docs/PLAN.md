@@ -55,7 +55,7 @@ Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screens
   Werkzeug: kleines Editor-Tool, das aus Vorlage + Regeln einen neuen Modus erzeugt; das Menü listet alle Modi automatisch, der Host-Screen bietet Bots/LAN/Online.
 - ✅ TDM, Domination (Lyra Control), jeweils Third-Person und Ego.
 - 🔶 3 vs 3 vs 3: Teams und Team-Setup fertig, Lyra-Team-UI und Wertung noch auf 2 Teams (ausgeblendet). Später Search & Destroy, Free-for-all.
-- 🔶 Mehr Maps: ✅ `DH_Park` „Waterfront“ (Bürotürme am Stadtrand, TDM + Domination; Pipeline `cs_region.py` → `Import-CitySample.ps1` → `Build-RegionMap.ps1`). ⬜ weitere Stadtausschnitte (andere Viertel und Größen); Lyras Innen-Map im realistischen Look (Materialien tauschen, weniger Sci-Fi).
+- 🔶 Mehr Maps: ✅ `DH_Park` „Waterfront“ (Bürotürme am Stadtrand, TDM + Domination; Pipeline `cs_region.py` → `Import-CitySample.ps1` → `Build-RegionMap.ps1`). ✅ `DH_Depot` „Depot“ (Lyras Convolution mit Sichtbeton statt Sci-Fi-Raster, `restyle_depot.py`). ⬜ weitere Stadtausschnitte (andere Viertel und Größen); Depot: Sprungpads/Teleporter und Team-Leuchtstreifen noch im Lyra-Look.
 - ⬜ Spielgefühl: Trefferfeedback, Killfeed/Killcam, Scoreboard, Runden-Ende-Screen (teils Lyra).
 
 ## Phase 5 – Große Stadt

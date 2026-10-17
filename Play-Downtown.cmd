@@ -4,13 +4,15 @@ rem   Play-Downtown.cmd            Team Deathmatch on Downtown (DH_Block), switc
 rem   Play-Downtown.cmd FP         first person only
 rem   Play-Downtown.cmd DOM        Domination
 rem   Play-Downtown.cmd PARK       Waterfront (DH_Park) instead of Downtown; combinable: PARK DOM FP
+rem   Play-Downtown.cmd DEPOT      Depot (Lyra's Convolution, restyled)
 rem Rules are URL options (see docs\PLAN.md, "Modi aus Konfiguration").
 set EXP=B_DH_TDM
-set MAP=DH_Block
+set MAP=/Game/DH/Maps/DH_Block
 set RULES=?Perspective=Choice?Loadout=Pistol,Rifle,Shotgun
 for %%A in (%*) do (
   if /I "%%A"=="FP" set RULES=?Perspective=FP?Loadout=Pistol,Rifle,Shotgun
   if /I "%%A"=="DOM" set EXP=B_DH_Domination
-  if /I "%%A"=="PARK" set MAP=DH_Park
+  if /I "%%A"=="PARK" set MAP=/Game/DH/Maps/DH_Park
+  if /I "%%A"=="DEPOT" set MAP=/DowntownCore/Maps/DH_Depot
 )
-start "" "C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe" "%~dp0DowntownHunting.uproject" "/Game/DH/Maps/%MAP%?Experience=%EXP%%RULES%" -game -windowed -ResX=1600 -ResY=900 -log=Game.log
+start "" "C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe" "%~dp0DowntownHunting.uproject" "%MAP%?Experience=%EXP%%RULES%" -game -windowed -ResX=1600 -ResY=900 -log=Game.log

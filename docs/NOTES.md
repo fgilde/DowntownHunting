@@ -3,7 +3,7 @@
 ## Starten
 
 - `Play.cmd`: Spiel mit Hauptmenü (ohne Editor-Oberfläche, nutzt die installierte UE 5.8).
-- `Play-Downtown.cmd`: direkt Team Deathmatch in der Stadt mit Bots. Optionen kombinierbar: `FP` (Ego), `DOM` (Domination), `PARK` (Map Waterfront statt Downtown).
+- `Play-Downtown.cmd`: direkt Team Deathmatch in der Stadt mit Bots. Optionen kombinierbar: `FP` (Ego), `DOM` (Domination), `PARK` (Map Waterfront), `DEPOT` (Map Depot).
 - `Package.cmd`: baut eine eigenständige `DowntownHunting.exe` nach `Build\Packaged\Windows` (dauert beim ersten Mal lange).
 - `Start-Editor.cmd`: Editor mit Unreal-MCP auf Port 8765.
 - `Sync-Modes.cmd`: schreibt die Spielmodi aus `Modes.json` ins Menü (Editor vorher schließen).
@@ -126,3 +126,13 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
   3. `Tools\Build-RegionMap.ps1 <Name>` (Save-As, fremde Regionen raus, Streaming aus)
   4. Gameplay-Actors per Editor-Skript (Spawns per Boden-Trace, Kontrollpunkte, Wände), NavMesh mit `WorldPartitionNavigationDataBuilder`, Modi in `Modes.json` + `Sync-Modes.cmd`.
 - `p.Chaos.EnableAsyncInitBody=true` in `DefaultEngine.ini` (FastGeoStreaming verlangt es, sonst rote Bildschirmwarnung).
+
+## Map Depot / DH_Depot (2026-10-17)
+
+- Kopie von Lyras `L_Convolution_Blockout` in `/DowntownCore/Maps/DH_Depot` (Lyra selbst unverändert). `Tools/Python/restyle_depot.py` (Commandlet, beim ersten Mal zweimal laufen lassen: Kopie, dann Materialien) tauscht die Raster-Blockout-Materialien gegen Triplanar-Materialien ohne Gitterlinien (`/DowntownCore/Maps/Materials/MI_DH_Depot_*`: Sichtbeton, Estrich, lackierter Stahl, nasser Boden, Glas, warmweiße Leuchtröhren).
+- Nur Lyras eigene Megascans-Texturen verwendet: City-Sample-Texturen sind Virtual Textures, Lyras Triplanar-Material sampelt normale Texturen, im Spiel kam schwarz heraus (im Editor sah es richtig aus).
+- Die Kopie hat keine BuiltData, deshalb SkyLight auf Echtzeit-Capture (sonst wartet die Sky-Aufnahme im Spiel endlos, alles im Schatten schwarz).
+- Alle Actors immer geladen (kleine Arena, im Editor sofort sichtbar). Maps in `/DowntownCore/Maps` werden über das GameFeatureData von DowntownCore gescannt.
+- Modi `TDM_Depot`, `DOM_Depot`. Getestet: Domination mit Bots im Spielprozess.
+- Leuchtstreifen werden zur Laufzeit in Teamfarbe umgefärbt (Lyra-Logik der Kontrollpunkte), Sprungpads/Teleporter bleiben Lyra-Optik.
+- Kachelbilder ohne Editor-Symbole: Editor mit `-ExecCmds="py <skript>"` starten, das `LevelEditorSubsystem.editor_set_game_view(True)` setzt (`-ExecutePythonScript` beendet den Editor danach).
