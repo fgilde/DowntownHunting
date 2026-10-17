@@ -22,7 +22,7 @@ Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screens
 
 - ✅ Plugin `DowntownCore`, eigene Experiences (`B_DH_TDM`, `B_DH_TDM_FP`).
 - ✅ Branding: Titel, Hauptmenü, Name „Downtown Hunting“.
-- 🔶 **Perspektive Ego/Third-Person**: Ego-Kamera mit Körper-/Waffen-Kopien, Zielen mit Zoom, Rückstoß, kein Clipping ✅. Umschalten mit V / D-Pad oben, wenn die Modus-Regel es erlaubt (`Perspective=Choice`) ✅. Offen: Nachlade-/Feuer-Animationen im Ego-Bild.
+- 🔶 **Perspektive Ego/Third-Person**: Ego-Kamera mit Körper-/Waffen-Kopien, Zielen mit Zoom, Rückstoß, kein Clipping ✅. Umschalten mit V / D-Pad oben, wenn die Modus-Regel es erlaubt (`Perspective=Choice`) ✅. Offen: Nachlade-/Feuer-Animationen im Ego-Bild; eigene Ego-Arme (die Ego-Pose läuft auf dem City-Sample-Skelett, dessen Handknochen anders ausgerichtet sind als die des Lyra-Mannequins: die Pistole schwebt neben der Hand, Gewehr passt).
 - 🔶 **Menüs und Einstellungen** (von Lyra): ✅ DH-Look (Bernstein statt Cyan) für Menü, Pausenmenü, Einstellungen und HUD, einheitlich Englisch. ⬜ alle Einstellungsseiten durchgehen (Video/Grafik, Audio, Maus/Tastatur, Controller).
 - ⬜ **Controller-Support** durchgehend testen: Menüs, Ego- und Third-Person-Steuerung, Aim-Assist.
 - ✅ **Präsentation**: Splash-Screen beim Start, Intro (20 s Kamerafahrt durch Downtown mit Titel und Sound, überspringbar), danach Hauptmenü mit Stadt-Hintergrund. ⬜ Musik statt synthetischem Klangteppich.
