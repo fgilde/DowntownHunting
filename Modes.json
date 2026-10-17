@@ -1,9 +1,9 @@
 {
   "_help": [
     "Game modes shown in the menu (Play). Edit, then run Sync-Modes.cmd (editor must be closed).",
-    "game: TDM | Domination   (TDM3 = three teams, not finished yet)",
+    "game: TDM | Domination | FFA (free-for-all)   (TDM3 = three teams, not finished yet)",
     "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = Player (loadout builder) or a fixed comma list of Pistol, Rifle, Shotgun, AK47, MP5, M1911,",
-    "       ScoreLimit = points to win, TimeLimit = minutes (TDM only), GunGame = weapon list: each kill gives the next weapon, a kill with the last one wins",
+    "       ScoreLimit = points (FFA: kills) to win, TimeLimit = minutes (TDM, FFA), GunGame = weapon list: each kill gives the next weapon, a kill with the last one wins",
     "       WeaponSwitch = 1 | 0, NumBots = number of bots",
     "maps: /Game/DH/Maps/DH_Block (Downtown), /Game/DH/Maps/DH_Park (Waterfront), /DowntownCore/Maps/DH_Depot (Depot), /ShooterMaps/Maps/L_Expanse, /ShooterMaps/Maps/L_Convolution_Blockout",
     "image: menu tile (1024x512 texture); empty = image of the template"
@@ -77,6 +77,20 @@
         "TimeLimit": "5"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_QuickTDM_Downtown"
+    },
+    {
+      "id": "FFA_Downtown",
+      "title": "Free-for-all",
+      "subtitle": "Downtown",
+      "description": "Everyone against everyone. First to 20 kills or the most kills after ten minutes wins.",
+      "game": "FFA",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "7"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_FFA_Downtown"
     },
     {
       "id": "DOM_Downtown",
@@ -168,6 +182,20 @@
         "GunGame": "MP5,AK47,Rifle,Shotgun,M1911,Pistol"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_GunGame_Depot"
+    },
+    {
+      "id": "FFA_Depot",
+      "title": "Free-for-all",
+      "subtitle": "Depot",
+      "description": "Every player for themselves on three concrete floors. 20 kills or ten minutes.",
+      "game": "FFA",
+      "map": "/DowntownCore/Maps/DH_Depot",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "7"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_FFA_Depot"
     },
     {
       "id": "TDM_Expanse",

@@ -199,3 +199,10 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 ## Spielername, Killfeed
 - Offline/LAN setzt Unreals NULL-Subsystem den Rechnernamen als Spielernamen. `UDHPlayerChoicesComponent::ServerSetPlayerName` ersetzt ihn durch `PlayerName` aus `[DowntownHunting]` in GameUserSettings.ini (oder `-DHName=`), sonst „Hunter <Zahl aus Rechnername>“. Online-Namen (Steam) bleiben, wenn nichts eingestellt ist.
 - Killfeed (`W_EliminationFeed`, unten links), Hitmarker und Schadenszahlen kommen von Lyra und laufen.
+
+## Free-for-all
+- Statt Lyras 45 Zwei-Team-Knoten umzubauen: jeder Spieler bekommt ein eigenes Team (`B_DH_TeamSetup_FFA`, 16 Teams, alle rot). Lyras Freund/Feind-Logik (Bots, Namensschilder, Killfeed) passt damit unverändert.
+- Ersetzt werden nur die Teile, die genau zwei Teams kennen: `B_TeamDeathMatchScoring` → `UDHFreeForAllScoring` (Phasen Warmup → Playing → PostGame wie Lyra, Kills/Tode als Stat-Tags am PlayerState, Sieg bei Kill-Limit oder Zeitende) und `W_ScoreWidget_Elimination` → `UDHFreeForAllHud` (Slot `HUD.Slot.TeamScore`). Musik-Manager fällt weg (liest die Team-Wertung).
+- Experience `B_DH_FFA` entsteht aus `B_DH_TDM3` per `Tools/Python/mcp_make_ffa.py` (MCP im Editor). MCP-Eigenheit: Array verkleinern und Elemente ändern geht nicht in einem `set_properties`-Aufruf.
+- `ULyraGamePhaseSubsystem` ist nicht exportiert: `K2_StartPhase` per `ProcessEvent`.
+- Offen: Lyras Meldung „assigned to the Red Team“ erscheint auch im FFA.

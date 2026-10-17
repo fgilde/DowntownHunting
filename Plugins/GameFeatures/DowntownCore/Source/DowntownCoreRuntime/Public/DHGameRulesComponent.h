@@ -43,6 +43,9 @@ public:
 	EDHPerspectiveRule GetPerspectiveRule() const { return Perspective; }
 	bool AllowsWeaponSwitch() const { return bWeaponSwitch; }
 
+	// Rule values, 0 = not set (server only).
+	int32 GetScoreLimit() const { return ScoreLimit; }
+	int32 GetTimeLimit() const { return TimeLimit; }
 	const TArray<FName>& GetGunGame() const { return GunGame; }
 	// Gun Game step of a player (stat tag DH.GunGame.Level on the Lyra player state, replicated).
 	static int32 GetGunGameLevel(const APlayerState* PlayerState);
