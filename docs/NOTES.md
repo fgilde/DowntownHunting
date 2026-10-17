@@ -104,3 +104,11 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Animation: Lyras `ABP_Mannequin_CopyPose` läuft auf den City-Sample-Skeletten, weil `SK_Base`/`SK_Base_Head` als kompatibel zu `SK_Mannequin` markiert sind (`setup_citysample.py`).
 - Teamfarbe: `UDHTeamBandComponent` hängt Armbinden mit `M_TeamColorBasic` an beide Oberarme; Lyras Teamsystem färbt sie wie seine eigenen Cosmetics. Im Ego-Modus sind sie für den Besitzer ausgeblendet. ![Teamband](img/phase2-teamband.png)
 - Offen: männliche Figur ohne Haare (Groom nicht angehängt), Gesichter ohne Mimik.
+
+## Branding (2026-10-17)
+
+- Logo `T_DH_Logo` (`Tools/Branding/make_logo.py`): „DOWNTOWN“ mit Fadenkreuz-O, „HUNTING“ in Stencil, Skyline. Ersetzt das Lyra-Logo im Hauptmenü, in den Credits, im Start- und Ladebildschirm (`W_Credits`, `W_LyraStartup`, `W_LyraLogo_LoadingScreen`, `W_LyraLogo_Small`, `W_LyraFrontEnd`).
+- Credits: eigener Text statt 100 Platzhalterzeilen (Lyra, City Sample, Unreal Engine genannt).
+- Menü-Kacheln pro Modus aus Aufnahmen von DH_Block (`Tools/Branding/make_tiles.py`, `/DowntownCore/UI/Tiles`), in `Modes.json` per `image`.
+- Startkarten (Schnellspiel / Spiel starten / Durchsuchen) zeigen Stadtbilder statt Lyra-Roboter (`Tools/Python/apply_branding.py` leitet Lyras Texturen auf `/DowntownCore/UI/Cards` um).
+- Ladebildschirme `W_DH_LoadingScreen_Streets` (TDM) und `_Aerial` (Domination) mit Logo, gesetzt von `sync_modes.py`.

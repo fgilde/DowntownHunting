@@ -8,10 +8,15 @@ import unreal
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 FOLDER = "/DowntownCore/Playlists"
 GAMES = {
-    # game: (experience, template entry that provides tile icon and loading screen)
+    # game: (experience, template entry that provides the default tile icon)
     "TDM": ("B_DH_TDM", "/ShooterMaps/System/Playlists/DA_Expanse_TDM"),
     "TDM3": ("B_DH_TDM3", "/ShooterMaps/System/Playlists/DA_Expanse_TDM"),
     "Domination": ("B_DH_Domination", "/ShooterMaps/System/Playlists/DA_Convolution_ControlPoint"),
+}
+LOADING = {
+    "TDM": "/DowntownCore/UI/Loading/W_DH_LoadingScreen_Streets.W_DH_LoadingScreen_Streets_C",
+    "TDM3": "/DowntownCore/UI/Loading/W_DH_LoadingScreen_Streets.W_DH_LoadingScreen_Streets_C",
+    "Domination": "/DowntownCore/UI/Loading/W_DH_LoadingScreen_Aerial.W_DH_LoadingScreen_Aerial_C",
 }
 
 with open(os.path.join(ROOT, "Modes.json"), encoding="utf-8") as f:
@@ -42,6 +47,9 @@ for mode in modes:
     entry.set_editor_property("max_player_count", int(mode.get("maxPlayers", 16)))
     entry.set_editor_property("show_in_front_end", bool(mode.get("show", True)))
     entry.set_editor_property("is_default_experience", bool(mode.get("default", False)))
+    entry.set_editor_property("loading_screen_widget", unreal.load_class(None, LOADING[mode["game"]]))
+    if mode.get("image"):
+        entry.set_editor_property("tile_icon", unreal.load_asset(mode["image"]))
     assets.save_loaded_asset(entry, False)
     unreal.log("sync_modes: %s -> %s on %s %s" % (name, experience, mode["map"], mode.get("rules", {})))
 
