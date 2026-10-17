@@ -4,11 +4,13 @@
 
 #include "DHFreeForAllHud.generated.h"
 
+class UHorizontalBox;
 class UTextBlock;
 
 /**
- * Free-for-all score at the top of the HUD (HUD.Slot.TeamScore, in place of Lyra's two-team score widget):
- * own kills, match clock, leader, and the winner once the match is over. Built in code.
+ * Match score at the top of the HUD (HUD.Slot.TeamScore, in place of Lyra's two-team score widget), for
+ * UDHFreeForAllScoring: own kills, match clock, leader; for UDHTeamScoring: every team's kills in its colour and the clock.
+ * Shows the winner once the match is over. Built in code.
  */
 UCLASS()
 class UDHFreeForAllHud : public UUserWidget
@@ -28,4 +30,13 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UTextBlock> LeaderText;
+
+	UPROPERTY()
+	TObjectPtr<UHorizontalBox> TeamRow;
+
+	UPROPERTY()
+	TArray<TObjectPtr<UTextBlock>> TeamTexts;
+
+	UTextBlock* MakeText(int32 Size, const FLinearColor& Colour, float MinWidth) const;
+	void UpdateTeams();
 };

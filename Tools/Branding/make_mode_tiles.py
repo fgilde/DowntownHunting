@@ -1,6 +1,7 @@
 """Menu tiles for modes that need more than a map view (1024x512, same look as make_tiles.py):
-python make_mode_tiles.py <out_dir> <icon_dir> gungame NAME=capture.png | quick NAME=capture.png
-gungame: the weapon ladder as a row of white silhouettes (icon_dir/<Weapon>.png, 512x256 RGBA), quick: a stopwatch ring.
+python make_mode_tiles.py <out_dir> <icon_dir> gungame NAME=capture.png | quick NAME=capture.png | teams NAME=capture.png
+gungame: the weapon ladder as a row of white silhouettes (icon_dir/<Weapon>.png, 512x256 RGBA), quick: a stopwatch ring,
+teams: three team colour chevrons.
 The menu card shows only the upper middle of a tile (map name on top, title and text over the lower half, sides cut),
 so the overlay sits in a dark band at about 40 % height.
 Captures: in game with "DH.Shot <name> noui" (Saved/DHShots)."""
@@ -67,10 +68,24 @@ def quick(src):
     return img
 
 
+def teams(src):
+    y = 205
+    img = darken_band(base(src), y, 55)
+    d = ImageDraw.Draw(img)
+    for i, colour in enumerate([(230, 60, 40), (40, 120, 235), (60, 200, 90)]):
+        x = 512 + (i - 1) * 120
+        d.polygon([(x - 45, y - 40), (x + 5, y - 40), (x + 45, y), (x + 5, y + 40), (x - 45, y + 40), (x - 5, y)], fill=colour)
+    return img
+
+
+KINDS = {"gungame": lambda src, icons: gungame(src, icons), "quick": lambda src, icons: quick(src),
+         "teams": lambda src, icons: teams(src)}
+
+
 if __name__ == "__main__":
     out_dir, icon_dir = sys.argv[1], sys.argv[2]
     args = sys.argv[3:]
     for kind, spec in zip(args[::2], args[1::2]):
         name, src = spec.split("=", 1)
-        (gungame(src, icon_dir) if kind == "gungame" else quick(src)).save("%s/%s.png" % (out_dir, name))
+        KINDS[kind](src, icon_dir).save("%s/%s.png" % (out_dir, name))
         print(name)

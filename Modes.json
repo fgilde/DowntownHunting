@@ -1,7 +1,7 @@
 {
   "_help": [
     "Game modes shown in the menu (Play). Edit, then run Sync-Modes.cmd (editor must be closed).",
-    "game: TDM | Domination | FFA (free-for-all)   (TDM3 = three teams, not finished yet)",
+    "game: TDM | Domination | FFA (free-for-all) | TDM3 (three teams)",
     "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = Player (loadout builder) or a fixed comma list of Pistol, Rifle, Shotgun, AK47, MP5, M1911,",
     "       ScoreLimit = points (FFA: kills) to win, TimeLimit = minutes (TDM, FFA), GunGame = weapon list: each kill gives the next weapon, a kill with the last one wins",
     "       WeaponSwitch = 1 | 0, NumBots = number of bots",
@@ -91,6 +91,20 @@
         "NumBots": "7"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_FFA_Downtown"
+    },
+    {
+      "id": "TDM3_Downtown",
+      "title": "Three Teams",
+      "subtitle": "Downtown",
+      "description": "Red, blue and green fight over the same two blocks. First team to 30 kills wins.",
+      "game": "TDM3",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "8"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM3_Downtown"
     },
     {
       "id": "DOM_Downtown",

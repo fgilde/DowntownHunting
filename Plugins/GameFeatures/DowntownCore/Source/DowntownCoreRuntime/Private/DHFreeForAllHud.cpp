@@ -8,6 +8,8 @@
 #include "DHFreeForAllScoring.h"
 #include "DHScreenStyle.h"
 #include "GameFramework/PlayerState.h"
+#include "Teams/LyraTeamDisplayAsset.h"
+#include "Teams/LyraTeamSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DHFreeForAllHud)
 
@@ -24,21 +26,50 @@ void UDHFreeForAllHud::NativeOnInitialized()
 	UHorizontalBox* Row = WidgetTree->ConstructWidget<UHorizontalBox>();
 	Panel->SetContent(Row);
 
-	auto AddText = [this, Row](int32 Size, const FLinearColor& Colour, float MinWidth)
+	auto Add = [Row](UWidget* Widget)
 	{
-		UTextBlock* Text = WidgetTree->ConstructWidget<UTextBlock>();
-		Text->SetFont(DHScreenStyle::Font(TEXT("Orbitron"), Size));
-		Text->SetColorAndOpacity(Colour);
-		Text->SetJustification(ETextJustify::Center);
-		Text->SetMinDesiredWidth(MinWidth);
-		UHorizontalBoxSlot* Slot = Row->AddChildToHorizontalBox(Text);
+		UHorizontalBoxSlot* Slot = Row->AddChildToHorizontalBox(Widget);
 		Slot->SetVerticalAlignment(VAlign_Center);
 		Slot->SetPadding(FMargin(10, 0));
-		return Text;
 	};
-	OwnText = AddText(18, DHScreenStyle::Accent, 140.f);
-	ClockText = AddText(26, DHScreenStyle::Text, 110.f);
-	LeaderText = AddText(14, DHScreenStyle::Text, 220.f);
+	OwnText = MakeText(18, DHScreenStyle::Accent, 140.f);
+	Add(OwnText);
+	TeamRow = WidgetTree->ConstructWidget<UHorizontalBox>();
+	Add(TeamRow);
+	ClockText = MakeText(26, DHScreenStyle::Text, 110.f);
+	Add(ClockText);
+	LeaderText = MakeText(14, DHScreenStyle::Text, 220.f);
+	Add(LeaderText);
+}
+
+UTextBlock* UDHFreeForAllHud::MakeText(int32 Size, const FLinearColor& Colour, float MinWidth) const
+{
+	UTextBlock* Text = WidgetTree->ConstructWidget<UTextBlock>();
+	Text->SetFont(DHScreenStyle::Font(TEXT("Orbitron"), Size));
+	Text->SetColorAndOpacity(Colour);
+	Text->SetJustification(ETextJustify::Center);
+	Text->SetMinDesiredWidth(MinWidth);
+	return Text;
+}
+
+void UDHFreeForAllHud::UpdateTeams()
+{
+	ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	TArray<int32> TeamIds = Teams ? Teams->GetTeamIDs() : TArray<int32>();
+	TeamIds.Sort();
+	while (TeamTexts.Num() < TeamIds.Num())
+	{
+		UTextBlock* Text = MakeText(24, DHScreenStyle::Text, 60.f);
+		TeamRow->AddChildToHorizontalBox(Text)->SetPadding(FMargin(6, 0));
+		TeamTexts.Add(Text);
+	}
+	for (int32 Index = 0; Index < TeamIds.Num(); ++Index)
+	{
+		const ULyraTeamDisplayAsset* Display = Teams->GetTeamDisplayAsset(TeamIds[Index], INDEX_NONE);
+		const FLinearColor* Colour = Display ? Display->ColorParameters.Find(TEXT("TeamColor")) : nullptr;
+		TeamTexts[Index]->SetColorAndOpacity(Colour ? FSlateColor(*Colour) : FSlateColor(DHScreenStyle::Text));
+		TeamTexts[Index]->SetText(FText::AsNumber(UDHFreeForAllScoring::GetTeamKills(this, TeamIds[Index])));
+	}
 }
 
 void UDHFreeForAllHud::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -51,8 +82,16 @@ void UDHFreeForAllHud::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 		return;
 	}
 	const APlayerState* Own = GetOwningPlayerState();
-	OwnText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "FfaOwn", "YOU {0} / {1}"),
-		UDHFreeForAllScoring::GetKills(Own), Scoring->GetKillLimit()));
+	if (Scoring->IsTeamScoring())
+	{
+		OwnText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "TeamLimit", "TO {0}"), Scoring->GetKillLimit()));
+		UpdateTeams();
+	}
+	else
+	{
+		OwnText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "FfaOwn", "YOU {0} / {1}"),
+			UDHFreeForAllScoring::GetKills(Own), Scoring->GetKillLimit()));
+	}
 
 	const float Seconds = Scoring->GetSecondsLeft();
 	const int32 Whole = FMath::CeilToInt(FMath::Max(Seconds, 0.f));
@@ -63,6 +102,10 @@ void UDHFreeForAllHud::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 	{
 		LeaderText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "FfaWinner", "WINNER: {0}"), FText::FromString(Scoring->GetWinnerName())));
 		LeaderText->SetColorAndOpacity(DHScreenStyle::Accent);
+	}
+	else if (Scoring->IsTeamScoring())
+	{
+		LeaderText->SetText(FText::GetEmpty());
 	}
 	else if (const APlayerState* Leader = Scoring->GetLeader())
 	{

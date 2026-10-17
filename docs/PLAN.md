@@ -58,7 +58,7 @@ Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screens
 
   Werkzeug: kleines Editor-Tool, das aus Vorlage + Regeln einen neuen Modus erzeugt; das Menü listet alle Modi automatisch, der Host-Screen bietet Bots/LAN/Online.
 - ✅ TDM, Domination (Lyra Control), jeweils Third-Person und Ego. ✅ Gun Game (Downtown, Depot), Quick Match (10 Kills, 5 Minuten). ✅ Gun-Game-Stufe im HUD. ⬜ eigene Menü-Kacheln für Gun Game/Quick Match. ✅ Free-for-all (Downtown, Depot): jeder Spieler eigenes Team, eigene Wertung und eigenes Score-HUD statt Lyras 2-Team-Teilen.
-- 🔶 3 vs 3 vs 3: Teams und Team-Setup fertig, Lyra-Team-UI und Wertung noch auf 2 Teams (ausgeblendet). Später Search & Destroy, Free-for-all.
+- ✅ 3 vs 3 vs 3 („Three Teams“, Downtown): eigene Wertung für beliebig viele Teams, Score-HUD in Teamfarben. ⬜ Search & Destroy, Lyras Meldung „assigned to the Red Team“ im FFA.
 - 🔶 Mehr Maps: ✅ `DH_Park` „Waterfront“ (Bürotürme am Stadtrand, TDM + Domination; Pipeline `cs_region.py` → `Import-CitySample.ps1` → `Build-RegionMap.ps1`). ✅ `DH_Depot` „Depot“ (Lyras Convolution mit Sichtbeton statt Sci-Fi-Raster, `restyle_depot.py`). ⬜ weitere Stadtausschnitte (andere Viertel und Größen); Depot: Sprungpads/Teleporter und Team-Leuchtstreifen noch im Lyra-Look.
 - ⬜ Spielgefühl: Trefferfeedback, Killfeed/Killcam, Scoreboard, Runden-Ende-Screen (teils Lyra).
 

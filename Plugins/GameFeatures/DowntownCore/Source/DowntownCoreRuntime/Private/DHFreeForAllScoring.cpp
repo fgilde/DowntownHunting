@@ -9,6 +9,7 @@
 #include "Messages/LyraVerbMessageHelpers.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LyraPlayerState.h"
+#include "Teams/LyraTeamDisplayAsset.h"
 #include "Teams/LyraTeamSubsystem.h"
 #include "TimerManager.h"
 
@@ -26,6 +27,13 @@ UDHFreeForAllScoring::UDHFreeForAllScoring(const FObjectInitializer& ObjectIniti
 	SetIsReplicatedByDefault(true);
 	WarmupPhase = TSoftClassPtr<ULyraGamePhaseAbility>(FSoftObjectPath(TEXT("/ShooterCore/Experiences/Phases/Phase_Warmup.Phase_Warmup_C")));
 	PostGamePhase = TSoftClassPtr<ULyraGamePhaseAbility>(FSoftObjectPath(TEXT("/ShooterCore/Experiences/Phases/Phase_PostGame.Phase_PostGame_C")));
+}
+
+UDHTeamScoring::UDHTeamScoring(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	bTeamScoring = true;
+	KillLimit = 30;
 }
 
 const UDHFreeForAllScoring* UDHFreeForAllScoring::Find(const UObject* WorldContextObject)
@@ -102,7 +110,7 @@ void UDHFreeForAllScoring::OnWarmupEnded(const ULyraGamePhaseAbility* Phase)
 {
 	MatchEndTime = GetGameStateChecked<AGameStateBase>()->GetServerWorldTimeSeconds() + MatchMinutes * 60.0;
 	GetWorld()->GetTimerManager().SetTimer(ClockTimer, this, &ThisClass::EndMatch, MatchMinutes * 60.0f, false);
-	UE_LOG(LogDHRules, Log, TEXT("Free-for-all: %d kills or %d minutes"), KillLimit, MatchMinutes);
+	UE_LOG(LogDHRules, Log, TEXT("Match: %d kills or %d minutes"), KillLimit, MatchMinutes);
 }
 
 float UDHFreeForAllScoring::GetSecondsLeft() const
@@ -115,6 +123,12 @@ int32 UDHFreeForAllScoring::GetKills(const APlayerState* PlayerState)
 {
 	const ALyraPlayerState* LyraPlayerState = Cast<ALyraPlayerState>(PlayerState);
 	return LyraPlayerState ? LyraPlayerState->GetStatTagStackCount(EliminationsTag()) : 0;
+}
+
+int32 UDHFreeForAllScoring::GetTeamKills(const UObject* WorldContextObject, int32 TeamId)
+{
+	const ULyraTeamSubsystem* Teams = WorldContextObject ? WorldContextObject->GetWorld()->GetSubsystem<ULyraTeamSubsystem>() : nullptr;
+	return Teams ? Teams->GetTeamTagStackCount(TeamId, EliminationsTag()) : 0;
 }
 
 const APlayerState* UDHFreeForAllScoring::GetLeader() const
@@ -146,12 +160,18 @@ void UDHFreeForAllScoring::OnElimination(FGameplayTag Channel, const FLyraVerbMe
 	{
 		return;
 	}
-	Killer->AddStatTagStack(EliminationsTag(), 1);
-	if (ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>())
+	ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	const int32 KillerTeam = Teams ? Teams->FindTeamFromObject(Killer) : INDEX_NONE;
+	if (bTeamScoring && KillerTeam != INDEX_NONE && KillerTeam == Teams->FindTeamFromObject(Victim))
 	{
-		Teams->AddTeamTagStack(Teams->FindTeamFromObject(Killer), EliminationsTag(), 1);  // Lyra's scoreboard team rows
+		return;  // team kill
 	}
-	if (GetKills(Killer) >= KillLimit)
+	Killer->AddStatTagStack(EliminationsTag(), 1);
+	if (Teams)
+	{
+		Teams->AddTeamTagStack(KillerTeam, EliminationsTag(), 1);  // also Lyra's scoreboard team rows
+	}
+	if ((bTeamScoring ? GetTeamKills(this, KillerTeam) : GetKills(Killer)) >= KillLimit)
 	{
 		EndMatch();
 	}
@@ -164,8 +184,26 @@ void UDHFreeForAllScoring::EndMatch()
 		return;
 	}
 	GetWorld()->GetTimerManager().ClearTimer(ClockTimer);
-	const APlayerState* Leader = GetLeader();
-	WinnerName = Leader ? Leader->GetPlayerName() : TEXT("-");
-	UE_LOG(LogDHRules, Log, TEXT("Free-for-all won by %s"), *WinnerName);
+	if (bTeamScoring)
+	{
+		ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+		int32 Best = INDEX_NONE;
+		for (const int32 TeamId : Teams ? Teams->GetTeamIDs() : TArray<int32>())
+		{
+			if (Best == INDEX_NONE || GetTeamKills(this, TeamId) > GetTeamKills(this, Best))
+			{
+				Best = TeamId;
+			}
+		}
+		const ULyraTeamDisplayAsset* Display = Best != INDEX_NONE ? Teams->GetTeamDisplayAsset(Best, INDEX_NONE) : nullptr;
+		WinnerName = Display && !Display->TeamShortName.IsEmpty() ? Display->TeamShortName.ToString().ToUpper() + TEXT(" TEAM")
+			: FString::Printf(TEXT("TEAM %d"), Best);
+	}
+	else
+	{
+		const APlayerState* Leader = GetLeader();
+		WinnerName = Leader ? Leader->GetPlayerName() : TEXT("-");
+	}
+	UE_LOG(LogDHRules, Log, TEXT("Match won by %s"), *WinnerName);
 	StartPhase(PostGamePhase, NAME_None);
 }

@@ -75,7 +75,7 @@ Im Menü (Play) stehen nur noch die DH-Modi, Lyras eigene Einträge sind ausgebl
 | Domination | `B_DH_Domination` | L_Convolution_Blockout |
 | Domination (Ego) | `B_DH_Domination_FP` | L_Convolution_Blockout |
 
-3 vs 3 vs 3 (`B_DH_TDM3`, Team-Setup `B_DH_TeamSetup_ThreeTeams`, grünes Team `TeamDA_Green`) ist angelegt, aber ausgeblendet: Lyras Team-UI (Namensschilder, Score-HUD, Scoreboard, Killfeed; ~45 `Select`-Knoten in 8 Widgets) und die TDM-Wertung (`B_TeamDeathMatchScoring`) kennen nur 2 Teams. Umbau gehört zu Phase 4.
+3 vs 3 vs 3 (`B_DH_TDM3`, Team-Setup `B_DH_TeamSetup_ThreeTeams`, grünes Team `TeamDA_Green`): Wertung `UDHTeamScoring` und Score-HUD `UDHFreeForAllHud` statt Lyras Zwei-Team-Teilen (siehe Free-for-all). Lyras Scoreboard und Namensschilder kommen mit 3 Teams klar genug.
 
 NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (siehe Phase 0).
 
