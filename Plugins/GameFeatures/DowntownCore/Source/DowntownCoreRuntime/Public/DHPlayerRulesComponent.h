@@ -9,6 +9,7 @@ class UInputAction;
 class UInputComponent;
 class UInputMappingContext;
 class ULyraCameraMode;
+class UUserWidget;
 
 /**
  * Applies the match rules (UDHGameRulesComponent) to a pawn:
@@ -63,6 +64,9 @@ private:
 	bool bLoadoutGiven = false;
 	bool bMappingAdded = false;
 	TWeakObjectPtr<UInputComponent> BoundInputComponent;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> GunGameHud;
 
 	// Last choice of the local player, kept across respawns in "Choice" modes.
 	static bool bPreferFirstPerson;

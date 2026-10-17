@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include "Messages/LyraVerbMessage.h"
 #include "Messages/LyraVerbMessageHelpers.h"
+#include "Player/LyraPlayerState.h"
 #include "Teams/LyraTeamSubsystem.h"
 #include "Engine/World.h"
 #include "GameFramework/Controller.h"
@@ -18,6 +19,20 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DHGameRulesComponent)
 
 DEFINE_LOG_CATEGORY(LogDHRules);
+
+namespace
+{
+	FGameplayTag GunGameLevelTag()
+	{
+		return FGameplayTag::RequestGameplayTag(TEXT("DH.GunGame.Level"));
+	}
+}
+
+int32 UDHGameRulesComponent::GetGunGameLevel(const APlayerState* PlayerState)
+{
+	const ALyraPlayerState* LyraPlayerState = Cast<ALyraPlayerState>(PlayerState);
+	return LyraPlayerState ? LyraPlayerState->GetStatTagStackCount(GunGameLevelTag()) : 0;
+}
 
 UDHGameRulesComponent::UDHGameRulesComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -157,8 +172,8 @@ TArray<UClass*> UDHGameRulesComponent::GetLoadoutItems(const AController* Contro
 	TArray<FName> Names = Loadout;
 	if (!GunGame.IsEmpty())
 	{
-		const int32* Level = Controller ? GunGameLevels.Find(Controller->PlayerState.Get()) : nullptr;
-		Names = { GunGame[FMath::Min(Level ? *Level : 0, GunGame.Num() - 1)] };
+		const int32 Level = Controller ? GetGunGameLevel(Controller->PlayerState) : 0;
+		Names = { GunGame[FMath::Min(Level, GunGame.Num() - 1)] };
 	}
 	else if (bPlayerLoadout)
 	{
@@ -195,6 +210,7 @@ void UDHGameRulesComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UDHGameRulesComponent, Perspective);
 	DOREPLIFETIME(UDHGameRulesComponent, bWeaponSwitch);
+	DOREPLIFETIME(UDHGameRulesComponent, GunGame);
 }
 
 void UDHGameRulesComponent::OnElimination(FGameplayTag Channel, const FLyraVerbMessage& Message)
@@ -209,7 +225,13 @@ void UDHGameRulesComponent::OnElimination(FGameplayTag Channel, const FLyraVerbM
 		return;
 	}
 
-	const int32 Level = ++GunGameLevels.FindOrAdd(Killer);
+	ALyraPlayerState* LyraKiller = Cast<ALyraPlayerState>(Killer);
+	if (!LyraKiller)
+	{
+		return;
+	}
+	LyraKiller->AddStatTagStack(GunGameLevelTag(), 1);
+	const int32 Level = GetGunGameLevel(Killer);
 	UE_LOG(LogDHRules, Log, TEXT("Gun Game: %s level %d/%d"), *Killer->GetPlayerName(), Level, GunGame.Num());
 	if (Level >= GunGame.Num())
 	{

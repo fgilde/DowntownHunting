@@ -5,6 +5,7 @@
 #include "Camera/LyraCameraComponent.h"
 #include "Camera/LyraCameraMode.h"
 #include "DHGameRulesComponent.h"
+#include "DHGunGameHud.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -151,6 +152,11 @@ void UDHPlayerRulesComponent::BeginPlay()
 void UDHPlayerRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	GetWorld()->GetTimerManager().ClearTimer(RetryTimer);
+	if (GunGameHud)
+	{
+		GunGameHud->RemoveFromParent();
+		GunGameHud = nullptr;
+	}
 
 	const APawn* Pawn = GetPawn<APawn>();
 	const APlayerController* PC = Pawn ? Pawn->GetController<APlayerController>() : nullptr;
@@ -222,6 +228,13 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 		}
 		BoundInputComponent = InputComponent;
 	}
+	const UDHGameRulesComponent* Rules = UDHGameRulesComponent::Find(this);
+	if (Rules && !Rules->GetGunGame().IsEmpty() && !GunGameHud && PC)
+	{
+		GunGameHud = CreateWidget<UDHGunGameHud>(const_cast<APlayerController*>(PC));
+		GunGameHud->AddToViewport();
+	}
+
 	UInputMappingContext* Mapping = InputMapping.LoadSynchronous();
 	if (Input && Mapping && !Input->HasMappingContext(Mapping))
 	{

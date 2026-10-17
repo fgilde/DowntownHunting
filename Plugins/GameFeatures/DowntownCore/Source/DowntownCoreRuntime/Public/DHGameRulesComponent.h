@@ -43,6 +43,10 @@ public:
 	EDHPerspectiveRule GetPerspectiveRule() const { return Perspective; }
 	bool AllowsWeaponSwitch() const { return bWeaponSwitch; }
 
+	const TArray<FName>& GetGunGame() const { return GunGame; }
+	// Gun Game step of a player (stat tag DH.GunGame.Level on the Lyra player state, replicated).
+	static int32 GetGunGameLevel(const APlayerState* PlayerState);
+
 	// Server only. Item definition classes to give the controller's pawn, in quick bar order.
 	TArray<UClass*> GetLoadoutItems(const AController* Controller) const;
 
@@ -74,8 +78,9 @@ private:
 	bool bTimeLimitApplied = false;
 	FTimerHandle LimitsTimer;
 
+	UPROPERTY(Replicated)
 	TArray<FName> GunGame;
-	TMap<TWeakObjectPtr<const APlayerState>, int32> GunGameLevels;
+
 	bool bGunGameWon = false;
 	FGameplayMessageListenerHandle EliminationListener;
 };
