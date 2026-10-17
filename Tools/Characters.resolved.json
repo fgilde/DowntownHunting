@@ -1,0 +1,5307 @@
+{
+ "characters": [
+  {
+   "id": "Marcus",
+   "gender": "A",
+   "components": [
+    {
+     "name": "Body",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_body",
+     "materials": [
+      {
+       "slot": "lambert1",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9333829879760742,
+         "SourceV": 0.8516659736633301,
+         "AlbedoDataMult": 1.100000023841858
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Head",
+     "mesh": "/Game/Crowd/Character/Male/m_001/Face/m_001_nrw_FaceMesh",
+     "materials": [
+      {
+       "slot": "head_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_001/Materials/M_HeadSynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_001/Materials/M_HeadSynthesized",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9333829879760742,
+         "SourceV": 0.8516659736633301,
+         "AlbedoDataMult": 1.100000023841858,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "teeth_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_001/Materials/M_TeethCharacterCreator_Inst",
+       "instance": null
+      },
+      {
+       "slot": "saliva_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeLeft_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_001/Materials/M_EyeRefractive_Inst_L",
+       "instance": null
+      },
+      {
+       "slot": "eyeRight_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_001/Materials/M_EyeRefractive_Inst_R",
+       "instance": null
+      },
+      {
+       "slot": "eyeshell_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_EyeOcclusion_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyelashes_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_001/Materials/M_EyelashLowerLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeEdge_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "cartilage_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_Cartilage",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD1_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_001/Materials/LODs/M_HeadSynthesized_LOD1",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_001/Materials/LODs/M_HeadSynthesized_LOD1",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9333829879760742,
+         "SourceV": 0.8516659736633301,
+         "AlbedoDataMult": 1.100000023841858,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "eyelashes_HiLOD_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_001/Materials/M_EyeLash_HigherLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD2_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_001/Materials/LODs/M_HeadSynthesized_LOD2",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_001/Materials/LODs/M_HeadSynthesized_LOD2",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9333829879760742,
+         "SourceV": 0.8516659736633301,
+         "AlbedoDataMult": 1.100000023841858,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD3_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_001/Materials/LODs/M_HeadSynthesized_LOD3",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_001/Materials/LODs/M_HeadSynthesized_LOD3",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9333829879760742,
+         "SourceV": 0.8516659736633301,
+         "AlbedoDataMult": 1.100000023841858,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD4_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_001/Materials/LODs/M_HeadSynthesized_LOD4",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_001/Materials/LODs/M_HeadSynthesized_LOD4",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9333829879760742,
+         "SourceV": 0.8516659736633301,
+         "AlbedoDataMult": 1.100000023841858,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD57_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_001/Materials/LODs/M_HeadSynthesized_LOD5",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_001/Materials/LODs/M_HeadSynthesized_LOD5",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9333829879760742,
+         "SourceV": 0.8516659736633301,
+         "AlbedoDataMult": 1.100000023841858,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble_FollicleTexture"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Top",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_crewneck",
+     "materials": [
+      {
+       "slot": "M_Crewneck",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_crewneck",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 5.0,
+         "A_Pattern_Select": 0.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.40784313725490196,
+          0.396078431372549,
+          0.4117647058823529,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.17647058823529413,
+          0.09019607843137255,
+          0.06274509803921569,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_crewneck"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Bottom",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_jeans",
+     "materials": [
+      {
+       "slot": "M_Jeans",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_jeans",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          1.0,
+          0.9686274509803922,
+          1.0,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_jeans"
+       }
+      },
+      {
+       "slot": "M_Socks",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_socks",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 3.0,
+         "A_Pattern_Select": 0.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.0196078431372549,
+          0.0196078431372549,
+          0.0196078431372549,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.027450980392156862,
+          0.011764705882352941,
+          0.011764705882352941,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_socks"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Shoes",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_oxfords",
+     "materials": [
+      {
+       "slot": "M_Oxfords",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.023529411764705882,
+          0.0196078431372549,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords"
+       }
+      }
+     ]
+    }
+   ],
+   "grooms": [
+    {
+     "slot": "Hair",
+     "groom": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade",
+     "binding": "/Game/Crowd/Character/Male/m_001/Hair/GroomBinding/Hair_S_AfroFade_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.3799999952316284,
+      "hairRedness": 0.05000000074505806,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Eyelashes",
+     "groom": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Eyelashes_S_Fine",
+     "binding": "/Game/Crowd/Character/Male/m_001/Hair/GroomBinding/Eyelashes_S_Fine_f_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.3799999952316284,
+      "hairRedness": 0.05000000074505806,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Mustache",
+     "groom": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble",
+     "binding": "/Game/Crowd/Character/Male/m_001/Hair/GroomBinding/Mustache_S_Stubble_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.3799999952316284,
+      "hairRedness": 0.05000000074505806,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Beard",
+     "groom": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble",
+     "binding": "/Game/Crowd/Character/Male/m_001/Hair/GroomBinding/Beard_S_Stubble_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.3799999952316284,
+      "hairRedness": 0.05000000074505806,
+      "HairRoughness": 0.3700000047683716
+     }
+    }
+   ]
+  },
+  {
+   "id": "Dex",
+   "gender": "A",
+   "components": [
+    {
+     "name": "Body",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_body",
+     "materials": [
+      {
+       "slot": "lambert1",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4145349860191345,
+         "SourceV": 0.5757499933242798,
+         "AlbedoDataMult": 0.8999999761581421
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Head",
+     "mesh": "/Game/Crowd/Character/Male/m_002/Face/m_002_nrw_FaceMesh",
+     "materials": [
+      {
+       "slot": "head_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_002/Materials/M_HeadSynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_002/Materials/M_HeadSynthesized",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4145349860191345,
+         "SourceV": 0.5757499933242798,
+         "AlbedoDataMult": 0.8999999761581421,
+         "HairMelanin": 0.41999998688697815,
+         "HairRedness": 0.20000000298023224,
+         "EyebrowsMelanin": 0.41999998688697815,
+         "EyebrowsRedness": 0.20000000298023224,
+         "MustacheMelanin": 0.41999998688697815,
+         "MustacheRedness": 0.20000000298023224,
+         "BeardMelanin": 0.41999998688697815,
+         "BeardRedness": 0.20000000298023224
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Hair_M_SideSweptFringe_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_L_Scraggly_baked/Eyebrows_M_Scraggly_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "teeth_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_002/Materials/M_TeethCharacterCreator_Inst",
+       "instance": null
+      },
+      {
+       "slot": "saliva_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeLeft_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_002/Materials/M_EyeRefractive_Inst_L",
+       "instance": null
+      },
+      {
+       "slot": "eyeRight_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_002/Materials/M_EyeRefractive_Inst_R",
+       "instance": null
+      },
+      {
+       "slot": "eyeshell_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_EyeOcclusion_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyelashes_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_002/Materials/M_EyelashLowerLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeEdge_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "cartilage_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_Cartilage",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD1_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_002/Materials/LODs/M_HeadSynthesized_LOD1",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_002/Materials/LODs/M_HeadSynthesized_LOD1",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4145349860191345,
+         "SourceV": 0.5757499933242798,
+         "AlbedoDataMult": 0.8999999761581421,
+         "HairMelanin": 0.41999998688697815,
+         "HairRedness": 0.20000000298023224,
+         "EyebrowsMelanin": 0.41999998688697815,
+         "EyebrowsRedness": 0.20000000298023224,
+         "MustacheMelanin": 0.41999998688697815,
+         "MustacheRedness": 0.20000000298023224,
+         "BeardMelanin": 0.41999998688697815,
+         "BeardRedness": 0.20000000298023224
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Hair_M_SideSweptFringe_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_L_Scraggly_baked/Eyebrows_M_Scraggly_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "eyelashes_HiLOD_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_002/Materials/M_EyeLash_HigherLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD2_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_002/Materials/LODs/M_HeadSynthesized_LOD2",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_002/Materials/LODs/M_HeadSynthesized_LOD2",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4145349860191345,
+         "SourceV": 0.5757499933242798,
+         "AlbedoDataMult": 0.8999999761581421,
+         "HairMelanin": 0.41999998688697815,
+         "HairRedness": 0.20000000298023224,
+         "EyebrowsMelanin": 0.41999998688697815,
+         "EyebrowsRedness": 0.20000000298023224,
+         "MustacheMelanin": 0.41999998688697815,
+         "MustacheRedness": 0.20000000298023224,
+         "BeardMelanin": 0.41999998688697815,
+         "BeardRedness": 0.20000000298023224
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Hair_M_SideSweptFringe_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_L_Scraggly_baked/Eyebrows_M_Scraggly_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD3_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_002/Materials/LODs/M_HeadSynthesized_LOD3",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_002/Materials/LODs/M_HeadSynthesized_LOD3",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4145349860191345,
+         "SourceV": 0.5757499933242798,
+         "AlbedoDataMult": 0.8999999761581421,
+         "HairMelanin": 0.41999998688697815,
+         "HairRedness": 0.20000000298023224,
+         "EyebrowsMelanin": 0.41999998688697815,
+         "EyebrowsRedness": 0.20000000298023224,
+         "MustacheMelanin": 0.41999998688697815,
+         "MustacheRedness": 0.20000000298023224,
+         "BeardMelanin": 0.41999998688697815,
+         "BeardRedness": 0.20000000298023224
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Hair_M_SideSweptFringe_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_L_Scraggly_baked/Eyebrows_M_Scraggly_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD4_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_002/Materials/LODs/M_HeadSynthesized_LOD4",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_002/Materials/LODs/M_HeadSynthesized_LOD4",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4145349860191345,
+         "SourceV": 0.5757499933242798,
+         "AlbedoDataMult": 0.8999999761581421,
+         "HairMelanin": 0.41999998688697815,
+         "HairRedness": 0.20000000298023224,
+         "EyebrowsMelanin": 0.41999998688697815,
+         "EyebrowsRedness": 0.20000000298023224,
+         "MustacheMelanin": 0.41999998688697815,
+         "MustacheRedness": 0.20000000298023224,
+         "BeardMelanin": 0.41999998688697815,
+         "BeardRedness": 0.20000000298023224
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Hair_M_SideSweptFringe_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_L_Scraggly_baked/Eyebrows_M_Scraggly_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD57_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_002/Materials/LODs/M_HeadSynthesized_LOD5",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_002/Materials/LODs/M_HeadSynthesized_LOD5",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4145349860191345,
+         "SourceV": 0.5757499933242798,
+         "AlbedoDataMult": 0.8999999761581421,
+         "HairMelanin": 0.41999998688697815,
+         "HairRedness": 0.20000000298023224,
+         "EyebrowsMelanin": 0.41999998688697815,
+         "EyebrowsRedness": 0.20000000298023224,
+         "MustacheMelanin": 0.41999998688697815,
+         "MustacheRedness": 0.20000000298023224,
+         "BeardMelanin": 0.41999998688697815,
+         "BeardRedness": 0.20000000298023224
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Hair_M_SideSweptFringe_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_L_Scraggly_baked/Eyebrows_M_Scraggly_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full_FollicleTexture"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Top",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_buttonOpen",
+     "materials": [
+      {
+       "slot": "M_ButtonOpen",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_buttonOpen",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 7.0,
+         "A_Pattern_Select": 1.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.24705882352941178,
+          0.24705882352941178,
+          0.24705882352941178,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.0392156862745098,
+          0.03137254901960784,
+          0.03137254901960784,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_buttonOpen"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Bottom",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_jeansLong_belt",
+     "materials": [
+      {
+       "slot": "M_JeansLong",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_jeansLong",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.07058823529411765,
+          0.08235294117647059,
+          0.08627450980392157,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_jeansLong"
+       }
+      },
+      {
+       "slot": "M_Belt",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_leatherBelt",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.00784313725490196,
+          0.00784313725490196,
+          0.01568627450980392,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_leatherBelt"
+       }
+      },
+      {
+       "slot": "M_Socks",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_socks",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 11.0,
+         "A_Pattern_Select": 6.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.0196078431372549,
+          0.0196078431372549,
+          0.0196078431372549,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.043137254901960784,
+          0.047058823529411764,
+          0.07058823529411765,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_socks"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Shoes",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_oxfords",
+     "materials": [
+      {
+       "slot": "M_Oxfords",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.023529411764705882,
+          0.0196078431372549,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords"
+       }
+      }
+     ]
+    }
+   ],
+   "grooms": [
+    {
+     "slot": "Hair",
+     "groom": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Hair_M_SideSweptFringe",
+     "binding": "/Game/Crowd/Character/Male/m_003/Hair/GroomBinding/Hair_M_SideSweptFringe_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.41999998688697815,
+      "hairRedness": 0.20000000298023224,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Eyelashes",
+     "groom": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Eyelashes_S_Sparse",
+     "binding": "/Game/Crowd/Character/Male/m_002/Hair/GroomBinding/Eyelashes_S_Sparse_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.41999998688697815,
+      "hairRedness": 0.20000000298023224,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Mustache",
+     "groom": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy",
+     "binding": "/Game/Crowd/Character/Male/m_002/Hair/GroomBinding/Mustache_L_Messy_MaleHair_pfn_Face_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Facial_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.41999998688697815,
+      "hairRedness": 0.20000000298023224,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Beard",
+     "groom": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full",
+     "binding": "/Game/Crowd/Character/Male/m_002/Hair/GroomBinding/Beard_S_Full_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Facial_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.41999998688697815,
+      "hairRedness": 0.20000000298023224,
+      "HairRoughness": 0.3700000047683716
+     }
+    }
+   ]
+  },
+  {
+   "id": "Viktor",
+   "gender": "A",
+   "components": [
+    {
+     "name": "Body",
+     "mesh": "/Game/Crowd/Character/Male/OverWeight/Meshes/m_tal_ovw_body",
+     "materials": [
+      {
+       "slot": "lambert1",
+       "material": "/Game/Crowd/Character/Male/OverWeight/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/OverWeight/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.47775399684906006,
+         "SourceV": 0.35166698694229126,
+         "AlbedoDataMult": 1.0
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Head",
+     "mesh": "/Game/Crowd/Character/Male/m_003/Face/m_003_nrw_FaceMesh",
+     "materials": [
+      {
+       "slot": "head_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_003/Materials/M_HeadSynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_003/Materials/M_HeadSynthesized",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.47775399684906006,
+         "SourceV": 0.35166698694229126,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.5,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.5,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.5,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.5,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Hair_S_CurlyFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Unruly_baked/Eyebrows_M_Unruly_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Mustache_L_Wavy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "teeth_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_003/Materials/M_TeethCharacterCreator_Inst",
+       "instance": null
+      },
+      {
+       "slot": "saliva_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeLeft_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_003/Materials/M_EyeRefractive_Inst_L",
+       "instance": null
+      },
+      {
+       "slot": "eyeRight_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_003/Materials/M_EyeRefractive_Inst_R",
+       "instance": null
+      },
+      {
+       "slot": "eyeshell_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_EyeOcclusion_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyelashes_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_003/Materials/M_EyelashLowerLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeEdge_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "cartilage_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_Cartilage",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD1_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_003/Materials/LODs/M_HeadSynthesized_LOD1",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_003/Materials/LODs/M_HeadSynthesized_LOD1",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.47775399684906006,
+         "SourceV": 0.35166698694229126,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.5,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.5,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.5,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.5,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Hair_S_CurlyFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Unruly_baked/Eyebrows_M_Unruly_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Mustache_L_Wavy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "eyelashes_HiLOD_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_003/Materials/M_EyeLash_HigherLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD2_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_003/Materials/LODs/M_HeadSynthesized_LOD2",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_003/Materials/LODs/M_HeadSynthesized_LOD2",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.47775399684906006,
+         "SourceV": 0.35166698694229126,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.5,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.5,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.5,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.5,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Hair_S_CurlyFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Unruly_baked/Eyebrows_M_Unruly_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Mustache_L_Wavy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD3_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_003/Materials/LODs/M_HeadSynthesized_LOD3",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_003/Materials/LODs/M_HeadSynthesized_LOD3",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.47775399684906006,
+         "SourceV": 0.35166698694229126,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.5,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.5,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.5,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.5,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Hair_S_CurlyFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Unruly_baked/Eyebrows_M_Unruly_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Mustache_L_Wavy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD4_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_003/Materials/LODs/M_HeadSynthesized_LOD4",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_003/Materials/LODs/M_HeadSynthesized_LOD4",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.47775399684906006,
+         "SourceV": 0.35166698694229126,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.5,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.5,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.5,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.5,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Hair_S_CurlyFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Unruly_baked/Eyebrows_M_Unruly_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Mustache_L_Wavy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD57_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_003/Materials/LODs/M_HeadSynthesized_LOD5",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_003/Materials/LODs/M_HeadSynthesized_LOD5",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.47775399684906006,
+         "SourceV": 0.35166698694229126,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.5,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.5,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.5,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.5,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Hair_S_CurlyFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Unruly_baked/Eyebrows_M_Unruly_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Mustache_L_Wavy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap_FollicleTexture"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Top",
+     "mesh": "/Game/Crowd/Character/Male/OverWeight/Meshes/m_tal_ovw_crewneck_blazer",
+     "materials": [
+      {
+       "slot": "M_Crewneck",
+       "material": "/Game/Crowd/Character/Male/OverWeight/Materials/MI_m_ovw_crewneck",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 6.0,
+         "A_Pattern_Select": 6.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.40784313725490196,
+          0.396078431372549,
+          0.4117647058823529,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.027450980392156862,
+          0.08627450980392157,
+          0.03137254901960784,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/OverWeight/Materials/MI_m_ovw_crewneck"
+       }
+      },
+      {
+       "slot": "M_Blazer",
+       "material": "/Game/Crowd/Character/Male/OverWeight/Materials/MI_m_ovw_blazer",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 3.0,
+         "A_Pattern_Select": 15.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.12941176470588237,
+          0.12941176470588237,
+          0.12941176470588237,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.050980392156862744,
+          0.08235294117647059,
+          0.18823529411764706,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/OverWeight/Materials/MI_m_ovw_blazer"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Bottom",
+     "mesh": "/Game/Crowd/Character/Male/OverWeight/Meshes/m_tal_ovw_jeans",
+     "materials": [
+      {
+       "slot": "M_Jeans",
+       "material": "/Game/Crowd/Character/Male/OverWeight/Materials/MI_m_ovw_jeans",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          1.0,
+          0.9686274509803922,
+          1.0,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/OverWeight/Materials/MI_m_ovw_jeans"
+       }
+      },
+      {
+       "slot": "M_Socks",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_socks",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 10.0,
+         "A_Pattern_Select": 3.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.0196078431372549,
+          0.0196078431372549,
+          0.0196078431372549,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.03137254901960784,
+          0.0392156862745098,
+          0.03137254901960784,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_socks"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Shoes",
+     "mesh": "/Game/Crowd/Character/Male/OverWeight/Meshes/m_tal_ovw_oxfords",
+     "materials": [
+      {
+       "slot": "M_Oxfords",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.023529411764705882,
+          0.0196078431372549,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords"
+       }
+      }
+     ]
+    }
+   ],
+   "grooms": [
+    {
+     "slot": "Hair",
+     "groom": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Hair_S_CurlyFade",
+     "binding": "/Game/Crowd/Character/Male/m_002/Hair/GroomBinding/Hair_S_CurlyFade_m_med_nrw_head_skmesh_Face_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.5,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Eyelashes",
+     "groom": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Eyelashes_L_SlightCurl",
+     "binding": "/Game/Crowd/Character/Male/m_004/Hair/GroomBinding/Eyelashes_S_Sparse_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.5,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Mustache",
+     "groom": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Mustache_L_Wavy",
+     "binding": "/Game/Crowd/Character/Male/m_003/Hair/GroomBinding/Mustache_L_Wavy_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Facial_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.5,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Beard",
+     "groom": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap",
+     "binding": "/Game/Crowd/Character/Male/m_003/Hair/GroomBinding/Goatee_S_ChinStrap_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Facial_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.5,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    }
+   ]
+  },
+  {
+   "id": "Ray",
+   "gender": "A",
+   "components": [
+    {
+     "name": "Body",
+     "mesh": "/Game/Crowd/Character/Male/UnderWeight/Meshes/m_tal_unw_body",
+     "materials": [
+      {
+       "slot": "lambert1",
+       "material": "/Game/Crowd/Character/Male/UnderWeight/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/UnderWeight/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.5642349720001221,
+         "SourceV": 0.2909089922904968,
+         "AlbedoDataMult": 1.0
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Head",
+     "mesh": "/Game/Crowd/Character/Male/m_004/Face/m_004_nrw_FaceMesh",
+     "materials": [
+      {
+       "slot": "head_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_004/Materials/M_HeadSynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_004/Materials/M_HeadSynthesized",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.5642349720001221,
+         "SourceV": 0.2909089922904968,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.6000000238418579,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.6000000238418579,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.6000000238418579,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.6000000238418579,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Hair_S_BuzzCut_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Wide_baked/Eyebrows_M_Wide_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Mustache_S_ChinStrap_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "teeth_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_004/Materials/M_TeethCharacterCreator_Inst",
+       "instance": null
+      },
+      {
+       "slot": "saliva_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeLeft_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_004/Materials/M_EyeRefractive_Inst_L",
+       "instance": null
+      },
+      {
+       "slot": "eyeRight_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_004/Materials/M_EyeRefractive_Inst_R",
+       "instance": null
+      },
+      {
+       "slot": "eyeshell_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_EyeOcclusion_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyelashes_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_004/Materials/M_EyelashLowerLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeEdge_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "cartilage_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_Cartilage",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD1_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_004/Materials/LODs/M_HeadSynthesized_LOD1",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_004/Materials/LODs/M_HeadSynthesized_LOD1",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.5642349720001221,
+         "SourceV": 0.2909089922904968,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.6000000238418579,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.6000000238418579,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.6000000238418579,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.6000000238418579,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Hair_S_BuzzCut_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Wide_baked/Eyebrows_M_Wide_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Mustache_S_ChinStrap_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "eyelashes_HiLOD_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_004/Materials/M_EyeLash_HigherLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD2_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_004/Materials/LODs/M_HeadSynthesized_LOD2",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_004/Materials/LODs/M_HeadSynthesized_LOD2",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.5642349720001221,
+         "SourceV": 0.2909089922904968,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.6000000238418579,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.6000000238418579,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.6000000238418579,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.6000000238418579,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Hair_S_BuzzCut_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Wide_baked/Eyebrows_M_Wide_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Mustache_S_ChinStrap_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD3_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_004/Materials/LODs/M_HeadSynthesized_LOD3",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_004/Materials/LODs/M_HeadSynthesized_LOD3",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.5642349720001221,
+         "SourceV": 0.2909089922904968,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.6000000238418579,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.6000000238418579,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.6000000238418579,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.6000000238418579,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Hair_S_BuzzCut_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Wide_baked/Eyebrows_M_Wide_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Mustache_S_ChinStrap_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD4_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_004/Materials/LODs/M_HeadSynthesized_LOD4",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_004/Materials/LODs/M_HeadSynthesized_LOD4",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.5642349720001221,
+         "SourceV": 0.2909089922904968,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.6000000238418579,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.6000000238418579,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.6000000238418579,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.6000000238418579,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Hair_S_BuzzCut_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Wide_baked/Eyebrows_M_Wide_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Mustache_S_ChinStrap_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD57_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_004/Materials/LODs/M_HeadSynthesized_LOD5",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_004/Materials/LODs/M_HeadSynthesized_LOD5",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.5642349720001221,
+         "SourceV": 0.2909089922904968,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.6000000238418579,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.6000000238418579,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.6000000238418579,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.6000000238418579,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Hair_S_BuzzCut_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Wide_baked/Eyebrows_M_Wide_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Mustache_S_ChinStrap_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble_FollicleTexture"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Top",
+     "mesh": "/Game/Crowd/Character/Male/UnderWeight/Meshes/m_tal_unw_turtleneck",
+     "materials": [
+      {
+       "slot": "M_Turtleneck",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_turtleneck",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 4.0,
+         "A_Pattern_Select": 11.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.03137254901960784,
+          0.03529411764705882,
+          0.0392156862745098,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.17647058823529413,
+          0.14901960784313725,
+          0.1450980392156863,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_turtleneck"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Bottom",
+     "mesh": "/Game/Crowd/Character/Male/UnderWeight/Meshes/m_tal_unw_jeans",
+     "materials": [
+      {
+       "slot": "M_Jeans",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_jeans",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          1.0,
+          0.9686274509803922,
+          1.0,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_jeans"
+       }
+      },
+      {
+       "slot": "M_Socks",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_socks",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 20.0,
+         "A_Pattern_Select": 7.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.0196078431372549,
+          0.0196078431372549,
+          0.0196078431372549,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.027450980392156862,
+          0.011764705882352941,
+          0.011764705882352941,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_socks"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Shoes",
+     "mesh": "/Game/Crowd/Character/Male/UnderWeight/Meshes/m_tal_unw_oxfords",
+     "materials": [
+      {
+       "slot": "M_Oxfords",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.023529411764705882,
+          0.0196078431372549,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords"
+       }
+      }
+     ]
+    }
+   ],
+   "grooms": [
+    {
+     "slot": "Hair",
+     "groom": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Hair_S_BuzzCut",
+     "binding": "/Game/Crowd/Character/Male/m_004/Hair/GroomBinding/Hair_S_BuzzCut_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.6000000238418579,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Eyelashes",
+     "groom": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Eyelashes_S_Fine",
+     "binding": "/Game/Crowd/Character/Male/m_001/Hair/GroomBinding/Eyelashes_S_Fine_f_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.6000000238418579,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Mustache",
+     "groom": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Mustache_S_ChinStrap",
+     "binding": "/Game/Crowd/Character/Male/m_004/Hair/GroomBinding/Mustache_S_ChinStrap_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Facial_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.6000000238418579,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Beard",
+     "groom": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Beard_S_Stubble",
+     "binding": "/Game/Crowd/Character/Male/m_001/Hair/GroomBinding/Beard_S_Stubble_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.6000000238418579,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    }
+   ]
+  },
+  {
+   "id": "Sal",
+   "gender": "A",
+   "components": [
+    {
+     "name": "Body",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_body",
+     "materials": [
+      {
+       "slot": "lambert1",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7737900018692017,
+         "SourceV": 0.4099160134792328,
+         "AlbedoDataMult": 1.0
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Head",
+     "mesh": "/Game/Crowd/Character/Male/m_005/Face/m_005_nrw_FaceMesh",
+     "materials": [
+      {
+       "slot": "head_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_005/Materials/M_HeadSynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_005/Materials/M_HeadSynthesized",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7737900018692017,
+         "SourceV": 0.4099160134792328,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_006/Hair/Hair/Hair_S_HairLoss_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Messy_baked/Eyebrows_M_Messy_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "teeth_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_005/Materials/M_TeethCharacterCreator_Inst",
+       "instance": null
+      },
+      {
+       "slot": "saliva_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeLeft_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_005/Materials/M_EyeRefractive_Inst_L",
+       "instance": null
+      },
+      {
+       "slot": "eyeRight_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_005/Materials/M_EyeRefractive_Inst_R",
+       "instance": null
+      },
+      {
+       "slot": "eyeshell_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_EyeOcclusion_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyelashes_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_005/Materials/M_EyelashLowerLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeEdge_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "cartilage_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_Cartilage",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD1_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_005/Materials/LODs/M_HeadSynthesized_LOD1",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_005/Materials/LODs/M_HeadSynthesized_LOD1",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7737900018692017,
+         "SourceV": 0.4099160134792328,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_006/Hair/Hair/Hair_S_HairLoss_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Messy_baked/Eyebrows_M_Messy_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "eyelashes_HiLOD_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_005/Materials/M_EyeLash_HigherLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD2_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_005/Materials/LODs/M_HeadSynthesized_LOD2",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_005/Materials/LODs/M_HeadSynthesized_LOD2",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7737900018692017,
+         "SourceV": 0.4099160134792328,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_006/Hair/Hair/Hair_S_HairLoss_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Messy_baked/Eyebrows_M_Messy_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD3_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_005/Materials/LODs/M_HeadSynthesized_LOD3",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_005/Materials/LODs/M_HeadSynthesized_LOD3",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7737900018692017,
+         "SourceV": 0.4099160134792328,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_006/Hair/Hair/Hair_S_HairLoss_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Messy_baked/Eyebrows_M_Messy_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD4_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_005/Materials/LODs/M_HeadSynthesized_LOD4",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_005/Materials/LODs/M_HeadSynthesized_LOD4",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7737900018692017,
+         "SourceV": 0.4099160134792328,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_006/Hair/Hair/Hair_S_HairLoss_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Messy_baked/Eyebrows_M_Messy_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD57_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_005/Materials/LODs/M_HeadSynthesized_LOD5",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_005/Materials/LODs/M_HeadSynthesized_LOD5",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7737900018692017,
+         "SourceV": 0.4099160134792328,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_006/Hair/Hair/Hair_S_HairLoss_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Messy_baked/Eyebrows_M_Messy_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full_FollicleTexture"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Top",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_buttonDown_tie_blazer",
+     "materials": [
+      {
+       "slot": "M_ButtonDown",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_buttonDown",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 6.0,
+         "A_Pattern_Select": 0.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.24705882352941178,
+          0.24705882352941178,
+          0.24705882352941178,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.6470588235294118,
+          0.5529411764705883,
+          0.5803921568627451,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_buttonDown"
+       }
+      },
+      {
+       "slot": "M_Tie",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_Suspenders",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 6.0,
+         "A_Pattern_Select": 0.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.09411764705882353,
+          0.08627450980392157,
+          0.09803921568627451,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.4745098039215686,
+          0.4745098039215686,
+          0.4745098039215686,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_Suspenders"
+       }
+      },
+      {
+       "slot": "M_Blazer",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_blazer",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 6.0,
+         "A_Pattern_Select": 0.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.12941176470588237,
+          0.12941176470588237,
+          0.12941176470588237,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.07450980392156863,
+          0.09803921568627451,
+          0.07450980392156863,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_blazer"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Bottom",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_slacks",
+     "materials": [
+      {
+       "slot": "M_Slacks",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_slacks",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 4.800000071525574,
+         "A_Pattern_Select": 0.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.12941176470588237,
+          0.12941176470588237,
+          0.12941176470588237,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.07450980392156863,
+          0.09803921568627451,
+          0.07450980392156863,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_slacks"
+       }
+      },
+      {
+       "slot": "M_Socks",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_socks",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 3.0,
+         "A_Pattern_Select": 0.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.0196078431372549,
+          0.0196078431372549,
+          0.0196078431372549,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.043137254901960784,
+          0.047058823529411764,
+          0.07058823529411765,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_socks"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Shoes",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_oxfords",
+     "materials": [
+      {
+       "slot": "M_Oxfords",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.023529411764705882,
+          0.0196078431372549,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords"
+       }
+      }
+     ]
+    }
+   ],
+   "grooms": [
+    {
+     "slot": "Hair",
+     "groom": "/Game/Crowd/Character/Male/m_006/Hair/Hair/Hair_S_HairLoss",
+     "binding": "/Game/Crowd/Character/Male/m_006/Hair/GroomBinding/Hair_S_HairLoss_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards_Hairloss",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.3799999952316284,
+      "hairRedness": 0.05000000074505806,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Eyelashes",
+     "groom": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Eyelashes_S_Sparse",
+     "binding": "/Game/Crowd/Character/Male/m_002/Hair/GroomBinding/Eyelashes_S_Sparse_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.3799999952316284,
+      "hairRedness": 0.05000000074505806,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Mustache",
+     "groom": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Mustache_S_Stubble",
+     "binding": "/Game/Crowd/Character/Male/m_001/Hair/GroomBinding/Mustache_S_Stubble_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.3799999952316284,
+      "hairRedness": 0.05000000074505806,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Beard",
+     "groom": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Beard_S_Full",
+     "binding": "/Game/Crowd/Character/Male/m_002/Hair/GroomBinding/Beard_S_Full_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Facial_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.3799999952316284,
+      "hairRedness": 0.05000000074505806,
+      "HairRoughness": 0.3700000047683716
+     }
+    }
+   ]
+  },
+  {
+   "id": "Jonah",
+   "gender": "A",
+   "components": [
+    {
+     "name": "Body",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_body",
+     "materials": [
+      {
+       "slot": "lambert1",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.8592810034751892,
+         "SourceV": 0.9366670250892639,
+         "AlbedoDataMult": 1.0499999523162842
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Head",
+     "mesh": "/Game/Crowd/Character/Male/m_006/Face/m_006_nrw_FaceMesh",
+     "materials": [
+      {
+       "slot": "head_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_006/Materials/M_HeadSynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_006/Materials/M_HeadSynthesized",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.8592810034751892,
+         "SourceV": 0.9366670250892639,
+         "AlbedoDataMult": 1.0499999523162842,
+         "HairMelanin": 0.699999988079071,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.699999988079071,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.699999988079071,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.699999988079071,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "teeth_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_006/Materials/M_TeethCharacterCreator_Inst",
+       "instance": null
+      },
+      {
+       "slot": "saliva_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeLeft_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_006/Materials/M_EyeRefractive_Inst_L",
+       "instance": null
+      },
+      {
+       "slot": "eyeRight_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_006/Materials/M_EyeRefractive_Inst_R",
+       "instance": null
+      },
+      {
+       "slot": "eyeshell_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_EyeOcclusion_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyelashes_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_006/Materials/M_EyelashLowerLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeEdge_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "cartilage_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_Cartilage",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD1_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_006/Materials/LODs/M_HeadSynthesized_LOD1",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_006/Materials/LODs/M_HeadSynthesized_LOD1",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.8592810034751892,
+         "SourceV": 0.9366670250892639,
+         "AlbedoDataMult": 1.0499999523162842,
+         "HairMelanin": 0.699999988079071,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.699999988079071,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.699999988079071,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.699999988079071,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "eyelashes_HiLOD_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_006/Materials/M_EyeLash_HigherLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD2_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_006/Materials/LODs/M_HeadSynthesized_LOD2",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_006/Materials/LODs/M_HeadSynthesized_LOD2",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.8592810034751892,
+         "SourceV": 0.9366670250892639,
+         "AlbedoDataMult": 1.0499999523162842,
+         "HairMelanin": 0.699999988079071,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.699999988079071,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.699999988079071,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.699999988079071,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD3_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_006/Materials/LODs/M_HeadSynthesized_LOD3",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_006/Materials/LODs/M_HeadSynthesized_LOD3",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.8592810034751892,
+         "SourceV": 0.9366670250892639,
+         "AlbedoDataMult": 1.0499999523162842,
+         "HairMelanin": 0.699999988079071,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.699999988079071,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.699999988079071,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.699999988079071,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD4_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_006/Materials/LODs/M_HeadSynthesized_LOD4",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_006/Materials/LODs/M_HeadSynthesized_LOD4",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.8592810034751892,
+         "SourceV": 0.9366670250892639,
+         "AlbedoDataMult": 1.0499999523162842,
+         "HairMelanin": 0.699999988079071,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.699999988079071,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.699999988079071,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.699999988079071,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap_FollicleTexture"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD57_shader_shader",
+       "material": "/Game/Crowd/Character/Male/m_006/Materials/LODs/M_HeadSynthesized_LOD5",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Male/m_006/Materials/LODs/M_HeadSynthesized_LOD5",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.8592810034751892,
+         "SourceV": 0.9366670250892639,
+         "AlbedoDataMult": 1.0499999523162842,
+         "HairMelanin": 0.699999988079071,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.699999988079071,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.699999988079071,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.699999988079071,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked",
+         "FollicleMaskMustache": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy_FollicleTexture",
+         "FollicleMaskBeard": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap_FollicleTexture"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Top",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_buttonOpen_blazer",
+     "materials": [
+      {
+       "slot": "M_ButtonOpen",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_buttonOpen",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 9.0,
+         "A_Pattern_Select": 3.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.24705882352941178,
+          0.24705882352941178,
+          0.24705882352941178,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.6470588235294118,
+          0.5529411764705883,
+          0.5803921568627451,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_buttonOpen"
+       }
+      },
+      {
+       "slot": "M_Blazer",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_blazer",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 8.0,
+         "A_Pattern_Select": 3.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.12941176470588237,
+          0.12941176470588237,
+          0.12941176470588237,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.050980392156862744,
+          0.08235294117647059,
+          0.18823529411764706,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_blazer"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Bottom",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_jeansLong",
+     "materials": [
+      {
+       "slot": "M_JeansLong",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_jeansLong",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.07058823529411765,
+          0.08235294117647059,
+          0.08627450980392157,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_jeansLong"
+       }
+      },
+      {
+       "slot": "M_Socks",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_socks",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 15.0,
+         "A_Pattern_Select": 10.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.0196078431372549,
+          0.0196078431372549,
+          0.0196078431372549,
+          0.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.03137254901960784,
+          0.0392156862745098,
+          0.03137254901960784,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_m_nrw_socks"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Shoes",
+     "mesh": "/Game/Crowd/Character/Male/NormalWeight/Meshes/m_tal_nrw_oxfords",
+     "materials": [
+      {
+       "slot": "M_Oxfords",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.023529411764705882,
+          0.0196078431372549,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords"
+       }
+      }
+     ]
+    }
+   ],
+   "grooms": [
+    {
+     "slot": "Hair",
+     "groom": "/Game/Crowd/Character/Male/m_001/Hair/Hair/Hair_S_AfroFade",
+     "binding": "/Game/Crowd/Character/Male/m_001/Hair/GroomBinding/Hair_S_AfroFade_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.699999988079071,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Eyelashes",
+     "groom": "/Game/Crowd/Character/Male/m_004/Hair/Hair/Eyelashes_L_SlightCurl",
+     "binding": "/Game/Crowd/Character/Male/m_004/Hair/GroomBinding/Eyelashes_S_Sparse_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.699999988079071,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Mustache",
+     "groom": "/Game/Crowd/Character/Male/m_002/Hair/Hair/Mustache_L_Messy",
+     "binding": "/Game/Crowd/Character/Male/m_002/Hair/GroomBinding/Mustache_L_Messy_MaleHair_pfn_Face_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Facial_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.699999988079071,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Beard",
+     "groom": "/Game/Crowd/Character/Male/m_003/Hair/Hair/Goatee_S_ChinStrap",
+     "binding": "/Game/Crowd/Character/Male/m_003/Hair/GroomBinding/Goatee_S_ChinStrap_m_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Facial_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.699999988079071,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    }
+   ]
+  },
+  {
+   "id": "Kim",
+   "gender": "B",
+   "components": [
+    {
+     "name": "Body",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_body",
+     "materials": [
+      {
+       "slot": "lambert1",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9176639914512634,
+         "SourceV": 0.8016669750213623,
+         "AlbedoDataMult": 1.100000023841858
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Head",
+     "mesh": "/Game/Crowd/Character/Female/f_001/Face/f_001_nrw_FaceMesh",
+     "materials": [
+      {
+       "slot": "head_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_HeadSynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/M_HeadSynthesized",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9176639914512634,
+         "SourceV": 0.8016669750213623,
+         "AlbedoDataMult": 1.100000023841858,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_SlightArch_baked/Eyebrows_M_SlightArch_baked"
+        }
+       }
+      },
+      {
+       "slot": "teeth_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_TeethCharacterCreator_Inst",
+       "instance": null
+      },
+      {
+       "slot": "saliva_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeLeft_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_EyeRefractive_Inst_L",
+       "instance": null
+      },
+      {
+       "slot": "eyeRight_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_EyeRefractive_Inst_R",
+       "instance": null
+      },
+      {
+       "slot": "eyeshell_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_EyeOcclusion_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyelashes_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_EyelashLowerLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeEdge_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "cartilage_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_Cartilage",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD1_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/LODs/M_HeadSynthesized_LOD1",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/LODs/M_HeadSynthesized_LOD1",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9176639914512634,
+         "SourceV": 0.8016669750213623,
+         "AlbedoDataMult": 1.100000023841858,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_SlightArch_baked/Eyebrows_M_SlightArch_baked"
+        }
+       }
+      },
+      {
+       "slot": "eyelashes_HiLOD_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_EyeLash_HigherLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD2_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/LODs/M_HeadSynthesized_LOD2",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/LODs/M_HeadSynthesized_LOD2",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9176639914512634,
+         "SourceV": 0.8016669750213623,
+         "AlbedoDataMult": 1.100000023841858,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_SlightArch_baked/Eyebrows_M_SlightArch_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD3_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/LODs/M_HeadSynthesized_LOD3",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/LODs/M_HeadSynthesized_LOD3",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9176639914512634,
+         "SourceV": 0.8016669750213623,
+         "AlbedoDataMult": 1.100000023841858,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_SlightArch_baked/Eyebrows_M_SlightArch_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD4_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/LODs/M_HeadSynthesized_LOD4",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/LODs/M_HeadSynthesized_LOD4",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9176639914512634,
+         "SourceV": 0.8016669750213623,
+         "AlbedoDataMult": 1.100000023841858,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_SlightArch_baked/Eyebrows_M_SlightArch_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD57_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/LODs/M_HeadSynthesized_LOD5",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/LODs/M_HeadSynthesized_LOD5",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9176639914512634,
+         "SourceV": 0.8016669750213623,
+         "AlbedoDataMult": 1.100000023841858,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_SlightArch_baked/Eyebrows_M_SlightArch_baked"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Top",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_scoopneck_croppedJacket",
+     "materials": [
+      {
+       "slot": "M_Scoopneck",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_scoopneck",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 6.0,
+         "A_Pattern_Select": 6.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.4392156862745098,
+          0.43137254901960786,
+          0.4392156862745098,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.027450980392156862,
+          0.027450980392156862,
+          0.027450980392156862,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_scoopneck"
+       }
+      },
+      {
+       "slot": "M_CroppedJacket",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_croppedJacket",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 40.0,
+         "A_Pattern_Select": 2.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.2823529411764706,
+          0.30196078431372547,
+          0.30980392156862746,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_croppedJacket"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Bottom",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_slacks",
+     "materials": [
+      {
+       "slot": "M_Slacks",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_slacks",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 9.600000143051147,
+         "A_Pattern_Select": 2.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_slacks"
+       }
+      },
+      {
+       "slot": "M_Body",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 0.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.9176639914512634,
+         "SourceV": 0.8016669750213623,
+         "AlbedoDataMult": 1.100000023841858
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Shoes",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_oxfords",
+     "materials": [
+      {
+       "slot": "M_Oxfords",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.027450980392156862,
+          0.023529411764705882,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords"
+       }
+      }
+     ]
+    }
+   ],
+   "grooms": [
+    {
+     "slot": "Hair",
+     "groom": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil",
+     "binding": "/Game/Crowd/Character/Female/f_001/Hair/GroomBinding/Hair_S_Coil_f_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.3799999952316284,
+      "hairRedness": 0.05000000074505806,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Eyelashes",
+     "groom": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Eyelashes_L_SlightCurl",
+     "binding": "/Game/Crowd/Character/Female/f_001/Hair/GroomBinding/Eyelashes_L_SlightCurl_f_med_nrw_head_skmesh_Face_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.3799999952316284,
+      "hairRedness": 0.05000000074505806,
+      "HairRoughness": 0.3700000047683716
+     }
+    }
+   ]
+  },
+  {
+   "id": "Nina",
+   "gender": "B",
+   "components": [
+    {
+     "name": "Body",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_body",
+     "materials": [
+      {
+       "slot": "lambert1",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.43263500928878784,
+         "SourceV": 0.7966669797897339,
+         "AlbedoDataMult": 0.949999988079071
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Head",
+     "mesh": "/Game/Crowd/Character/Female/f_002/Face/f_002_nrw_FaceMesh",
+     "materials": [
+      {
+       "slot": "head_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/M_HeadSynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_002/Materials/M_HeadSynthesized",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.43263500928878784,
+         "SourceV": 0.7966669797897339,
+         "AlbedoDataMult": 0.949999988079071,
+         "HairMelanin": 0.41999998688697815,
+         "HairRedness": 0.20000000298023224,
+         "EyebrowsMelanin": 0.41999998688697815,
+         "EyebrowsRedness": 0.20000000298023224,
+         "MustacheMelanin": 0.41999998688697815,
+         "MustacheRedness": 0.20000000298023224,
+         "BeardMelanin": 0.41999998688697815,
+         "BeardRedness": 0.20000000298023224
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_002/Hair/Hair/Hair_S_Pixie_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Natural_baked/Eyebrows_M_Natural_baked"
+        }
+       }
+      },
+      {
+       "slot": "teeth_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/M_TeethCharacterCreator_Inst",
+       "instance": null
+      },
+      {
+       "slot": "saliva_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeLeft_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/M_EyeRefractive_Inst_L",
+       "instance": null
+      },
+      {
+       "slot": "eyeRight_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/M_EyeRefractive_Inst_R",
+       "instance": null
+      },
+      {
+       "slot": "eyeshell_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_EyeOcclusion_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyelashes_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/M_EyelashLowerLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeEdge_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "cartilage_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_Cartilage",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD1_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD1",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD1",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.43263500928878784,
+         "SourceV": 0.7966669797897339,
+         "AlbedoDataMult": 0.949999988079071,
+         "HairMelanin": 0.41999998688697815,
+         "HairRedness": 0.20000000298023224,
+         "EyebrowsMelanin": 0.41999998688697815,
+         "EyebrowsRedness": 0.20000000298023224,
+         "MustacheMelanin": 0.41999998688697815,
+         "MustacheRedness": 0.20000000298023224,
+         "BeardMelanin": 0.41999998688697815,
+         "BeardRedness": 0.20000000298023224
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_002/Hair/Hair/Hair_S_Pixie_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Natural_baked/Eyebrows_M_Natural_baked"
+        }
+       }
+      },
+      {
+       "slot": "eyelashes_HiLOD_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/M_EyeLash_HigherLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD2_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD2",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD2",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.43263500928878784,
+         "SourceV": 0.7966669797897339,
+         "AlbedoDataMult": 0.949999988079071,
+         "HairMelanin": 0.41999998688697815,
+         "HairRedness": 0.20000000298023224,
+         "EyebrowsMelanin": 0.41999998688697815,
+         "EyebrowsRedness": 0.20000000298023224,
+         "MustacheMelanin": 0.41999998688697815,
+         "MustacheRedness": 0.20000000298023224,
+         "BeardMelanin": 0.41999998688697815,
+         "BeardRedness": 0.20000000298023224
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_002/Hair/Hair/Hair_S_Pixie_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Natural_baked/Eyebrows_M_Natural_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD3_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD3",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD3",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.43263500928878784,
+         "SourceV": 0.7966669797897339,
+         "AlbedoDataMult": 0.949999988079071,
+         "HairMelanin": 0.41999998688697815,
+         "HairRedness": 0.20000000298023224,
+         "EyebrowsMelanin": 0.41999998688697815,
+         "EyebrowsRedness": 0.20000000298023224,
+         "MustacheMelanin": 0.41999998688697815,
+         "MustacheRedness": 0.20000000298023224,
+         "BeardMelanin": 0.41999998688697815,
+         "BeardRedness": 0.20000000298023224
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_002/Hair/Hair/Hair_S_Pixie_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Natural_baked/Eyebrows_M_Natural_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD4_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD4",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD4",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.43263500928878784,
+         "SourceV": 0.7966669797897339,
+         "AlbedoDataMult": 0.949999988079071,
+         "HairMelanin": 0.41999998688697815,
+         "HairRedness": 0.20000000298023224,
+         "EyebrowsMelanin": 0.41999998688697815,
+         "EyebrowsRedness": 0.20000000298023224,
+         "MustacheMelanin": 0.41999998688697815,
+         "MustacheRedness": 0.20000000298023224,
+         "BeardMelanin": 0.41999998688697815,
+         "BeardRedness": 0.20000000298023224
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_002/Hair/Hair/Hair_S_Pixie_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Natural_baked/Eyebrows_M_Natural_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD57_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD5",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_002/Materials/LODs/M_HeadSynthesized_LOD5",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.43263500928878784,
+         "SourceV": 0.7966669797897339,
+         "AlbedoDataMult": 0.949999988079071,
+         "HairMelanin": 0.41999998688697815,
+         "HairRedness": 0.20000000298023224,
+         "EyebrowsMelanin": 0.41999998688697815,
+         "EyebrowsRedness": 0.20000000298023224,
+         "MustacheMelanin": 0.41999998688697815,
+         "MustacheRedness": 0.20000000298023224,
+         "BeardMelanin": 0.41999998688697815,
+         "BeardRedness": 0.20000000298023224
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_002/Hair/Hair/Hair_S_Pixie_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Natural_baked/Eyebrows_M_Natural_baked"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Top",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_turtleneck",
+     "materials": [
+      {
+       "slot": "M_Turtleneck",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_turtleneck",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 20.0,
+         "A_Pattern_Select": 0.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.011764705882352941,
+          0.011764705882352941,
+          0.011764705882352941,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.36470588235294116,
+          0.36470588235294116,
+          0.36470588235294116,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_turtleneck"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Bottom",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_jeans_belt",
+     "materials": [
+      {
+       "slot": "M_Jeans",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_jeans",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.011764705882352941,
+          0.011764705882352941,
+          0.10196078431372549,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_jeans"
+       }
+      },
+      {
+       "slot": "M_Belt",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_leatherBelt",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.023529411764705882,
+          0.0196078431372549,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_leatherBelt"
+       }
+      },
+      {
+       "slot": "M_Body",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 1.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.43263500928878784,
+         "SourceV": 0.7966669797897339,
+         "AlbedoDataMult": 0.949999988079071
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Shoes",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_oxfords",
+     "materials": [
+      {
+       "slot": "M_Oxfords",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.027450980392156862,
+          0.023529411764705882,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_oxfords"
+       }
+      }
+     ]
+    }
+   ],
+   "grooms": [
+    {
+     "slot": "Hair",
+     "groom": "/Game/Crowd/Character/Female/f_002/Hair/Hair/Hair_S_Pixie",
+     "binding": "/Game/Crowd/Character/Female/f_002/Hair/GroomBinding/Hair_S_Pixie_f_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.41999998688697815,
+      "hairRedness": 0.20000000298023224,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Eyelashes",
+     "groom": "/Game/Crowd/Character/Female/f_002/Hair/Hair/Eyelashes_L_ThickCurl",
+     "binding": "/Game/Crowd/Character/Female/f_002/Hair/GroomBinding/Eyelashes_L_ThickCurl_f_med_nrw_head_skmesh_lod0_Face_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      null
+     ],
+     "scalars": {
+      "hairMelanin": 0.41999998688697815,
+      "hairRedness": 0.20000000298023224,
+      "HairRoughness": 0.3700000047683716
+     }
+    }
+   ]
+  },
+  {
+   "id": "Rosa",
+   "gender": "B",
+   "components": [
+    {
+     "name": "Body",
+     "mesh": "/Game/Crowd/Character/Female/OverWeight/Meshes/f_tal_ovw_body",
+     "materials": [
+      {
+       "slot": "lambert1",
+       "material": "/Game/Crowd/Character/Female/OverWeight/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/OverWeight/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.4708079993724823,
+         "SourceV": 0.9816669821739197,
+         "AlbedoDataMult": 0.8999999761581421
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Head",
+     "mesh": "/Game/Crowd/Character/Female/f_003/Face/f_003_nrw_FaceMesh",
+     "materials": [
+      {
+       "slot": "head_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_003/Materials/M_HeadSynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_003/Materials/M_HeadSynthesized",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.4708079993724823,
+         "SourceV": 0.9816669821739197,
+         "AlbedoDataMult": 0.8999999761581421,
+         "HairMelanin": 0.5,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.5,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.5,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.5,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked"
+        }
+       }
+      },
+      {
+       "slot": "teeth_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_003/Materials/M_TeethCharacterCreator_Inst",
+       "instance": null
+      },
+      {
+       "slot": "saliva_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeLeft_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_003/Materials/M_EyeRefractive_Inst_L",
+       "instance": null
+      },
+      {
+       "slot": "eyeRight_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_003/Materials/M_EyeRefractive_Inst_R",
+       "instance": null
+      },
+      {
+       "slot": "eyeshell_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_EyeOcclusion_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyelashes_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_003/Materials/M_EyelashLowerLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeEdge_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "cartilage_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_Cartilage",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD1_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_003/Materials/LODs/M_HeadSynthesized_LOD1",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_003/Materials/LODs/M_HeadSynthesized_LOD1",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.4708079993724823,
+         "SourceV": 0.9816669821739197,
+         "AlbedoDataMult": 0.8999999761581421,
+         "HairMelanin": 0.5,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.5,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.5,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.5,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked"
+        }
+       }
+      },
+      {
+       "slot": "eyelashes_HiLOD_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_003/Materials/M_EyeLash_HigherLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD2_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_003/Materials/LODs/M_HeadSynthesized_LOD2",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_003/Materials/LODs/M_HeadSynthesized_LOD2",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.4708079993724823,
+         "SourceV": 0.9816669821739197,
+         "AlbedoDataMult": 0.8999999761581421,
+         "HairMelanin": 0.5,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.5,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.5,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.5,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD3_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_003/Materials/LODs/M_HeadSynthesized_LOD3",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_003/Materials/LODs/M_HeadSynthesized_LOD3",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.4708079993724823,
+         "SourceV": 0.9816669821739197,
+         "AlbedoDataMult": 0.8999999761581421,
+         "HairMelanin": 0.5,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.5,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.5,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.5,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD4_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_003/Materials/LODs/M_HeadSynthesized_LOD4",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_003/Materials/LODs/M_HeadSynthesized_LOD4",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.4708079993724823,
+         "SourceV": 0.9816669821739197,
+         "AlbedoDataMult": 0.8999999761581421,
+         "HairMelanin": 0.5,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.5,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.5,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.5,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD57_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_003/Materials/LODs/M_HeadSynthesized_LOD5",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_003/Materials/LODs/M_HeadSynthesized_LOD5",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.4708079993724823,
+         "SourceV": 0.9816669821739197,
+         "AlbedoDataMult": 0.8999999761581421,
+         "HairMelanin": 0.5,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.5,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.5,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.5,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thick_baked/Eyebrows_M_Thick_baked"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Top",
+     "mesh": "/Game/Crowd/Character/Female/OverWeight/Meshes/f_tal_ovw_buttonOpen_blazer",
+     "materials": [
+      {
+       "slot": "M_ButtonOpen",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_buttonOpen",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 7.5,
+         "A_Pattern_Select": 1.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.4745098039215686,
+          0.4666666666666667,
+          0.4745098039215686,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.7647058823529411,
+          0.7647058823529411,
+          0.7647058823529411,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_buttonOpen"
+       }
+      },
+      {
+       "slot": "M_Blazer",
+       "material": "/Game/Crowd/Character/Female/OverWeight/Materials/MI_f_ovw_blazer",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 12.0,
+         "A_Pattern_Select": 1.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.4980392156862745,
+          0.2784313725490196,
+          0.1607843137254902,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/OverWeight/Materials/MI_f_ovw_blazer"
+       }
+      },
+      {
+       "slot": "M_Skirt",
+       "material": null,
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 9.600000143051147,
+         "A_Pattern_Select": 1.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.07058823529411765,
+          0.07058823529411765,
+          0.07058823529411765,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.4980392156862745,
+          0.2784313725490196,
+          0.1607843137254902,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": null
+       }
+      }
+     ]
+    },
+    {
+     "name": "Bottom",
+     "mesh": "/Game/Crowd/Character/Female/OverWeight/Meshes/f_tal_ovw_jeans",
+     "materials": [
+      {
+       "slot": "M_Jeans",
+       "material": "/Game/Crowd/Character/Female/OverWeight/Materials/MI_f_ovw_jeans",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.011764705882352941,
+          0.011764705882352941,
+          0.10196078431372549,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/OverWeight/Materials/MI_f_ovw_jeans"
+       }
+      },
+      {
+       "slot": "M_Body",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/OverWeight/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 2.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.4708079993724823,
+         "SourceV": 0.9816669821739197,
+         "AlbedoDataMult": 0.8999999761581421
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Shoes",
+     "mesh": "/Game/Crowd/Character/Female/OverWeight/Meshes/f_tal_ovw_dressFlats",
+     "materials": [
+      {
+       "slot": "M_DressFlats",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_dressFlats",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.023529411764705882,
+          0.0196078431372549,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_dressFlats"
+       }
+      }
+     ]
+    }
+   ],
+   "grooms": [
+    {
+     "slot": "Hair",
+     "groom": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_LowPonytail",
+     "binding": "/Game/Crowd/Character/Female/f_003/Hair/GroomBinding/Hair_S_LowPonytail_f_med_nrw_head_skmesh_lod0_Face_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.5,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Eyelashes",
+     "groom": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Eyelashes_S_Thin",
+     "binding": "/Game/Crowd/Character/Female/f_003/Hair/GroomBinding/Eyelashes_S_Thin_m_med_nrw_head_skmesh_Face_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.5,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    }
+   ]
+  },
+  {
+   "id": "Jade",
+   "gender": "B",
+   "components": [
+    {
+     "name": "Body",
+     "mesh": "/Game/Crowd/Character/Female/UnderWeight/Meshes/f_tal_unw_body",
+     "materials": [
+      {
+       "slot": "lambert1",
+       "material": "/Game/Crowd/Character/Female/UnderWeight/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/UnderWeight/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.606249988079071,
+         "SourceV": 0.3112500011920929,
+         "AlbedoDataMult": 1.0
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Head",
+     "mesh": "/Game/Crowd/Character/Female/f_004/Face/f_004_nrw_FaceMesh",
+     "materials": [
+      {
+       "slot": "head_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_004/Materials/M_HeadSynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_004/Materials/M_HeadSynthesized",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.606249988079071,
+         "SourceV": 0.3112500011920929,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.6000000238418579,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.6000000238418579,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.6000000238418579,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.6000000238418579,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_004/Hair/Hair/Hair_S_Updo_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Dense_baked/Eyebrows_M_Dense_baked"
+        }
+       }
+      },
+      {
+       "slot": "teeth_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_004/Materials/M_TeethCharacterCreator_Inst",
+       "instance": null
+      },
+      {
+       "slot": "saliva_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeLeft_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_004/Materials/M_EyeRefractive_Inst_L",
+       "instance": null
+      },
+      {
+       "slot": "eyeRight_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_004/Materials/M_EyeRefractive_Inst_R",
+       "instance": null
+      },
+      {
+       "slot": "eyeshell_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_EyeOcclusion_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyelashes_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_004/Materials/M_EyelashLowerLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeEdge_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "cartilage_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_Cartilage",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD1_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_004/Materials/LODs/M_HeadSynthesized_LOD1",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_004/Materials/LODs/M_HeadSynthesized_LOD1",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.606249988079071,
+         "SourceV": 0.3112500011920929,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.6000000238418579,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.6000000238418579,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.6000000238418579,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.6000000238418579,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_004/Hair/Hair/Hair_S_Updo_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Dense_baked/Eyebrows_M_Dense_baked"
+        }
+       }
+      },
+      {
+       "slot": "eyelashes_HiLOD_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_004/Materials/M_EyeLash_HigherLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD2_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_004/Materials/LODs/M_HeadSynthesized_LOD2",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_004/Materials/LODs/M_HeadSynthesized_LOD2",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.606249988079071,
+         "SourceV": 0.3112500011920929,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.6000000238418579,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.6000000238418579,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.6000000238418579,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.6000000238418579,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_004/Hair/Hair/Hair_S_Updo_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Dense_baked/Eyebrows_M_Dense_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD3_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_004/Materials/LODs/M_HeadSynthesized_LOD3",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_004/Materials/LODs/M_HeadSynthesized_LOD3",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.606249988079071,
+         "SourceV": 0.3112500011920929,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.6000000238418579,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.6000000238418579,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.6000000238418579,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.6000000238418579,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_004/Hair/Hair/Hair_S_Updo_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Dense_baked/Eyebrows_M_Dense_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD4_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_004/Materials/LODs/M_HeadSynthesized_LOD4",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_004/Materials/LODs/M_HeadSynthesized_LOD4",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.606249988079071,
+         "SourceV": 0.3112500011920929,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.6000000238418579,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.6000000238418579,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.6000000238418579,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.6000000238418579,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_004/Hair/Hair/Hair_S_Updo_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Dense_baked/Eyebrows_M_Dense_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD57_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_004/Materials/LODs/M_HeadSynthesized_LOD5",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_004/Materials/LODs/M_HeadSynthesized_LOD5",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.606249988079071,
+         "SourceV": 0.3112500011920929,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.6000000238418579,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.6000000238418579,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.6000000238418579,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.6000000238418579,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_004/Hair/Hair/Hair_S_Updo_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Dense_baked/Eyebrows_M_Dense_baked"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Top",
+     "mesh": "/Game/Crowd/Character/Female/UnderWeight/Meshes/f_tal_unw_turtleneck_blazer",
+     "materials": [
+      {
+       "slot": "M_Turtleneck",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_turtleneck",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 7.0,
+         "A_Pattern_Select": 11.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.011764705882352941,
+          0.011764705882352941,
+          0.011764705882352941,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.17647058823529413,
+          0.06666666666666667,
+          0.09019607843137255,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_turtleneck"
+       }
+      },
+      {
+       "slot": "M_Blazer",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_blazer",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 8.0,
+         "A_Pattern_Select": 3.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_blazer"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Bottom",
+     "mesh": "/Game/Crowd/Character/Female/UnderWeight/Meshes/f_tal_unw_slacks",
+     "materials": [
+      {
+       "slot": "M_Slacks",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_slacks",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 6.400000095367432,
+         "A_Pattern_Select": 3.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_slacks"
+       }
+      },
+      {
+       "slot": "M_Body",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/UnderWeight/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 3.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.606249988079071,
+         "SourceV": 0.3112500011920929,
+         "AlbedoDataMult": 1.0
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Shoes",
+     "mesh": "/Game/Crowd/Character/Female/UnderWeight/Meshes/f_tal_unw_loafers",
+     "materials": [
+      {
+       "slot": "M_Loafers",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_loafers",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.023529411764705882,
+          0.023529411764705882,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_loafers"
+       }
+      }
+     ]
+    }
+   ],
+   "grooms": [
+    {
+     "slot": "Hair",
+     "groom": "/Game/Crowd/Character/Female/f_003/Hair/Hair/Hair_S_Updo",
+     "binding": "/Game/Crowd/Character/Female/f_004/Hair/GroomBinding/Hair_S_Updo_f_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.6000000238418579,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Eyelashes",
+     "groom": "/Game/Crowd/Character/Female/f_004/Hair/Hair/Eyelashes_S_Sparse",
+     "binding": "/Game/Crowd/Character/Female/f_004/Hair/GroomBinding/Eyelashes_S_Sparse_m_med_nrw_head_skmesh_Face_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.6000000238418579,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    }
+   ]
+  },
+  {
+   "id": "Mara",
+   "gender": "B",
+   "components": [
+    {
+     "name": "Body",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_body",
+     "materials": [
+      {
+       "slot": "lambert1",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7742540240287781,
+         "SourceV": 0.5374280214309692,
+         "AlbedoDataMult": 1.0
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Head",
+     "mesh": "/Game/Crowd/Character/Female/f_005/Face/f_005_nrw_FaceMesh",
+     "materials": [
+      {
+       "slot": "head_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_005/Materials/M_HeadSynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_005/Materials/M_HeadSynthesized",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7742540240287781,
+         "SourceV": 0.5374280214309692,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.699999988079071,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.699999988079071,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.699999988079071,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.699999988079071,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_005/Hair/Hair/Hair_M_BobCurly_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked"
+        }
+       }
+      },
+      {
+       "slot": "teeth_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_005/Materials/M_TeethCharacterCreator_Inst",
+       "instance": null
+      },
+      {
+       "slot": "saliva_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeLeft_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_005/Materials/M_EyeRefractive_Inst_L",
+       "instance": null
+      },
+      {
+       "slot": "eyeRight_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_005/Materials/M_EyeRefractive_Inst_R",
+       "instance": null
+      },
+      {
+       "slot": "eyeshell_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_EyeOcclusion_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyelashes_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_005/Materials/M_EyelashLowerLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeEdge_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "cartilage_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_Cartilage",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD1_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_005/Materials/LODs/M_HeadSynthesized_LOD1",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_005/Materials/LODs/M_HeadSynthesized_LOD1",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7742540240287781,
+         "SourceV": 0.5374280214309692,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.699999988079071,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.699999988079071,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.699999988079071,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.699999988079071,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_005/Hair/Hair/Hair_M_BobCurly_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked"
+        }
+       }
+      },
+      {
+       "slot": "eyelashes_HiLOD_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_005/Materials/M_EyeLash_HigherLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD2_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_005/Materials/LODs/M_HeadSynthesized_LOD2",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_005/Materials/LODs/M_HeadSynthesized_LOD2",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7742540240287781,
+         "SourceV": 0.5374280214309692,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.699999988079071,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.699999988079071,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.699999988079071,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.699999988079071,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_005/Hair/Hair/Hair_M_BobCurly_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD3_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_005/Materials/LODs/M_HeadSynthesized_LOD3",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_005/Materials/LODs/M_HeadSynthesized_LOD3",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7742540240287781,
+         "SourceV": 0.5374280214309692,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.699999988079071,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.699999988079071,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.699999988079071,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.699999988079071,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_005/Hair/Hair/Hair_M_BobCurly_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD4_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_005/Materials/LODs/M_HeadSynthesized_LOD4",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_005/Materials/LODs/M_HeadSynthesized_LOD4",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7742540240287781,
+         "SourceV": 0.5374280214309692,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.699999988079071,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.699999988079071,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.699999988079071,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.699999988079071,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_005/Hair/Hair/Hair_M_BobCurly_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD57_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_005/Materials/LODs/M_HeadSynthesized_LOD5",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_005/Materials/LODs/M_HeadSynthesized_LOD5",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7742540240287781,
+         "SourceV": 0.5374280214309692,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.699999988079071,
+         "HairRedness": 0.25,
+         "EyebrowsMelanin": 0.699999988079071,
+         "EyebrowsRedness": 0.25,
+         "MustacheMelanin": 0.699999988079071,
+         "MustacheRedness": 0.25,
+         "BeardMelanin": 0.699999988079071,
+         "BeardRedness": 0.25
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_005/Hair/Hair/Hair_M_BobCurly_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Full_baked/Eyebrows_M_Full_baked"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Top",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_scoopneck",
+     "materials": [
+      {
+       "slot": "M_Scoopneck",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_scoopneck",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 6.0,
+         "A_Pattern_Select": 6.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.4392156862745098,
+          0.43137254901960786,
+          0.4392156862745098,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.18823529411764706,
+          0.26666666666666666,
+          0.20392156862745098,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_scoopneck"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Bottom",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_slacks_belt",
+     "materials": [
+      {
+       "slot": "M_Slacks",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_slacks",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 9.600000143051147,
+         "A_Pattern_Select": 2.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.2901960784313726,
+          0.2901960784313726,
+          0.2901960784313726,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_slacks"
+       }
+      },
+      {
+       "slot": "M_Belt",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_leatherBelt",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.023529411764705882,
+          0.0196078431372549,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_leatherBelt"
+       }
+      },
+      {
+       "slot": "M_Body",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 4.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.0,
+         "SourceU": 0.7742540240287781,
+         "SourceV": 0.5374280214309692,
+         "AlbedoDataMult": 1.0
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Shoes",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_loafers",
+     "materials": [
+      {
+       "slot": "M_Loafers",
+       "material": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_loafers",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.023529411764705882,
+          0.023529411764705882,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Male/NormalWeight/Materials/MI_loafers"
+       }
+      }
+     ]
+    }
+   ],
+   "grooms": [
+    {
+     "slot": "Hair",
+     "groom": "/Game/Crowd/Character/Female/f_005/Hair/Hair/Hair_M_BobCurly",
+     "binding": "/Game/Crowd/Character/Female/f_005/Hair/GroomBinding/Hair_M_BobCurly_f_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.699999988079071,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Eyelashes",
+     "groom": "/Game/Crowd/Character/Female/f_005/Hair/Hair/Eyelashes_S_Fine",
+     "binding": "/Game/Crowd/Character/Female/f_005/Hair/GroomBinding/Eyelashes_S_Fine_f_med_nrw_head_skmesh_lod0_Face_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.699999988079071,
+      "hairRedness": 0.25,
+      "HairRoughness": 0.3700000047683716
+     }
+    }
+   ]
+  },
+  {
+   "id": "Lou",
+   "gender": "B",
+   "components": [
+    {
+     "name": "Body",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_body",
+     "materials": [
+      {
+       "slot": "lambert1",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4505990147590637,
+         "SourceV": 0.6866670250892639,
+         "AlbedoDataMult": 1.0
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Head",
+     "mesh": "/Game/Crowd/Character/Female/f_006/Face/f_006_nrw_FaceMesh",
+     "materials": [
+      {
+       "slot": "head_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_006/Materials/M_HeadSynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_006/Materials/M_HeadSynthesized",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4505990147590637,
+         "SourceV": 0.6866670250892639,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked"
+        }
+       }
+      },
+      {
+       "slot": "teeth_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_006/Materials/M_TeethCharacterCreator_Inst",
+       "instance": null
+      },
+      {
+       "slot": "saliva_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeLeft_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_006/Materials/M_EyeRefractive_Inst_L",
+       "instance": null
+      },
+      {
+       "slot": "eyeRight_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_006/Materials/M_EyeRefractive_Inst_R",
+       "instance": null
+      },
+      {
+       "slot": "eyeshell_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_EyeOcclusion_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyelashes_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_006/Materials/M_EyelashLowerLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "eyeEdge_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_lacrimal_fluid_Inst",
+       "instance": null
+      },
+      {
+       "slot": "cartilage_shader_shader",
+       "material": "/Game/Crowd/Character/Shared/Materials/MetaHuman/M_Cartilage",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD1_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD1",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD1",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4505990147590637,
+         "SourceV": 0.6866670250892639,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked"
+        }
+       }
+      },
+      {
+       "slot": "eyelashes_HiLOD_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_006/Materials/M_EyeLash_HigherLODs_Inst",
+       "instance": null
+      },
+      {
+       "slot": "head_LOD2_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD2",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD2",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4505990147590637,
+         "SourceV": 0.6866670250892639,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD3_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD3",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD3",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4505990147590637,
+         "SourceV": 0.6866670250892639,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD4_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD4",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD4",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4505990147590637,
+         "SourceV": 0.6866670250892639,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked"
+        }
+       }
+      },
+      {
+       "slot": "head_LOD57_shader_shader",
+       "material": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD5",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_006/Materials/LODs/M_HeadSynthesized_LOD5",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4505990147590637,
+         "SourceV": 0.6866670250892639,
+         "AlbedoDataMult": 1.0,
+         "HairMelanin": 0.3799999952316284,
+         "HairRedness": 0.05000000074505806,
+         "EyebrowsMelanin": 0.3799999952316284,
+         "EyebrowsRedness": 0.05000000074505806,
+         "MustacheMelanin": 0.3799999952316284,
+         "MustacheRedness": 0.05000000074505806,
+         "BeardMelanin": 0.3799999952316284,
+         "BeardRedness": 0.05000000074505806
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT",
+         "Color_CHEST": "/Game/Textures/DefaultTexture_VT",
+         "FollicleMaskHair": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil_FollicleTexture",
+         "EyebrowsAttributeMap": "/Game/Crowd/Character/Shared/Textures/Hair/Eyebrows_M_Thin_baked/Eyebrows_M_Thin_baked"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Top",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_buttonOpen_blazer",
+     "materials": [
+      {
+       "slot": "M_Blazer",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_blazer",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 6.0,
+         "A_Pattern_Select": 0.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.09803921568627451,
+          0.09803921568627451,
+          0.09803921568627451,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.4980392156862745,
+          0.2784313725490196,
+          0.1607843137254902,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_blazer"
+       }
+      },
+      {
+       "slot": "M_ButtonOpen",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_buttonOpen",
+       "instance": {
+        "scalars": {
+         "A_Pattern_Scale": 6.0,
+         "A_Pattern_Select": 0.0,
+         "A_Pattern_RoughMult": 1.0
+        },
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.4745098039215686,
+          0.4666666666666667,
+          0.4745098039215686,
+          1.0
+         ],
+         "A_CrowdColor_pattern": [
+          0.7647058823529411,
+          0.7647058823529411,
+          0.7647058823529411,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_buttonOpen"
+       }
+      }
+     ]
+    },
+    {
+     "name": "Bottom",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_jeans",
+     "materials": [
+      {
+       "slot": "M_Jeans",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_jeans",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.011764705882352941,
+          0.011764705882352941,
+          0.10196078431372549,
+          1.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_nrw_jeans"
+       }
+      },
+      {
+       "slot": "M_Body",
+       "material": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+       "instance": {
+        "parent": "/Game/Crowd/Character/Female/f_001/Materials/M_BodySynthesized",
+        "scalars": {
+         "AtlasSelector": 5.0,
+         "MelaninRandomSeed": 0.0,
+         "RednessRandomSeed": 0.20000000298023224,
+         "SourceU": 0.4505990147590637,
+         "SourceV": 0.6866670250892639,
+         "AlbedoDataMult": 1.0
+        },
+        "vectors": {},
+        "textures": {
+         "Color_MAIN": "/Game/Textures/DefaultTexture_VT"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "Shoes",
+     "mesh": "/Game/Crowd/Character/Female/NormalWeight/Meshes/f_tal_nrw_dressFlats",
+     "materials": [
+      {
+       "slot": "M_DressFlats",
+       "material": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_dressFlats",
+       "instance": {
+        "scalars": {},
+        "vectors": {
+         "A_CrowdColor_main": [
+          0.027450980392156862,
+          0.023529411764705882,
+          0.0196078431372549,
+          0.0
+         ]
+        },
+        "textures": {},
+        "parent": "/Game/Crowd/Character/Female/NormalWeight/Materials/MI_f_dressFlats"
+       }
+      }
+     ]
+    }
+   ],
+   "grooms": [
+    {
+     "slot": "Hair",
+     "groom": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Hair_S_Coil",
+     "binding": "/Game/Crowd/Character/Female/f_001/Hair/GroomBinding/Hair_S_Coil_f_head_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Cards",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair",
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair_Helmet"
+     ],
+     "scalars": {
+      "hairMelanin": 0.3799999952316284,
+      "hairRedness": 0.05000000074505806,
+      "HairRoughness": 0.3700000047683716
+     }
+    },
+    {
+     "slot": "Eyelashes",
+     "groom": "/Game/Crowd/Character/Female/f_001/Hair/Hair/Eyelashes_L_SlightCurl",
+     "binding": "/Game/Crowd/Character/Female/f_001/Hair/GroomBinding/Eyelashes_L_SlightCurl_f_med_nrw_head_skmesh_Face_Archetype_Binding",
+     "materials": [
+      "/Game/Crowd/Character/Shared/Materials/MetaHuman/MI_Hair"
+     ],
+     "scalars": {
+      "hairMelanin": 0.3799999952316284,
+      "hairRedness": 0.05000000074505806,
+      "HairRoughness": 0.3700000047683716
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -22,6 +22,8 @@ public:
 
 protected:
 	virtual void OnRegister() override;
+	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void OnUnregister() override;
 
 	UPROPERTY(EditAnywhere, Category = "Team Band")

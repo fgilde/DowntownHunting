@@ -32,7 +32,7 @@ Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screens
 - ✅ City-Sample-Assets selektiv übernommen (Import-Skript + Manifeste, nicht in git).
 - ✅ Map `DH_Block` (2 × 2 Blöcke) mit Spawnpunkten, NavMesh, Randwänden; TDM + Domination darauf.
 - ✅ City-Sample-Hauptfiguren als Charaktere, Teamfarbe über Armbinden (Armbinden schmaler, für den eigenen Spieler ausgeblendet).
-- ⬜ **Mehr Charaktere + Auswahl**: weitere Figuren aus City Samples Crowd-Baukasten (Körper, Kleidung, Köpfe) als Lyra-Cosmetics; Charakter-Auswahl im Menü (gespeichert pro Spieler, im Netz repliziert), Zufall als Standard für Bots.
+- 🔶 **Mehr Charaktere + Auswahl**: ✅ 12 Figuren aus City Samples Crowd-Baukasten (`Characters.json`, `Sync-Characters.cmd`) + 2 Spielerfiguren; Auswahl gespeichert pro Spieler, per RPC zum Server, Bots zufällig. ⬜ Auswahl-Bildschirm im Menü (mit Vorschau).
 - ⬜ Begehbare Gebäude/Dachzugänge, zusätzliche Deckung, Map-Rand kaschieren (Nebel, Kulisse, Absperrungen statt Leere).
 - ⬜ Ziel: stabile 60+ FPS auf eigenem Rechner messen, Spielgefühl bewerten. **Entscheidungspunkt:** passt City Sample fürs Gameplay?
 

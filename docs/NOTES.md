@@ -148,3 +148,13 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 ## Team-Armbinden (2026-10-17)
 
 - Schmaler (3,5 cm) und für den eigenen Spieler unsichtbar (`SetOwnerNoSee`). Von hinten sah die dicke Binde wie eine rote Dose auf der Schulter aus.
+
+## Charaktere aus dem City-Sample-Baukasten (2026-10-17)
+
+- `Characters.json` (wie `Modes.json`): 12 Figuren aus City Samples Crowd (Geschlecht, Statur, Kopf, Outfit, Haare, Haut, Farbvarianten); `Tools/Crowd_catalog.txt` listet Köpfe und Outfits. Dazu bleiben die zwei City-Sample-Spielerfiguren (Hunter, Huntress).
+- `Sync-Characters.cmd`: 1. `cs_crowd_export.py` im City-Sample-Projekt löst die Auswahl über City Samples `CrowdCharacterDataAsset` auf und rechnet die Materialwerte aus, die City Sample zur Laufzeit per MID setzt (Haut-Atlas, Outfit-Farben/Muster, Haar-Melanin; nachgebaut aus `CrowdBlueprintLibrary.cpp`). 2. Import der Pakete (`Tools/CitySample_Crowd.txt`, ~4 GB lokal). 3. `sync_characters.py` erzeugt pro Figur `/DowntownCore/Characters/Crowd/<Id>/B_DH_Char_<Id>` (Körper, Kopf, Oberteil, Hose, Schuhe je mit Lyras CopyPose-ABP, Haare als Groom am Kopf, Material-Instanzen mit den gebackenen Werten) und schreibt die Liste nach `DefaultGame.ini`.
+- Kein City-Sample-C++ nötig. Plugins `HairStrands` und `RigLogic` an, `SkeletalMesh.UseExperimentalChunking=1` (sonst Dialog „Fehlende Projekteinstellungen“ beim Start).
+- Auswahl: `UDHCharacterSelectComponent` am Controller (alle DH-Experiences, ersetzt `B_DH_PickRandomCharacter`). Spieler: gewählte Figur aus `GameUserSettings.ini` (`[DowntownHunting] Character=`) oder `-DHCharacter=<Id>`, per Server-RPC; Bots: zufällig. Setzt die Figur über Lyras `ULyraControllerComponent_CharacterParts` (per Reflection, Klasse nicht exportiert).
+- Getestet: Viktor, Kim als Spieler; Bots bekommen gemischte Figuren.
+- Armbinde: wird jetzt für den eigenen Spieler ausgeblendet, sobald der Pawn besessen ist (Lyras Kosmetik-Actor hat keinen Owner, `OwnerNoSee` griff deshalb nicht).
+- Offen: Auswahl-Bildschirm im Menü, Statur/Kopf-Abgleich (Übergewicht nutzt den Normalgewicht-Kopf wie City Sample).
