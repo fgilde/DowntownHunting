@@ -22,6 +22,9 @@
 #include "OnlineSubsystemUtils.h"
 
 FName SETTING_ONLINESUBSYSTEM_VERSION(TEXT("OSSv1"));
+// Downtown Hunting: string key that only this game's sessions carry. Steam lobby searches cannot filter on bools, and
+// with the shared developer app id 480 the search otherwise times out on other games' lobbies.
+FName SETTING_PROJECT(TEXT("PROJECT"));
 #else
 #include "Online/OnlineSessionNames.h"
 #include "Interfaces/OnlineSessionDelegates.h"
@@ -208,6 +211,7 @@ public:
 		PingBucketSize = 50;
 
 		QuerySettings.Set(SETTING_ONLINESUBSYSTEM_VERSION, true, EOnlineComparisonOp::Equals);
+		QuerySettings.Set(SETTING_PROJECT, FString(FApp::GetProjectName()), EOnlineComparisonOp::Equals);
 
 		if (InSearchRequest->bUseLobbies)
 		{
@@ -549,6 +553,7 @@ void UCommonSessionSubsystem::CreateOnlineSessionInternalOSSv1(ULocalPlayer* Loc
 		HostSettings.Set(SETTING_MATCHING_TIMEOUT, 120.0f, EOnlineDataAdvertisementType::ViaOnlineService);
 		HostSettings.Set(SETTING_SESSION_TEMPLATE_NAME, FString(TEXT("GameSession")), EOnlineDataAdvertisementType::ViaOnlineService);
 		HostSettings.Set(SETTING_ONLINESUBSYSTEM_VERSION, true, EOnlineDataAdvertisementType::ViaOnlineService);
+		HostSettings.Set(SETTING_PROJECT, FString(FApp::GetProjectName()), EOnlineDataAdvertisementType::ViaOnlineService);
 
 		Sessions->CreateSession(*UserId, SessionName, HostSettings);
 		NotifySessionInformationUpdated(ECommonSessionInformationState::InGame, Request->ModeNameForAdvertisement, Request->GetMapName());

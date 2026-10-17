@@ -206,3 +206,9 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Experience `B_DH_FFA` entsteht aus `B_DH_TDM3` per `Tools/Python/mcp_make_ffa.py` (MCP im Editor). MCP-Eigenheit: Array verkleinern und Elemente ändern geht nicht in einem `set_properties`-Aufruf.
 - `ULyraGamePhaseSubsystem` ist nicht exportiert: `K2_StartPhase` per `ProcessEvent`.
 - Offen: Lyras Meldung „assigned to the Red Team“ erscheint auch im FFA.
+
+## Steam online (Stand)
+- `Play-Online.cmd` (`-CustomConfig=Steam`, App-ID 480): Steam-SDK und Client-API initialisieren, Hosten über das Menü (Start a Game, Network Online) erzeugt eine Steam-Lobby, der `SteamSocketsNetDriver` lauscht auf 7777, Match läuft.
+- Suche: App-ID 480 teilen sich viele Entwickler. Lyras Suchfilter `OSSv1=true` ist ein Bool, den Steam nicht filtern kann; die Suche bekam fremde Lobbys und lief nach 15 s in einen Timeout. Fix in `Plugins/CommonUser/.../CommonSessionSubsystem.cpp`: Host und Suche setzen zusätzlich `PROJECT=<Projektname>` (String). Danach findet die Suche nur noch die eigene Lobby.
+- Nicht prüfbar mit einem Steam-Account: Host und Sucher als derselbe Account bekommen die Lobby-Daten nicht (Timeout), Beitritt zu sich selbst geht über Steam P2P nicht. Test braucht einen zweiten Rechner mit anderem Steam-Account.
+- Erster Start einer Map: Figuren kurz schwarz, bis Texturen/Shader geladen sind (auch offline).

@@ -71,7 +71,7 @@ Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screens
 ## Phase 6 – Online
 
 - 🔶 Listen-Server/LAN: aus dem Editor getestet; aus dem Menü (Host/Join) noch testen.
-- ⬜ Online über Lyras CommonUser/Online-Subsystem (EOS oder Steam): Lobby, Freunde einladen, Serversuche.
+- 🔶 Online über Steam (`Play-Online.cmd`, Dev-App-ID 480): ✅ Steam-Login, Hosten mit Steam-Lobby und Steam-Sockets, Suche filtert auf eigene Lobbys. ⬜ Beitritt mit zweitem Rechner/Account testen, eigene App-ID (Steamworks), Freunde einladen, Packaged Build mit Steam.
 - ⬜ Dedizierte Server brauchen eine aus dem Quellcode gebaute Engine (Launcher-Engine kann keinen Server-Target bauen). Bis dahin Listen-Server.
 
 ## Risiken
