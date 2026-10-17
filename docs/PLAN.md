@@ -23,7 +23,7 @@ Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screens
 - ✅ Plugin `DowntownCore`, eigene Experiences (`B_DH_TDM`, `B_DH_TDM_FP`).
 - ✅ Branding: Titel, Hauptmenü, Name „Downtown Hunting“.
 - 🔶 **Perspektive Ego/Third-Person**: Ego-Kamera mit Körper-/Waffen-Kopien, Zielen mit Zoom, Rückstoß, kein Clipping ✅. Umschalten mit V / D-Pad oben, wenn die Modus-Regel es erlaubt (`Perspective=Choice`) ✅. Offen: Nachlade-/Feuer-Animationen im Ego-Bild.
-- ⬜ **Menüs und Einstellungen** (kommen größtenteils von Lyra, prüfen und an DH-Look anpassen): Pause-Menü, Video/Grafik, Audio, Maus/Tastatur inkl. Tastenbelegung, Controller inkl. Belegung und Empfindlichkeit.
+- 🔶 **Menüs und Einstellungen** (von Lyra): ✅ DH-Look (Bernstein statt Cyan) für Menü, Pausenmenü, Einstellungen und HUD, einheitlich Englisch. ⬜ alle Einstellungsseiten durchgehen (Video/Grafik, Audio, Maus/Tastatur, Controller).
 - ⬜ **Controller-Support** durchgehend testen: Menüs, Ego- und Third-Person-Steuerung, Aim-Assist.
 - ✅ **Präsentation**: Splash-Screen beim Start, Intro (20 s Kamerafahrt durch Downtown mit Titel und Sound, überspringbar), danach Hauptmenü mit Stadt-Hintergrund. ⬜ Musik statt synthetischem Klangteppich.
 
@@ -32,7 +32,7 @@ Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screens
 - ✅ City-Sample-Assets selektiv übernommen (Import-Skript + Manifeste, nicht in git).
 - ✅ Map `DH_Block` (2 × 2 Blöcke) mit Spawnpunkten, NavMesh, Randwänden; TDM + Domination darauf.
 - ✅ City-Sample-Hauptfiguren als Charaktere, Teamfarbe über Armbinden (Armbinden schmaler, für den eigenen Spieler ausgeblendet).
-- 🔶 **Mehr Charaktere + Auswahl**: ✅ 12 Figuren aus City Samples Crowd-Baukasten (`Characters.json`, `Sync-Characters.cmd`) + 2 Spielerfiguren; Auswahl gespeichert pro Spieler, per RPC zum Server, Bots zufällig. ✅ Auswahl-Bildschirm im Hauptmenü mit Porträts. ⬜ Auswahl auch im Pausenmenü, 3D-Vorschau.
+- 🔶 **Mehr Charaktere + Auswahl**: ✅ 12 Figuren aus City Samples Crowd-Baukasten (`Characters.json`, `Sync-Characters.cmd`) + 2 Spielerfiguren; Auswahl gespeichert pro Spieler, per RPC zum Server, Bots zufällig. ✅ Auswahl-Bildschirm im Hauptmenü mit Porträts. ✅ auch im Pausenmenü. ⬜ 3D-Vorschau.
 - ⬜ Begehbare Gebäude/Dachzugänge, zusätzliche Deckung, Map-Rand kaschieren (Nebel, Kulisse, Absperrungen statt Leere).
 - ⬜ Ziel: stabile 60+ FPS auf eigenem Rechner messen, Spielgefühl bewerten. **Entscheidungspunkt:** passt City Sample fürs Gameplay?
 
@@ -40,7 +40,7 @@ Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screens
 
 - ✅ Waffenwechsel mit mehreren Startwaffen (Lyra-Quickbar: 1–3, Mausrad, Gamepad), abschaltbar per Modus-Regel (`WeaponSwitch`, `Loadout`). ⬜ Waffen-Pickups auf den Stadt-Maps.
 - ⬜ Blacksite-Waffen (AK-47, MP5, M1911) migrieren, Lizenzen laut `THIRD_PARTY_ASSETS.md` prüfen; als Lyra-Weapon-Definitions mit eigenen Abilities (GAS).
-- ⬜ **Loadout-Builder**: im Menü Primär-/Sekundärwaffe (später Aufsätze, Gunsmith) wählen und als Loadouts speichern; im Match beim Spawn wählbar, sofern der Modus kein festes `Loadout` vorgibt.
+- 🔶 **Loadout-Builder**: ✅ Primär-/Sekundärwaffe im Haupt- und Pausenmenü, gilt bei `Loadout=Player`. ⬜ mehrere gespeicherte Loadouts, Aufsätze/Gunsmith, neue Waffen.
 
 ## Phase 4 – Modi und Maps
 

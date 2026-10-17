@@ -165,3 +165,11 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Neues normales Plugin `Plugins/DowntownUI` (lädt beim Start): Bildschirm und `UDHCharacterSettings` (Liste aus `DefaultGame.ini`, Wahl in `GameUserSettings.ini`, Ereignis `OnCharacterChosen`). Grund: das Game-Feature DowntownCore ist im Hauptmenü noch nicht geladen.
 - Porträts: `Tools/Branding/Portraits` → `/Game/DH/UI/Portraits`; aufgenommen im Editor (Game-View, Figuren über den Dächern von Downtown in der Sonne).
 - Armbinde rechts saß in der Schulter (rechte Armknochen zeigen mit X zur Körpermitte) – das war die „rote Dose“. Versatz für `_r`-Sockets wird jetzt gespiegelt.
+
+## Loadout-Builder, Pausenmenü, UI-Look (2026-10-17)
+
+- Hauptmenü und Pausenmenü: „Character“ und „Loadout“. `UDHLoadoutScreen` (DowntownUI): Primär- und Sekundärwaffe als Karten mit den HUD-Icons; doppelt gewählte Waffe wird getauscht. Liste und Standard-Loadout in `DefaultGame.ini` (`UDHLoadoutSettings`), Wahl in `GameUserSettings.ini`.
+- Modus-Regel `Loadout=Player` (alle Modi außer „Sidearms Only“): Spieler bringen ihr Loadout mit (`UDHPlayerChoicesComponent` → Server), Bots bekommen zufällig Gewehr oder Schrotflinte + Pistole. Neues Loadout gilt ab dem nächsten Spawn.
+- `UDHCharacterSelectComponent` heißt jetzt `UDHPlayerChoicesComponent` (CoreRedirect in `DefaultEngine.ini`).
+- UI-Look: `Tools/Python/restyle_ui.py` färbt 112 Material-Instanzen von Menü und HUD (`/Game/UI`) von Lyras Cyan/Blau auf Bernstein/warmes Graphit; Teamfarben bleiben.
+- Sprache: Spiel startet auf Englisch (`[Internationalization] Culture=en`), vorher Mischmasch aus deutschen Lyra-Texten und englischen eigenen. In den Optionen umstellbar.
