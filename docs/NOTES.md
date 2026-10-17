@@ -87,7 +87,7 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Menü: „Team Deathmatch / Downtown“ (Standard für Quickplay) und „Team Deathmatch (Ego) / Downtown“.
 - **City-Sample-Content ist nicht in git** (~15 GB, 8K-Texturen). Einrichtung auf einem neuen Rechner:
   1. City Sample (5.8) von Fab laden.
-  2. `Tools\Import-CitySample.ps1` (Map-Assets) und `Tools\Import-CitySample.ps1 -Manifest Tools\CitySample_Characters.txt`.
+  2. `Tools\Import-CitySample.ps1` (Map-Assets), dann mit `-Manifest Tools\CitySample_Characters.txt` und `-Manifest Tools\CitySample_DH_Block_Ring.txt`.
   3. `UnrealEditor-Cmd.exe DowntownHunting.uproject -run=pythonscript -script=Tools/Python/setup_citysample.py -nullrhi`
 - Hilfsskripte: `Tools/Python/save_dh_block.py` (Save-As der ausgedünnten Map), `flatten_dh_block.py` (Streaming aus, Data-Layer raus).
 - `Plugins/Traffic`: Content-only-Ersatz für City Samples Traffic-Plugin, enthält nur die Material-Funktion, die die Auto-Materialien brauchen.
@@ -95,7 +95,8 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Beim Builder-Lauf melden 24 Texturen fehlende Quell-Payloads (City-Sample-Pakete ohne eingebettete Editor-Daten); für Navigation und Spiel ohne Folgen.
 - Domination auf DH_Block: Kontrollpunkte A (NW-Kreuzung), B (Mitte), C (SO-Kreuzung). ![Domination](img/phase2-domination.png)
 - Neu platzierte Actors sind in WP-Maps standardmäßig räumlich gestreamt; danach `flatten_dh_block.py` erneut laufen lassen.
-- Offen: Map-Rand (Stadt endet abrupt, weiße Leere), FPS messen, Licht abstimmen, Dachzugänge/Innenräume.
+- Kulisse: Ring aus 1284 City-Sample-Actors (Gebäude, Boden, jeweils mit Kollision) von 125 bis 400 m um die Spielfläche, Ordner `CitySample_Backdrop`, damit die Stadt hinter den Randwänden weitergeht. Manifest `Tools/CitySample_DH_Block_Ring.txt` (+5,5 GB lokal), Übertragung mit `Tools/Python/add_ring_to_dh_block.py` (läuft im normalen Editor: `UnrealEditor.exe DowntownHunting.uproject -ExecutePythonScript=Tools/Python/add_ring_to_dh_block.py -quitafter`, Copy/Paste ist im Commandlet gesperrt). ![Kulisse](img/phase2-backdrop-ring.png)
+- Offen: FPS messen, Licht abstimmen, Dachzugänge/Innenräume.
 
 ## Charaktere (2026-10-16)
 
