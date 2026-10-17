@@ -3,9 +3,9 @@ Run once as commandlet: UnrealEditor-Cmd.exe DowntownHunting.uproject -run=pytho
 import unreal
 
 CARDS = {
-    "/Game/UI/Menu/Art/T_UI_TileArt_Host": "/DowntownCore/UI/Cards/T_DH_Card_Host",
-    "/Game/UI/Menu/Art/T_UI_TileArt_Quickplay": "/DowntownCore/UI/Cards/T_DH_Card_Quickplay",
-    "/Game/UI/Menu/Art/T_UI_TileArt_Browse": "/DowntownCore/UI/Cards/T_DH_Card_Browse",
+    "/Game/UI/Menu/Art/T_UI_TileArt_Host": "/Game/DH/UI/Cards/T_DH_Card_Host",
+    "/Game/UI/Menu/Art/T_UI_TileArt_Quickplay": "/Game/DH/UI/Cards/T_DH_Card_Quickplay",
+    "/Game/UI/Menu/Art/T_UI_TileArt_Browse": "/Game/DH/UI/Cards/T_DH_Card_Browse",
 }
 for lyra, ours in CARDS.items():
     if not unreal.EditorAssetLibrary.does_asset_exist(lyra):

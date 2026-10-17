@@ -14,9 +14,9 @@ GAMES = {
     "Domination": ("B_DH_Domination", "/ShooterMaps/System/Playlists/DA_Convolution_ControlPoint"),
 }
 LOADING = {
-    "TDM": "/DowntownCore/UI/Loading/W_DH_LoadingScreen_Streets.W_DH_LoadingScreen_Streets_C",
-    "TDM3": "/DowntownCore/UI/Loading/W_DH_LoadingScreen_Streets.W_DH_LoadingScreen_Streets_C",
-    "Domination": "/DowntownCore/UI/Loading/W_DH_LoadingScreen_Aerial.W_DH_LoadingScreen_Aerial_C",
+    "TDM": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Streets.W_DH_LoadingScreen_Streets_C",
+    "TDM3": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Streets.W_DH_LoadingScreen_Streets_C",
+    "Domination": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Aerial.W_DH_LoadingScreen_Aerial_C",
 }
 
 with open(os.path.join(ROOT, "Modes.json"), encoding="utf-8") as f:

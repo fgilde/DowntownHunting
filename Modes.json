@@ -20,7 +20,7 @@
         "Loadout": "Pistol,Rifle,Shotgun"
       },
       "default": true,
-      "image": "/DowntownCore/UI/Tiles/T_DH_Tile_TDM_Downtown"
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Downtown"
     },
     {
       "id": "TDM_Downtown_FP",
@@ -33,7 +33,7 @@
         "Perspective": "FP",
         "Loadout": "Pistol,Rifle,Shotgun"
       },
-      "image": "/DowntownCore/UI/Tiles/T_DH_Tile_TDM_Downtown_FP"
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Downtown_FP"
     },
     {
       "id": "Sidearms_Downtown",
@@ -47,7 +47,7 @@
         "Loadout": "Pistol",
         "WeaponSwitch": "0"
       },
-      "image": "/DowntownCore/UI/Tiles/T_DH_Tile_Sidearms_Downtown"
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_Sidearms_Downtown"
     },
     {
       "id": "DOM_Downtown",
@@ -60,7 +60,7 @@
         "Perspective": "Choice",
         "Loadout": "Pistol,Rifle,Shotgun"
       },
-      "image": "/DowntownCore/UI/Tiles/T_DH_Tile_DOM_Downtown"
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Downtown"
     },
     {
       "id": "DOM_Downtown_FP",
@@ -73,7 +73,7 @@
         "Perspective": "FP",
         "Loadout": "Pistol,Rifle,Shotgun"
       },
-      "image": "/DowntownCore/UI/Tiles/T_DH_Tile_DOM_Downtown_FP"
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Downtown_FP"
     },
     {
       "id": "TDM_Expanse",

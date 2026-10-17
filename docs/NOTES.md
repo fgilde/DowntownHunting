@@ -109,6 +109,8 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 
 - Logo `T_DH_Logo` (`Tools/Branding/make_logo.py`): „DOWNTOWN“ mit Fadenkreuz-O, „HUNTING“ in Stencil, Skyline. Ersetzt das Lyra-Logo im Hauptmenü, in den Credits, im Start- und Ladebildschirm (`W_Credits`, `W_LyraStartup`, `W_LyraLogo_LoadingScreen`, `W_LyraLogo_Small`, `W_LyraFrontEnd`).
 - Credits: eigener Text statt 100 Platzhalterzeilen (Lyra, City Sample, Unreal Engine genannt).
-- Menü-Kacheln pro Modus aus Aufnahmen von DH_Block (`Tools/Branding/make_tiles.py`, `/DowntownCore/UI/Tiles`), in `Modes.json` per `image`.
-- Startkarten (Schnellspiel / Spiel starten / Durchsuchen) zeigen Stadtbilder statt Lyra-Roboter (`Tools/Python/apply_branding.py` leitet Lyras Texturen auf `/DowntownCore/UI/Cards` um).
+- Menü-Kacheln pro Modus aus Aufnahmen von DH_Block (`Tools/Branding/make_tiles.py`, `/Game/DH/UI/Tiles`), in `Modes.json` per `image`.
+- Startkarten (Schnellspiel / Spiel starten / Durchsuchen) zeigen Stadtbilder statt Lyra-Roboter (`Tools/Python/apply_branding.py` leitet Lyras Texturen auf `/Game/DH/UI/Cards` um).
 - Ladebildschirme `W_DH_LoadingScreen_Streets` (TDM) und `_Aerial` (Domination) mit Logo, gesetzt von `sync_modes.py`.
+- Hauptmenü-Hintergrund: Stadtbild `T_DH_Menu_Background` statt Lyras Halle. ![Menü](img/branding-menu.png)
+- Alle Branding-Assets liegen in `/Game/DH/UI` (nicht im Game-Feature-Plugin): Lyras Basis-Widgets in `/Game` dürfen nicht auf Plugin-Content verweisen (Asset-Prüfung „Unzulässige Referenz“, im gepackten Spiel nicht sicher geladen).
