@@ -40,6 +40,7 @@ public class DowntownCoreRuntime : ModuleRules
 				"Engine",
 				"GameplayAbilities",
 				"GameplayTags",
+				"GameplayMessageRuntime",
 				"EnhancedInput",
 				"ModularGameplay",
 				"Slate",

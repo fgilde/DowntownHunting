@@ -191,3 +191,7 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Unveränderte Kopien im Commandlet nicht neu speichern: Absturz in AnimationData.
 - HUD-Icons (`make_weapon_icons.py`): Hintergrund = breiter Median der Himmels-Aufnahme, größter Fleck, Löcher gefüllt. Weiß auf **schwarzem** transparentem Grund: Lyras Schnellleisten-Material nutzt die Farbe, nicht nur Alpha.
 - Loadout ersetzt Lyras Startpistole, außer sie gehört zum Loadout (`UDHPlayerRulesComponent::GiveLoadout`). Bots: zufällig Rifle/Shotgun/AK47/MP5 + Pistol/M1911.
+
+## Regeln ScoreLimit, TimeLimit, GunGame
+- Lyras Wertung liegt in Blueprints am GameState (`B_TeamDeathMatchScoring`, `B_ControlPointScoring`): `TargetScore` (int, Lyra rechnet ihn bei Spielstart aus der Spielerzahl neu, deshalb setzt `UDHGameRulesComponent` ihn jede Sekunde) und `CountDownTime` (double, Sekunden; erst 15 = Aufwärmen, dann 720 = Spieluhr). Domination hat keine Uhr.
+- Gun Game hört auf `Lyra.Elimination.Message`, Stufe pro PlayerState. Waffentausch einen Tick später über `UDHPlayerRulesComponent::RefreshLoadout` (die Feuer-Ability des Kill-Schusses läuft noch). Sieg: Ziel auf Teampunkte + 1 und den Kill erneut senden, Lyras Wertung beendet das Match (zählt den letzten Kill doppelt in der Statistik).

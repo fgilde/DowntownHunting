@@ -2,7 +2,8 @@
   "_help": [
     "Game modes shown in the menu (Play). Edit, then run Sync-Modes.cmd (editor must be closed).",
     "game: TDM | Domination   (TDM3 = three teams, not finished yet)",
-    "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = Player (loadout builder) or a fixed comma list of Pistol, Rifle, Shotgun,",
+    "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = Player (loadout builder) or a fixed comma list of Pistol, Rifle, Shotgun, AK47, MP5, M1911,",
+    "       ScoreLimit = points to win, TimeLimit = minutes (TDM only), GunGame = weapon list: each kill gives the next weapon, a kill with the last one wins",
     "       WeaponSwitch = 1 | 0, NumBots = number of bots",
     "maps: /Game/DH/Maps/DH_Block (Downtown), /Game/DH/Maps/DH_Park (Waterfront), /DowntownCore/Maps/DH_Depot (Depot), /ShooterMaps/Maps/L_Expanse, /ShooterMaps/Maps/L_Convolution_Blockout",
     "image: menu tile (1024x512 texture); empty = image of the template"
@@ -48,6 +49,32 @@
         "WeaponSwitch": "0"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_Sidearms_Downtown"
+    },
+    {
+      "id": "GunGame_Downtown",
+      "title": "Gun Game",
+      "subtitle": "Downtown",
+      "description": "Every kill hands you the next gun: MP5, AK-47, rifle, shotgun, M1911, pistol. First kill with the pistol wins it for your team.",
+      "game": "TDM",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": {
+        "Perspective": "Choice",
+        "GunGame": "MP5,AK47,Rifle,Shotgun,M1911,Pistol"
+      }
+    },
+    {
+      "id": "QuickTDM_Downtown",
+      "title": "Quick Match",
+      "subtitle": "Downtown",
+      "description": "Team Deathmatch to 10 kills, five minutes on the clock.",
+      "game": "TDM",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "ScoreLimit": "10",
+        "TimeLimit": "5"
+      }
     },
     {
       "id": "DOM_Downtown",
@@ -126,6 +153,18 @@
         "Loadout": "Player"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Depot"
+    },
+    {
+      "id": "GunGame_Depot",
+      "title": "Gun Game",
+      "subtitle": "Depot",
+      "description": "Weapon ladder in the concrete halls: every kill a new gun, the pistol kill wins.",
+      "game": "TDM",
+      "map": "/DowntownCore/Maps/DH_Depot",
+      "rules": {
+        "Perspective": "Choice",
+        "GunGame": "MP5,AK47,Rifle,Shotgun,M1911,Pistol"
+      }
     },
     {
       "id": "TDM_Expanse",

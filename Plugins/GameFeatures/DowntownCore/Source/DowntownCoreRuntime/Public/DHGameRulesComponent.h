@@ -1,12 +1,15 @@
 #pragma once
 
 #include "Components/GameStateComponent.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 
 #include "DHGameRulesComponent.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDHRules, Log, All);
 
 class AController;
+class APlayerState;
+struct FLyraVerbMessage;
 
 UENUM(BlueprintType)
 enum class EDHPerspectiveRule : uint8
@@ -21,6 +24,9 @@ enum class EDHPerspectiveRule : uint8
  * Match rules of a Downtown Hunting mode, read on the server from the travel URL options that the mode's
  * playlist entry puts there (ExtraArgs), and replicated to clients:
  *   Perspective=TP|FP|Choice   WeaponSwitch=1|0   Loadout=Pistol,Rifle,Shotgun,AK47,MP5,M1911 | Player
+ *   ScoreLimit=<points to win, 0 = Lyra's default>   TimeLimit=<minutes, 0 = Lyra's default>
+ *   GunGame=<weapon list>: everybody starts with the first weapon, each kill gives the next one, a kill with the last
+ *   one wins the match for the team (no weapon switching, Loadout is ignored).
  * Loadout=Player: each player brings the loadout from the loadout builder (UDHPlayerChoicesComponent), bots get a random primary + pistol.
  * Added to the game state by every DH experience.
  */
@@ -42,6 +48,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// Loadout names (URL option) to inventory item definitions.
@@ -56,4 +63,19 @@ protected:
 
 	TArray<FName> Loadout;
 	bool bPlayerLoadout = false;
+
+private:
+	void ApplyLimits();
+	void OnElimination(FGameplayTag Channel, const FLyraVerbMessage& Message);
+	void WinGunGame(const FLyraVerbMessage& Message);
+
+	int32 ScoreLimit = 0;
+	int32 TimeLimit = 0;
+	bool bTimeLimitApplied = false;
+	FTimerHandle LimitsTimer;
+
+	TArray<FName> GunGame;
+	TMap<TWeakObjectPtr<const APlayerState>, int32> GunGameLevels;
+	bool bGunGameWon = false;
+	FGameplayMessageListenerHandle EliminationListener;
 };

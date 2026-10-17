@@ -25,6 +25,9 @@ class UDHPlayerRulesComponent : public UPawnComponent
 public:
 	UDHPlayerRulesComponent(const FObjectInitializer& ObjectInitializer);
 
+	// Server: gives the current loadout again (Gun Game swaps the weapon after a kill).
+	void RefreshLoadout() { GiveLoadout(); }
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

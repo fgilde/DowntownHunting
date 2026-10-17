@@ -1,12 +1,19 @@
 #include "DHGameRulesComponent.h"
 
 #include "DHPlayerChoicesComponent.h"
+#include "DHPlayerRulesComponent.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerState.h"
+#include "Messages/LyraVerbMessage.h"
+#include "Messages/LyraVerbMessageHelpers.h"
+#include "Teams/LyraTeamSubsystem.h"
 #include "Engine/World.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "TimerManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DHGameRulesComponent)
 
@@ -68,14 +75,92 @@ void UDHGameRulesComponent::BeginPlay()
 		Loadout.SetNum(1);
 	}
 
-	UE_LOG(LogDHRules, Log, TEXT("Rules from '%s': perspective %d, weapon switch %d, loadout %d items"),
-		*Options, static_cast<int32>(Perspective), bWeaponSwitch ? 1 : 0, Loadout.Num());
+	TArray<FString> GunGameNames;
+	UGameplayStatics::ParseOption(Options, TEXT("GunGame")).ParseIntoArray(GunGameNames, TEXT(","));
+	for (const FString& Name : GunGameNames)
+	{
+		GunGame.Add(FName(*Name.TrimStartAndEnd()));
+	}
+	if (!GunGame.IsEmpty())
+	{
+		bWeaponSwitch = false;
+		EliminationListener = UGameplayMessageSubsystem::Get(this).RegisterListener(
+			FGameplayTag::RequestGameplayTag(TEXT("Lyra.Elimination.Message")), this, &ThisClass::OnElimination);
+	}
+
+	ScoreLimit = UGameplayStatics::GetIntOption(Options, TEXT("ScoreLimit"), 0);
+	TimeLimit = UGameplayStatics::GetIntOption(Options, TEXT("TimeLimit"), 0);
+	if (ScoreLimit > 0 || TimeLimit > 0)
+	{
+		GetWorld()->GetTimerManager().SetTimer(LimitsTimer, this, &ThisClass::ApplyLimits, 1.0f, true);
+	}
+
+	UE_LOG(LogDHRules, Log, TEXT("Rules from '%s': perspective %d, weapon switch %d, loadout %d items, score limit %d, time limit %d min"),
+		*Options, static_cast<int32>(Perspective), bWeaponSwitch ? 1 : 0, Loadout.Num(), ScoreLimit, TimeLimit);
+}
+
+void UDHGameRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorld()->GetTimerManager().ClearTimer(LimitsTimer);
+	if (EliminationListener.IsValid())
+	{
+		EliminationListener.Unregister();
+	}
+	Super::EndPlay(EndPlayReason);
+}
+
+void UDHGameRulesComponent::ApplyLimits()
+{
+	// Lyra's scoring blueprints (B_TeamDeathMatchScoring, B_ControlPointScoring) sit on the game state; their
+	// TargetScore is recomputed from the player count, so it is enforced every second. CountDownTime is the match clock.
+	for (UActorComponent* Component : GetOwner()->GetComponents())
+	{
+		FIntProperty* Target = FindFProperty<FIntProperty>(Component->GetClass(), TEXT("TargetScore"));
+		if (ScoreLimit > 0 && Target && Target->GetPropertyValue_InContainer(Component) != ScoreLimit)
+		{
+			UE_LOG(LogDHRules, Log, TEXT("%s: target score %d -> %d"), *Component->GetName(), Target->GetPropertyValue_InContainer(Component), ScoreLimit);
+			Target->SetPropertyValue_InContainer(Component, ScoreLimit);
+			if (UFunction* OnRep = Component->FindFunction(TEXT("OnRep_TargetScore")))
+			{
+				Component->ProcessEvent(OnRep, nullptr);
+			}
+		}
+		FNumericProperty* Clock = FindFProperty<FNumericProperty>(Component->GetClass(), TEXT("CountDownTime"));
+		if (!Clock)
+		{
+			continue;
+		}
+		void* ClockValue = Clock->ContainerPtrToValuePtr<void>(Component);
+		const double Seconds = Clock->IsFloatingPoint() ? Clock->GetFloatingPointPropertyValue(ClockValue) : Clock->GetSignedIntPropertyValue(ClockValue);
+		if (TimeLimit > 0 && !bTimeLimitApplied && Seconds > 60.0)
+		{
+			UE_LOG(LogDHRules, Log, TEXT("%s: match clock %.0f -> %d s"), *Component->GetName(), Seconds, TimeLimit * 60);
+			if (Clock->IsFloatingPoint())
+			{
+				Clock->SetFloatingPointPropertyValue(ClockValue, TimeLimit * 60.0);
+			}
+			else
+			{
+				Clock->SetIntPropertyValue(ClockValue, static_cast<int64>(TimeLimit * 60));
+			}
+			if (UFunction* OnRep = Component->FindFunction(TEXT("OnRep_CountDownTime")))
+			{
+				Component->ProcessEvent(OnRep, nullptr);
+			}
+			bTimeLimitApplied = true;
+		}
+	}
 }
 
 TArray<UClass*> UDHGameRulesComponent::GetLoadoutItems(const AController* Controller) const
 {
 	TArray<FName> Names = Loadout;
-	if (bPlayerLoadout)
+	if (!GunGame.IsEmpty())
+	{
+		const int32* Level = Controller ? GunGameLevels.Find(Controller->PlayerState.Get()) : nullptr;
+		Names = { GunGame[FMath::Min(Level ? *Level : 0, GunGame.Num() - 1)] };
+	}
+	else if (bPlayerLoadout)
 	{
 		const UDHPlayerChoicesComponent* Choices = Controller ? Controller->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
 		Names = Choices ? Choices->GetLoadout() : TArray<FName>();
@@ -110,4 +195,53 @@ void UDHGameRulesComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UDHGameRulesComponent, Perspective);
 	DOREPLIFETIME(UDHGameRulesComponent, bWeaponSwitch);
+}
+
+void UDHGameRulesComponent::OnElimination(FGameplayTag Channel, const FLyraVerbMessage& Message)
+{
+	APlayerState* Killer = ULyraVerbMessageHelpers::GetPlayerStateFromObject(Message.Instigator);
+	APlayerState* Victim = ULyraVerbMessageHelpers::GetPlayerStateFromObject(Message.Target);
+	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	const int32 KillerTeam = Teams ? Teams->FindTeamFromObject(Killer) : INDEX_NONE;
+	const bool bTeamKill = KillerTeam != INDEX_NONE && KillerTeam == Teams->FindTeamFromObject(Victim);
+	if (bGunGameWon || !Killer || Killer == Victim || bTeamKill)
+	{
+		return;
+	}
+
+	const int32 Level = ++GunGameLevels.FindOrAdd(Killer);
+	UE_LOG(LogDHRules, Log, TEXT("Gun Game: %s level %d/%d"), *Killer->GetPlayerName(), Level, GunGame.Num());
+	if (Level >= GunGame.Num())
+	{
+		bGunGameWon = true;
+		// After Lyra's scoring has counted this kill.
+		GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateWeakLambda(this, [this, Message]() { WinGunGame(Message); }));
+		return;
+	}
+	// Next tick: the kill shot's fire ability is still running on the old weapon.
+	TWeakObjectPtr<APlayerState> WeakKiller = Killer;
+	GetWorld()->GetTimerManager().SetTimerForNextTick([WeakKiller]()
+	{
+		APawn* Pawn = WeakKiller.IsValid() ? WeakKiller->GetPawn() : nullptr;
+		if (UDHPlayerRulesComponent* PlayerRules = Pawn ? Pawn->FindComponentByClass<UDHPlayerRulesComponent>() : nullptr)
+		{
+			PlayerRules->RefreshLoadout();
+		}
+	});
+}
+
+void UDHGameRulesComponent::WinGunGame(const FLyraVerbMessage& Message)
+{
+	// Lyra's scoring decides the winner: lower its target to one more than the winner's team score and replay the kill.
+	// ponytail: the replayed kill counts twice in the stats; a direct victory call into the scoring blueprint would avoid that.
+	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	const int32 Team = Teams ? Teams->FindTeamFromObject(ULyraVerbMessageHelpers::GetPlayerStateFromObject(Message.Instigator)) : INDEX_NONE;
+	if (Team == INDEX_NONE)
+	{
+		return;
+	}
+	ScoreLimit = Teams->GetTeamTagStackCount(Team, FGameplayTag::RequestGameplayTag(TEXT("ShooterGame.Score.Eliminations"))) + 1;
+	ApplyLimits();
+	UGameplayMessageSubsystem::Get(this).BroadcastMessage(Message.Verb, Message);
+	UE_LOG(LogDHRules, Log, TEXT("Gun Game won by team %d"), Team);
 }
