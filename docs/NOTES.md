@@ -215,3 +215,8 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 
 ## Shader/Texturen vorladen
 - `UDHWarmupSubsystem` (DowntownUI) meldet sich bei Lyras `ULoadingScreenManager` als Loading-Prozessor und hält den Ladebildschirm nach jedem Map-Wechsel, bis PSO-Precaching (`PipelineStateCache::NumActivePrecacheRequests`, `FShaderPipelineCache`), Shader-Kompilierung (nur Editor-Spiel) und Textur-Streaming (≤ `DH.Warmup.StreamingThreshold` offene Anfragen) fertig sind, höchstens `DH.Warmup.MaxSeconds` (20 s). Waterfront im Editor-Spiel: 19,6 s, danach keine schwarzen Figuren mehr. Gepackt sind die Shader gekocht, der Halt fällt kürzer aus.
+
+## Hauptmenü
+- `UDHMainMenu` (DowntownUI, in Code gebaut) ersetzt `W_LyraFrontEnd` als `MainScreenClass` von `/Game/UI/B_LyraFrontendStateComponent`: Logo und Einträge rechts über einem dunklen Verlauf; Fokus (Gamepad/Tastatur/Maus) schiebt den Eintrag ein, zeigt Akzentbalken und Untertitel.
+- Hintergrund `UDHMenuBackground` auf `UI.Layer.Game` (unter allen Menü-Screens, bleibt hinter Play/Character/Options sichtbar): pro Eintrag eine Kamerafahrt durch DH_Block als Video, Wechsel mit Überblendung und leichtem Zoom. Zwei MediaPlayer im Wechsel; beendet sich beim Verlassen des Front-Ends.
+- Videos: `Tools/Python/make_menu_backgrounds.py` (Sequenz `LS_DH_MenuBackgrounds`, 6 Kameras, Movie Render Queue, ~40 min) → `Tools/Branding/make_menu_movies.py` (12-s-Loops, letzte 1,5 s in den Anfang überblendet) → `Content/Movies/Menu/DH_Menu_<Eintrag>.mp4` (Git LFS, beim Packen als NonUFS gestaged).
