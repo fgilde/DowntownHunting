@@ -136,3 +136,15 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Modi `TDM_Depot`, `DOM_Depot`. Getestet: Domination mit Bots im Spielprozess.
 - Leuchtstreifen werden zur Laufzeit in Teamfarbe umgefärbt (Lyra-Logik der Kontrollpunkte), Sprungpads/Teleporter bleiben Lyra-Optik.
 - Kachelbilder ohne Editor-Symbole: Editor mit `-ExecCmds="py <skript>"` starten, das `LevelEditorSubsystem.editor_set_game_view(True)` setzt (`-ExecutePythonScript` beendet den Editor danach).
+
+## Splash und Intro (2026-10-17)
+
+- Splash: `Content/Splash/Splash.bmp` (Spielstart) und `EdSplash.bmp` (Editor), erzeugt von `Tools/Branding/make_splash.py` aus Menü-Hintergrund und Logo.
+- Intro: `Content/Movies/DH_Intro.mp4` als Startup-Movie (`DefaultGame.ini`, MoviePlayerSettings, überspringbar). Lyras `CommonStartupLoadingScreen` ist dafür abgeschaltet: es registriert einen eigenen Startbildschirm, der Startup-Movies verdrängt (`LaunchEngineLoop.cpp`, `EngineLoadingScreen`).
+- Herstellung: `Tools/Python/make_intro.py` (im GUI-Editor über `-ExecCmds="py ..."`) baut `/Game/DH/Cinematics/LS_DH_Intro` (Kamerafahrt, Straßenmitte per Boden-Traces bestimmt; City-Sample-Straßen liegen um 30°/120° gedreht) und rendert mit Movie Render Queue nach `Saved/IntroFrames`. Für den Render Lyras GameMode + Front-End-Experience (Kontrollpunkt-Blueprints brauchen Lyras Experience-System, sonst Assert). `Tools/Branding/make_intro_movie.py` schneidet mit ffmpeg: Blenden, Tagline, Logo, synthetischer Klang.
+- Neu rendern: `LS_DH_Intro` löschen (Editor zu), Skript erneut starten. Löschen und Neuanlegen im selben Lauf ließ den Editor abstürzen.
+- Start-Skripte blenden Bildschirmmeldungen aus (`DisableAllScreenMessages`): im ungekochten `-game`-Start melden die Editor-Toolset-Plugins Python-Fehler auf dem Bildschirm.
+
+## Team-Armbinden (2026-10-17)
+
+- Schmaler (3,5 cm) und für den eigenen Spieler unsichtbar (`SetOwnerNoSee`). Von hinten sah die dicke Binde wie eine rote Dose auf der Schulter aus.

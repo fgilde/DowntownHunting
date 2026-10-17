@@ -8,7 +8,7 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DHGameRulesComponent)
 
-DEFINE_LOG_CATEGORY_STATIC(LogDHRules, Log, All);
+DEFINE_LOG_CATEGORY(LogDHRules);
 
 UDHGameRulesComponent::UDHGameRulesComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

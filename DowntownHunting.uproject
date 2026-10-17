@@ -46,7 +46,7 @@
 		},
 		{
 			"Name": "CommonStartupLoadingScreen",
-			"Enabled": true
+			"Enabled": false
 		},
 		{
 			"Name": "CommonConversation",

@@ -4,6 +4,8 @@
 
 #include "DHGameRulesComponent.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogDHRules, Log, All);
+
 UENUM(BlueprintType)
 enum class EDHPerspectiveRule : uint8
 {

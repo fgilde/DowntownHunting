@@ -15,4 +15,4 @@ for %%A in (%*) do (
   if /I "%%A"=="PARK" set MAP=/Game/DH/Maps/DH_Park
   if /I "%%A"=="DEPOT" set MAP=/DowntownCore/Maps/DH_Depot
 )
-start "" "C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe" "%~dp0DowntownHunting.uproject" "%MAP%?Experience=%EXP%%RULES%" -game -windowed -ResX=1600 -ResY=900 -log=Game.log
+start "" "C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe" "%~dp0DowntownHunting.uproject" "%MAP%?Experience=%EXP%%RULES%" -game -windowed -ResX=1600 -ResY=900 -ExecCmds="DisableAllScreenMessages" -log=Game.log

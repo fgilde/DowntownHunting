@@ -18,7 +18,6 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DHPlayerRulesComponent)
 
-DEFINE_LOG_CATEGORY_STATIC(LogDHRules, Log, All);
 
 bool UDHPlayerRulesComponent::bPreferFirstPerson = false;
 

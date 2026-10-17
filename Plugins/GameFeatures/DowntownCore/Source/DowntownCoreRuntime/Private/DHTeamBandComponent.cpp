@@ -35,6 +35,7 @@ void UDHTeamBandComponent::OnRegister()
 		Band->SetMaterial(0, BandMaterial);
 		Band->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Band->SetCastShadow(false);
+		Band->SetOwnerNoSee(true); // the own team is known; seen from behind in third person the band looked like a can on the back
 		Band->SetupAttachment(Mesh, Socket);
 		Band->SetRelativeTransform(BandTransform);
 		Band->RegisterComponent();

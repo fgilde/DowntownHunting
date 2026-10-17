@@ -35,7 +35,7 @@ protected:
 	TArray<FName> Sockets = { TEXT("upperarm_l"), TEXT("upperarm_r") };
 
 	UPROPERTY(EditAnywhere, Category = "Team Band")
-	FTransform BandTransform = FTransform(FRotator(90.0, 0.0, 0.0), FVector(14.0, 0.0, 0.0), FVector(0.13, 0.13, 0.05));
+	FTransform BandTransform = FTransform(FRotator(90.0, 0.0, 0.0), FVector(16.0, 0.0, 0.0), FVector(0.115, 0.115, 0.035));
 
 private:
 	UPROPERTY(Transient)
