@@ -212,3 +212,6 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Suche: App-ID 480 teilen sich viele Entwickler. Lyras Suchfilter `OSSv1=true` ist ein Bool, den Steam nicht filtern kann; die Suche bekam fremde Lobbys und lief nach 15 s in einen Timeout. Fix in `Plugins/CommonUser/.../CommonSessionSubsystem.cpp`: Host und Suche setzen zusätzlich `PROJECT=<Projektname>` (String). Danach findet die Suche nur noch die eigene Lobby.
 - Nicht prüfbar mit einem Steam-Account: Host und Sucher als derselbe Account bekommen die Lobby-Daten nicht (Timeout), Beitritt zu sich selbst geht über Steam P2P nicht. Test braucht einen zweiten Rechner mit anderem Steam-Account.
 - Erster Start einer Map: Figuren kurz schwarz, bis Texturen/Shader geladen sind (auch offline).
+
+## Shader/Texturen vorladen
+- `UDHWarmupSubsystem` (DowntownUI) meldet sich bei Lyras `ULoadingScreenManager` als Loading-Prozessor und hält den Ladebildschirm nach jedem Map-Wechsel, bis PSO-Precaching (`PipelineStateCache::NumActivePrecacheRequests`, `FShaderPipelineCache`), Shader-Kompilierung (nur Editor-Spiel) und Textur-Streaming (≤ `DH.Warmup.StreamingThreshold` offene Anfragen) fertig sind, höchstens `DH.Warmup.MaxSeconds` (20 s). Waterfront im Editor-Spiel: 19,6 s, danach keine schwarzen Figuren mehr. Gepackt sind die Shader gekocht, der Halt fällt kürzer aus.

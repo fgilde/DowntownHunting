@@ -7,6 +7,6 @@ public class DowntownUI : ModuleRules
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "CommonUI" });
-		PrivateDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore", "CommonGame", "GameplayTags", "InputCore" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore", "CommonGame", "CommonLoadingScreen", "GameplayTags", "InputCore", "RHI", "RenderCore" });
 	}
 }
