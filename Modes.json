@@ -1,0 +1,75 @@
+{
+  "_help": [
+    "Game modes shown in the menu (Play). Edit, then run Sync-Modes.cmd (editor must be closed).",
+    "game: TDM | Domination   (TDM3 = three teams, not finished yet)",
+    "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = comma list of Pistol, Rifle, Shotgun,",
+    "       WeaponSwitch = 1 | 0, NumBots = number of bots",
+    "maps: /Game/DH/Maps/DH_Block (Downtown), /ShooterMaps/Maps/L_Expanse, /ShooterMaps/Maps/L_Convolution_Blockout"
+  ],
+  "modes": [
+    {
+      "id": "TDM_Downtown",
+      "title": "Team Deathmatch",
+      "subtitle": "Downtown",
+      "description": "Two city blocks. Streets, stoops, parked cars as cover. Switch between first and third person with V.",
+      "game": "TDM",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": { "Perspective": "Choice", "Loadout": "Pistol,Rifle,Shotgun" },
+      "default": true
+    },
+    {
+      "id": "TDM_Downtown_FP",
+      "title": "Team Deathmatch (First Person)",
+      "subtitle": "Downtown",
+      "description": "Same streets, first person for everyone. No peeking around corners.",
+      "game": "TDM",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": { "Perspective": "FP", "Loadout": "Pistol,Rifle,Shotgun" }
+    },
+    {
+      "id": "Sidearms_Downtown",
+      "title": "Sidearms Only",
+      "subtitle": "Downtown",
+      "description": "Pistols only, first person, no weapon switching.",
+      "game": "TDM",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": { "Perspective": "FP", "Loadout": "Pistol", "WeaponSwitch": "0" }
+    },
+    {
+      "id": "DOM_Downtown",
+      "title": "Domination",
+      "subtitle": "Downtown",
+      "description": "Hold the north-west crossing, the middle block and the south-east crossing.",
+      "game": "Domination",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": { "Perspective": "Choice", "Loadout": "Pistol,Rifle,Shotgun" }
+    },
+    {
+      "id": "DOM_Downtown_FP",
+      "title": "Domination (First Person)",
+      "subtitle": "Downtown",
+      "description": "Hold the three street corners, first person for everyone.",
+      "game": "Domination",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": { "Perspective": "FP", "Loadout": "Pistol,Rifle,Shotgun" }
+    },
+    {
+      "id": "TDM_Expanse",
+      "title": "Team Deathmatch",
+      "subtitle": "Expanse (test map)",
+      "description": "Lyra's Expanse arena.",
+      "game": "TDM",
+      "map": "/ShooterMaps/Maps/L_Expanse",
+      "rules": { "Perspective": "Choice", "Loadout": "Pistol,Rifle,Shotgun" }
+    },
+    {
+      "id": "DOM_Convolution",
+      "title": "Domination",
+      "subtitle": "Convolution (test map)",
+      "description": "Lyra's Convolution arena with three control points.",
+      "game": "Domination",
+      "map": "/ShooterMaps/Maps/L_Convolution_Blockout",
+      "rules": { "Perspective": "Choice", "Loadout": "Pistol,Rifle,Shotgun" }
+    }
+  ]
+}

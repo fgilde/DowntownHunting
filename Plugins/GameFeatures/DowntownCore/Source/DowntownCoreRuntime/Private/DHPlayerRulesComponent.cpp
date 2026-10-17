@@ -90,20 +90,23 @@ void UDHPlayerRulesComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Controller, Lyra's initial inventory, input component and camera binding all arrive a little after
-	// BeginPlay, so both jobs retry for a few seconds.
+	// Controller, Lyra's initial inventory, input component and camera binding all arrive after BeginPlay, and
+	// Lyra may set up input and the camera delegate again later (e.g. when loading is slow). The loadout retries
+	// for a while; the local player's camera and input are checked for as long as the pawn lives.
 	GetWorld()->GetTimerManager().SetTimer(RetryTimer, [this]()
 	{
 		const APawn* Pawn = GetPawn<APawn>();
-		if (Pawn && Pawn->HasAuthority() && !bLoadoutGiven)
+		const bool bLocalPlayer = Pawn && Pawn->IsLocallyControlled() && Pawn->IsPlayerControlled();
+		if (Pawn && Pawn->HasAuthority() && !bLoadoutGiven && Retries < MaxRetries)
 		{
 			GiveLoadout();
 		}
-		if (Pawn && Pawn->IsLocallyControlled() && Pawn->IsPlayerControlled())
+		if (bLocalPlayer)
 		{
 			SetUpLocalPlayer();
 		}
-		if (++Retries >= MaxRetries)
+		++Retries;
+		if (!bLocalPlayer && (bLoadoutGiven || Retries >= MaxRetries))
 		{
 			GetWorld()->GetTimerManager().ClearTimer(RetryTimer);
 		}
@@ -117,7 +120,7 @@ void UDHPlayerRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	const APawn* Pawn = GetPawn<APawn>();
 	const APlayerController* PC = Pawn ? Pawn->GetController<APlayerController>() : nullptr;
 	UEnhancedInputLocalPlayerSubsystem* Input = PC && PC->GetLocalPlayer() ? PC->GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>() : nullptr;
-	if (Input && bInputBound && InputMapping.Get())
+	if (Input && bMappingAdded && InputMapping.Get())
 	{
 		Input->RemoveMappingContext(InputMapping.Get());
 	}
@@ -170,17 +173,19 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 	UEnhancedInputComponent* InputComponent = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
 	const APlayerController* PC = Pawn->GetController<APlayerController>();
 	UEnhancedInputLocalPlayerSubsystem* Input = PC && PC->GetLocalPlayer() ? PC->GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>() : nullptr;
-	if (!bInputBound && InputComponent && Input)
+	if (InputComponent && BoundInputComponent.Get() != InputComponent)
 	{
 		if (UInputAction* Action = ToggleAction.LoadSynchronous())
 		{
 			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::TogglePerspective);
 		}
-		if (UInputMappingContext* Mapping = InputMapping.LoadSynchronous())
-		{
-			Input->AddMappingContext(Mapping, 1);
-		}
-		bInputBound = true;
+		BoundInputComponent = InputComponent;
+	}
+	UInputMappingContext* Mapping = InputMapping.LoadSynchronous();
+	if (Input && Mapping && !Input->HasMappingContext(Mapping))
+	{
+		Input->AddMappingContext(Mapping, 1);
+		bMappingAdded = true;
 	}
 }
 

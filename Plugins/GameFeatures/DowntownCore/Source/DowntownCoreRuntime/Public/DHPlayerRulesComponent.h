@@ -6,6 +6,7 @@
 #include "DHPlayerRulesComponent.generated.h"
 
 class UInputAction;
+class UInputComponent;
 class UInputMappingContext;
 class ULyraCameraMode;
 
@@ -57,7 +58,8 @@ private:
 	FTimerHandle RetryTimer;
 	int32 Retries = 0;
 	bool bLoadoutGiven = false;
-	bool bInputBound = false;
+	bool bMappingAdded = false;
+	TWeakObjectPtr<UInputComponent> BoundInputComponent;
 
 	// Last choice of the local player, kept across respawns in "Choice" modes.
 	static bool bPreferFirstPerson;

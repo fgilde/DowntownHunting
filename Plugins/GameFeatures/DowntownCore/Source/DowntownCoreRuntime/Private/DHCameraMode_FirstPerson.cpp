@@ -20,7 +20,7 @@ UDHCameraMode_FirstPerson::UDHCameraMode_FirstPerson()
 		return TSoftObjectPtr<UAnimSequenceBase>(FSoftObjectPath(FString::Printf(TEXT("/Game/Characters/Heroes/Mannequin/Animations/Locomotion/%s"), Path)));
 	};
 	// Long guns sit further away so the receiver does not fill the screen.
-	WeaponViews.Add(TEXT("Pistol"), { Pose(TEXT("Pistol/MM_Pistol_Idle_ADS.MM_Pistol_Idle_ADS")), FVector(22.0, 9.0, -11.0), FVector(30.0, 0.0, -10.0) });
+	WeaponViews.Add(TEXT("Pistol"), { Pose(TEXT("Pistol/MM_Pistol_Idle_ADS.MM_Pistol_Idle_ADS")), FVector(30.0, 11.0, -13.0), FVector(32.0, 0.0, -10.0) });
 	WeaponViews.Add(TEXT("Shotgun"), { Pose(TEXT("Shotgun/MM_Shotgun_Idle_ADS.MM_Shotgun_Idle_ADS")), FVector(38.0, 13.0, -17.0), FVector(32.0, 0.0, -10.0) });
 	DefaultView = { Pose(TEXT("Rifle/MM_Rifle_Idle_ADS.MM_Rifle_Idle_ADS")), FVector(38.0, 13.0, -17.0), FVector(32.0, 0.0, -9.0) };
 }

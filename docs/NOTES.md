@@ -6,6 +6,13 @@
 - `Play-Downtown.cmd`: direkt Team Deathmatch in der Stadt mit Bots. `Play-Downtown.cmd FP` für Ego.
 - `Package.cmd`: baut eine eigenständige `DowntownHunting.exe` nach `Build\Packaged\Windows` (dauert beim ersten Mal lange).
 - `Start-Editor.cmd`: Editor mit Unreal-MCP auf Port 8765.
+- `Sync-Modes.cmd`: schreibt die Spielmodi aus `Modes.json` ins Menü (Editor vorher schließen).
+
+## Modi (2026-10-17)
+
+- Modi stehen in `Modes.json`: Titel, Beschreibung, Spielart (`TDM`, `Domination`), Map und Regeln (`Perspective`, `Loadout`, `WeaponSwitch`, `NumBots`). `Sync-Modes.cmd` erzeugt daraus `/DowntownCore/Playlists/DA_DH_<id>` und entfernt veraltete Einträge.
+- Regeln wirken über `UDHGameRulesComponent` (GameState, liest URL-Optionen, repliziert) und `UDHPlayerRulesComponent` (Pawn: Loadout in die Schnellleiste, Kamera-Modus, Umschalten mit V / D-Pad oben bei `Perspective=Choice`). Getestet im Spielprozess: Loadout (Pistole, Gewehr, Schrotflinte), Waffenwechsel, Umschalten Third-Person ↔ Ego.
+- Im Editor-PIE kommen keine URL-Optionen an; Regeln dort testen mit `Play-Downtown.cmd` (setzt die Optionen in der Start-URL).
 
 ## Phase 0 – abgeschlossen (2026-10-16)
 
