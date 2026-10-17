@@ -94,6 +94,8 @@ private:
 	TArray<AActor*> GetAttachedWeapons(const ACharacter& Character) const;
 
 	TArray<TWeakObjectPtr<UMeshComponent>> Originals;
+	// Heads and groom hair: hidden outright while in first person (grooms ignore the first-person primitive type).
+	TArray<TWeakObjectPtr<UMeshComponent>> HiddenInFirstPerson;
 	TArray<TWeakObjectPtr<UMeshComponent>> Copies;
 	TWeakObjectPtr<USkeletalMeshComponent> BodyCopy;
 	TWeakObjectPtr<UMeshComponent> WeaponCopy;

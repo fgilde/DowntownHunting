@@ -142,12 +142,26 @@ void UDHCameraMode_FirstPerson::BuildCopies(ACharacter& Character)
 		{
 			if (AActor* Part = ChildActor->GetChildActor())
 			{
-				Part->GetComponents<USkeletalMeshComponent>(BodyParts, /*bIncludeFromChildActors=*/ false);
-
-				// Extras on the body (e.g. team bands) are hidden for the owner too, without a first-person copy.
-				TArray<UStaticMeshComponent*> Extras;
-				Part->GetComponents<UStaticMeshComponent>(Extras, /*bIncludeFromChildActors=*/ false);
-				Originals.Append(Extras);
+				// Skeletal parts get a first-person copy, except heads (the camera sits inside them).
+				// Everything else (team bands, groom hair, heads) is only hidden for the owner.
+				TArray<UMeshComponent*> Meshes;
+				Part->GetComponents<UMeshComponent>(Meshes, /*bIncludeFromChildActors=*/ false);
+				for (UMeshComponent* PartMesh : Meshes)
+				{
+					USkeletalMeshComponent* Skeletal = Cast<USkeletalMeshComponent>(PartMesh);
+					if (Skeletal && !PartMesh->GetName().Contains(TEXT("Head")))
+					{
+						BodyParts.Add(Skeletal);
+					}
+					else if (Skeletal || !PartMesh->IsA<UStaticMeshComponent>())
+					{
+						HiddenInFirstPerson.Add(PartMesh);  // head, groom hair
+					}
+					else
+					{
+						Originals.Add(PartMesh);  // team bands
+					}
+				}
 			}
 		}
 	}
@@ -171,34 +185,74 @@ void UDHCameraMode_FirstPerson::BuildCopies(ACharacter& Character)
 		Copies.Add(Copy);
 	};
 
-	USkeletalMeshComponent* Root = nullptr;
+	// The pose runs on an invisible copy of the pawn's anim mesh (Lyra's mannequin skeleton with the weapon sockets
+	// and the skeleton the poses are made for); the visible parts follow it by leader pose. Crowd characters'
+	// MetaHuman skeleton has no weapon socket, so driving the pose on their own body twisted the arms.
+	// Bodies that carry the weapon sockets themselves (City Sample player characters) keep driving the pose, the
+	// offsets are tuned for them.
+	const TArray<AActor*> Weapons = GetAttachedWeapons(Character);
+	const FName WeaponSocket = Weapons.IsEmpty() ? NAME_None : Weapons[0]->GetRootComponent()->GetAttachSocketName();
+	USkeletalMeshComponent* OwnBody = BodyParts[0];
+	const bool bOwnBodyDrives = OwnBody->DoesSocketExist(WeaponSocket);
+	USkeletalMesh* FirstPersonBody = OwnBody->GetSkeletalMeshAsset();
+	USkeletalMeshComponent* Arms = nullptr;
+	if (!bOwnBodyDrives)
+	{
+		// Crowd characters' clothes do not fit the poses' skeleton (jacket shoulders end up in the view):
+		// first-person arms come from the City Sample player body of the same gender instead.
+		const bool bFemale = FirstPersonBody && FirstPersonBody->GetName().StartsWith(TEXT("f_"));
+		FirstPersonBody = LoadObject<USkeletalMesh>(nullptr, bFemale
+			? TEXT("/Game/Character/Player/Female/Meshes/SKM_PlayerFemale_Body.SKM_PlayerFemale_Body")
+			: TEXT("/Game/Character/Player/Male/Meshes/SKM_PlayerMale.SKM_PlayerMale"));
+		for (USkeletalMeshComponent* Part : BodyParts)
+		{
+			Originals.Add(Part);  // hidden for the owner, no copy
+		}
+		BodyParts.Reset();
+
+		Arms = NewObject<USkeletalMeshComponent>(&Character, NAME_None, RF_Transient);
+		Arms->SetSkeletalMeshAsset(FirstPersonBody);
+		for (const FName& Bone : HiddenBones)
+		{
+			Arms->HideBoneByName(Bone, PBO_None);
+		}
+		Arms->SetOnlyOwnerSee(true);
+		Arms->SetCastShadow(false);
+		Arms->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Arms->SetFirstPersonPrimitiveType(EFirstPersonPrimitiveType::FirstPerson);
+	}
+	USkeletalMeshComponent* Root = NewObject<USkeletalMeshComponent>(&Character, NAME_None, RF_Transient);
+	Root->SetSkeletalMeshAsset(FirstPersonBody);
+	Root->SetWorldScale3D(Mesh->GetComponentScale());
+	Root->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+	CurrentView = FindView(GetAttachedWeapons(Character));
+	Root->AnimationData.AnimToPlay = CurrentView.Pose.LoadSynchronous();
+	Root->AnimationData.bSavedLooping = true;
+	Root->AnimationData.bSavedPlaying = true;
+	Root->SetVisibility(false);
+	Root->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	Root->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Root->RegisterComponent();
+	Copies.Add(Root);
+	if (Arms)
+	{
+		Arms->SetLeaderPoseComponent(Root);
+		Arms->SetupAttachment(Root);
+		Arms->RegisterComponent();
+		Copies.Add(Arms);
+	}
+
 	for (USkeletalMeshComponent* Part : BodyParts)
 	{
 		USkeletalMeshComponent* Copy = NewObject<USkeletalMeshComponent>(&Character, NAME_None, RF_Transient);
 		Copy->SetSkeletalMeshAsset(Part->GetSkeletalMeshAsset());
-		if (Root)
-		{
-			Copy->SetLeaderPoseComponent(Root);
-		}
-		else
-		{
-			Copy->SetWorldScale3D(Mesh->GetComponentScale());
-			Copy->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-			CurrentView = FindView(GetAttachedWeapons(Character));
-			Copy->AnimationData.AnimToPlay = CurrentView.Pose.LoadSynchronous();
-			Copy->AnimationData.bSavedLooping = true;
-			Copy->AnimationData.bSavedPlaying = true;
-		}
+		Copy->SetLeaderPoseComponent(Root);
 		for (const FName& Bone : HiddenBones)
 		{
 			Copy->HideBoneByName(Bone, PBO_None);
 		}
-		if (Root)
-		{
-			Copy->SetupAttachment(Root);
-		}
+		Copy->SetupAttachment(Root);
 		MakeCopy(Part, Copy);
-		Root = Root ? Root : Copy;
 	}
 	BodyCopy = Root;
 
@@ -256,6 +310,7 @@ void UDHCameraMode_FirstPerson::DestroyCopies()
 		}
 	}
 	Originals.Reset();
+	HiddenInFirstPerson.Reset();
 	Copies.Reset();
 	CopiedWeapons.Reset();
 	BodyCopy.Reset();
@@ -267,6 +322,13 @@ void UDHCameraMode_FirstPerson::SetOriginalsHidden(bool bHidden)
 	// WorldSpaceRepresentation hides the primitive from its owner's view but keeps its shadow and
 	// leaves it untouched for every other viewer.
 	const EFirstPersonPrimitiveType Type = bHidden ? EFirstPersonPrimitiveType::WorldSpaceRepresentation : EFirstPersonPrimitiveType::None;
+	for (const TWeakObjectPtr<UMeshComponent>& Hidden : HiddenInFirstPerson)
+	{
+		if (Hidden.IsValid())
+		{
+			Hidden->SetHiddenInGame(bHidden);  // cosmetic parts are local to this machine, other players are not affected
+		}
+	}
 	for (const TWeakObjectPtr<UMeshComponent>& Original : Originals)
 	{
 		if (Original.IsValid())
