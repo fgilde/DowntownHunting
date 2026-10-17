@@ -20,7 +20,7 @@ enum class EDHPerspectiveRule : uint8
 /**
  * Match rules of a Downtown Hunting mode, read on the server from the travel URL options that the mode's
  * playlist entry puts there (ExtraArgs), and replicated to clients:
- *   Perspective=TP|FP|Choice   WeaponSwitch=1|0   Loadout=Pistol,Rifle,Shotgun | Player
+ *   Perspective=TP|FP|Choice   WeaponSwitch=1|0   Loadout=Pistol,Rifle,Shotgun,AK47,MP5,M1911 | Player
  * Loadout=Player: each player brings the loadout from the loadout builder (UDHPlayerChoicesComponent), bots get a random primary + pistol.
  * Added to the game state by every DH experience.
  */

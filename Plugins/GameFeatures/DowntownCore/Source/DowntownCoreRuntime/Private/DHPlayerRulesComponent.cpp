@@ -72,6 +72,42 @@ namespace
 		}
 		return false;
 	}
+
+	/** Takes Lyra's starting weapons that are not part of the loadout out of the quick bar and the inventory. */
+	void RemoveQuickBarItemsExcept(UActorComponent* QuickBar, ULyraInventoryManagerComponent* Inventory, const TArray<UClass*>& Keep)
+	{
+		FArrayProperty* SlotsProperty = FindFProperty<FArrayProperty>(QuickBar->GetClass(), TEXT("Slots"));
+		UFunction* RemoveItemFromSlot = QuickBar->FindFunction(TEXT("RemoveItemFromSlot"));
+		const FObjectPropertyBase* SlotProperty = SlotsProperty ? CastField<FObjectPropertyBase>(SlotsProperty->Inner) : nullptr;
+		if (!SlotProperty || !RemoveItemFromSlot)
+		{
+			return;
+		}
+
+		FScriptArrayHelper Slots(SlotsProperty, SlotsProperty->ContainerPtrToValuePtr<void>(QuickBar));
+		for (int32 Index = 0; Index < Slots.Num(); ++Index)
+		{
+			ULyraInventoryItemInstance* Item = Cast<ULyraInventoryItemInstance>(SlotProperty->GetObjectPropertyValue(Slots.GetRawPtr(Index)));
+			if (Item && !Keep.Contains(Item->GetItemDef().Get()))
+			{
+				struct
+				{
+					int32 SlotIndex;
+					ULyraInventoryItemInstance* ReturnValue;
+				} Params{ Index, nullptr };
+				QuickBar->ProcessEvent(RemoveItemFromSlot, &Params);
+				Inventory->RemoveItemInstance(Item);
+			}
+		}
+	}
+
+	void SetActiveQuickBarSlot(UActorComponent* QuickBar, int32 Index)
+	{
+		if (UFunction* SetActiveSlotIndex = QuickBar->FindFunction(TEXT("SetActiveSlotIndex")))
+		{
+			QuickBar->ProcessEvent(SetActiveSlotIndex, &Index);
+		}
+	}
 }
 
 UDHPlayerRulesComponent::UDHPlayerRulesComponent(const FObjectInitializer& ObjectInitializer)
@@ -138,13 +174,18 @@ void UDHPlayerRulesComponent::GiveLoadout()
 		bLoadoutGiven = true;
 		return;
 	}
-	// Wait for Lyra's own starting weapon so the extra ones land in the following slots.
+	// Wait for Lyra's own starting weapon: it is replaced by the loadout unless the loadout contains it.
 	if (!Inventory || !QuickBar || Inventory->GetAllItems().IsEmpty())
 	{
 		return;
 	}
 
-	for (UClass* ItemClass : Rules->GetLoadoutItems(Controller))
+	const TArray<UClass*> Items = Rules->GetLoadoutItems(Controller);
+	if (!Items.IsEmpty())
+	{
+		RemoveQuickBarItemsExcept(QuickBar, Inventory, Items);
+	}
+	for (UClass* ItemClass : Items)
 	{
 		const TSubclassOf<ULyraInventoryItemDefinition> ItemDef(ItemClass);
 		if (!Inventory->FindFirstItemStackByDefinition(ItemDef))
@@ -153,6 +194,7 @@ void UDHPlayerRulesComponent::GiveLoadout()
 			UE_LOG(LogDHRules, Log, TEXT("%s: gave %s (quick bar: %s)"), *GetNameSafe(Controller), *ItemClass->GetName(), bSlotted ? TEXT("yes") : TEXT("full"));
 		}
 	}
+	SetActiveQuickBarSlot(QuickBar, 0);  // no-op if slot 0 is still equipped
 	bLoadoutGiven = true;
 }
 

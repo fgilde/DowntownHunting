@@ -183,3 +183,11 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Ego-Ansicht mit Crowd-Figuren: Kopf und Groom-Haare werden lokal ausgeblendet (Grooms ignorieren den First-Person-Primitive-Typ). Crowd-Kleidung passt nicht auf die Posen der Ego-Ansicht (Jackenschultern im Bild), deshalb zeigen Crowd-Figuren in Ego die Arme der City-Sample-Spielerfigur gleichen Geschlechts. Hunter/Huntress unverändert (ihr Körper hat die Waffen-Sockets).
 - Getestet per DH.Run: Perspektivwechsel mit D-Pad hoch, Pausenmenü über Start, dort Character/Loadout mit dem Gamepad.
 - Pistole in Ego: schwebt neben der Hand (bei allen Figuren). Versuche, die Waffe relativ zum Handknochen bzw. zur Hand der sichtbaren Figur anzuhängen, haben es nicht behoben (bei Crowd-Figuren sogar verdreht) und wurden zurückgenommen. Ursache: Ego-Pose (Lyra-Mannequin-Animation) läuft auf dem City-Sample-Skelett mit anderer Knochenausrichtung. Richtige Lösung: eigene Ego-Arme mit eigenem Skelett/Posen oder Retargeting.
+
+## Waffen AK-47, MP5, M1911
+- Meshes aus Blacksites „Classic Weapons Pack“ (Stein Games, CC0) unter `/Game/Weapons/Classic`, Mündungs-Socket `Muzzle` am Wurzelknochen (C++-Helfer `UDHEditorHelpers::SetMeshSocket`, Python darf Socket-Namen nicht setzen).
+- Ketten sind Kopien von Lyras Rifle/Pistol (ID → WID → Instance → AbilitySet → GA_Weapon_Fire → GE_Damage → Waffen-Actor). Schritt 1 `make_weapons.py` (Commandlet), Schritt 2 `mcp_weapon_values.py` (MCP im laufenden Editor: EditDefaultsOnly-Werte, Schaden, Magazin, HUD-Icon). `make_weapons.py refresh` setzt nur Mesh und Socket neu.
+- Das Mesh im Waffen-Actor ist eine geerbte Komponente aus `B_Weapon`: `SubobjectDataBlueprintFunctionLibrary.get_object_for_blueprint` liefert den Override der Kopie, `get_object` das Template der Elternklasse (Fehler im ersten Anlauf: Lyra-Gewehr in der Hand).
+- Unveränderte Kopien im Commandlet nicht neu speichern: Absturz in AnimationData.
+- HUD-Icons (`make_weapon_icons.py`): Hintergrund = breiter Median der Himmels-Aufnahme, größter Fleck, Löcher gefüllt. Weiß auf **schwarzem** transparentem Grund: Lyras Schnellleisten-Material nutzt die Farbe, nicht nur Alpha.
+- Loadout ersetzt Lyras Startpistole, außer sie gehört zum Loadout (`UDHPlayerRulesComponent::GiveLoadout`). Bots: zufällig Rifle/Shotgun/AK47/MP5 + Pistol/M1911.

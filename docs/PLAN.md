@@ -39,8 +39,8 @@ Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screens
 ## Phase 3 – Waffen
 
 - ✅ Waffenwechsel mit mehreren Startwaffen (Lyra-Quickbar: 1–3, Mausrad, Gamepad), abschaltbar per Modus-Regel (`WeaponSwitch`, `Loadout`). ⬜ Waffen-Pickups auf den Stadt-Maps.
-- ⬜ Blacksite-Waffen (AK-47, MP5, M1911) migrieren, Lizenzen laut `THIRD_PARTY_ASSETS.md` prüfen; als Lyra-Weapon-Definitions mit eigenen Abilities (GAS).
-- 🔶 **Loadout-Builder**: ✅ Primär-/Sekundärwaffe im Haupt- und Pausenmenü, gilt bei `Loadout=Player`. ⬜ mehrere gespeicherte Loadouts, Aufsätze/Gunsmith, neue Waffen.
+- ✅ Blacksite-Waffen AK-47, MP5, M1911 (Classic Weapons Pack, CC0) als eigene Lyra-Waffenketten unter `/DowntownCore/Weapons`: `Tools/Python/make_weapons.py` (Kopien, Mesh, Mündungs-Socket) + `Tools/Python/mcp_weapon_values.py` (Werte, Verknüpfung, HUD-Icon). Icons: `Tools/Branding/make_weapon_icons.py`. ⬜ eigene Feuer-/Nachlade-Sounds und Animationen.
+- 🔶 **Loadout-Builder**: ✅ Primär-/Sekundärwaffe im Haupt- und Pausenmenü, gilt bei `Loadout=Player`. ✅ neue Waffen wählbar. ⬜ mehrere gespeicherte Loadouts, Aufsätze/Gunsmith.
 
 ## Phase 4 – Modi und Maps
 
@@ -50,7 +50,7 @@ Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screens
   | --- | --- | --- |
   | `Perspective` | `TP`, `FP`, `Choice` | feste Perspektive oder frei umschaltbar |
   | `WeaponSwitch` | `1`/`0` | Waffenwechsel erlaubt |
-  | `Loadout` | z. B. `Pistol,Rifle,Shotgun` | Startwaffen |
+  | `Loadout` | z. B. `Pistol,Rifle,Shotgun,AK47,MP5,M1911` | Startwaffen; ersetzen Lyras Startpistole |
   | `NumBots` | Zahl | Anzahl Bots (liest Lyra bereits) |
   | `ScoreLimit`, `TimeLimit` | Zahl | Siegpunkte, Rundenzeit |
 
