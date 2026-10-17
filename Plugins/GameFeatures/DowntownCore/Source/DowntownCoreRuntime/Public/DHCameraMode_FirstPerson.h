@@ -17,6 +17,24 @@ class USkeletalMeshComponent;
  * everyone else) and draws owner-only copies: the body copy plays a weapon-ready pose and is turned and
  * moved so the weapon copy in its hand points along the view with its grip at a view-space offset.
  */
+// How one kind of weapon is held in first person.
+USTRUCT(BlueprintType)
+struct FDHFirstPersonWeaponView
+{
+	GENERATED_BODY()
+
+	// Weapon-ready pose played by the body copy.
+	UPROPERTY(EditAnywhere, Category = "First Person")
+	TSoftObjectPtr<UAnimSequenceBase> Pose;
+
+	// Weapon grip position in view space (X forward, Y right, Z up), from the hip and while aiming. Tune per feel.
+	UPROPERTY(EditAnywhere, Category = "First Person")
+	FVector HipOffset = FVector(22.0, 9.0, -11.0);
+
+	UPROPERTY(EditAnywhere, Category = "First Person")
+	FVector ADSOffset = FVector(30.0, 0.0, -10.0);
+};
+
 UCLASS(Blueprintable)
 class UDHCameraMode_FirstPerson : public ULyraCameraMode
 {
@@ -29,24 +47,17 @@ protected:
 	virtual void OnDeactivation() override;
 	virtual void UpdateView(float DeltaTime) override;
 
-	// Weapon grip position in view space (X forward, Y right, Z up), from hip and while aiming. Tune per feel.
-	UPROPERTY(EditDefaultsOnly, Category = "First Person")
-	FVector HipWeaponOffset = FVector(22.0, 9.0, -11.0);
-
-	UPROPERTY(EditDefaultsOnly, Category = "First Person|ADS")
-	FVector ADSWeaponOffset = FVector(30.0, 0.0, -10.0);
-
 	// Weapon socket at the barrel end; grip-to-muzzle is turned to point along the view.
 	UPROPERTY(EditDefaultsOnly, Category = "First Person")
 	FName MuzzleSocket = TEXT("Muzzle");
 
-	// Pose for the body copy, picked by a substring of the equipped weapon actor's class name.
+	// Per weapon kind, picked by a substring of the equipped weapon actor's class name.
 	UPROPERTY(EditDefaultsOnly, Category = "First Person")
-	TMap<FString, TSoftObjectPtr<UAnimSequenceBase>> WeaponPoses;
+	TMap<FString, FDHFirstPersonWeaponView> WeaponViews;
 
-	// Used when no entry in WeaponPoses matches.
+	// Used when no entry in WeaponViews matches.
 	UPROPERTY(EditDefaultsOnly, Category = "First Person")
-	TSoftObjectPtr<UAnimSequenceBase> DefaultPose;
+	FDHFirstPersonWeaponView DefaultView;
 
 	// Bones hidden on the body copy (children are hidden too).
 	UPROPERTY(EditDefaultsOnly, Category = "First Person")
@@ -79,7 +90,7 @@ private:
 	void BuildCopies(ACharacter& Character);
 	void DestroyCopies();
 	void SetOriginalsHidden(bool bHidden);
-	UAnimSequenceBase* FindPose(const TArray<AActor*>& Weapons) const;
+	const FDHFirstPersonWeaponView& FindView(const TArray<AActor*>& Weapons) const;
 	TArray<AActor*> GetAttachedWeapons(const ACharacter& Character) const;
 
 	TArray<TWeakObjectPtr<UMeshComponent>> Originals;
@@ -88,6 +99,7 @@ private:
 	TWeakObjectPtr<UMeshComponent> WeaponCopy;
 	TArray<TWeakObjectPtr<AActor>> CopiedWeapons;
 
+	FDHFirstPersonWeaponView CurrentView;
 	float ADSAlpha = 0.0f;
 	float Recoil = 0.0f;
 	float LastTimeSinceInteracted = 0.0f;

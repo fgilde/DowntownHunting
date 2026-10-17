@@ -1,0 +1,64 @@
+#pragma once
+
+#include "Components/PawnComponent.h"
+#include "Templates/SubclassOf.h"
+
+#include "DHPlayerRulesComponent.generated.h"
+
+class UInputAction;
+class UInputMappingContext;
+class ULyraCameraMode;
+
+/**
+ * Applies the match rules (UDHGameRulesComponent) to a pawn:
+ * - server: gives the mode's loadout and puts it into the quick bar,
+ * - locally controlled player: picks the camera mode (first or third person) and, if the mode allows it,
+ *   lets the player switch with ToggleAction (V / D-pad up by default).
+ * Added to every Lyra character by the DH experiences.
+ */
+UCLASS(meta = (BlueprintSpawnableComponent))
+class UDHPlayerRulesComponent : public UPawnComponent
+{
+	GENERATED_BODY()
+
+public:
+	UDHPlayerRulesComponent(const FObjectInitializer& ObjectInitializer);
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	TSoftClassPtr<ULyraCameraMode> ThirdPersonMode;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	TSoftClassPtr<ULyraCameraMode> ThirdPersonAimMode;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	TSoftClassPtr<ULyraCameraMode> FirstPersonMode;
+
+	// Used while the pawn has Status.Death (Lyra's death ability would set it, but this component decides the mode).
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	TSoftClassPtr<ULyraCameraMode> DeathMode;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TSoftObjectPtr<UInputAction> ToggleAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TSoftObjectPtr<UInputMappingContext> InputMapping;
+
+private:
+	void GiveLoadout();
+	void SetUpLocalPlayer();
+	void TogglePerspective();
+	bool IsFirstPerson() const;
+	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
+
+	FTimerHandle RetryTimer;
+	int32 Retries = 0;
+	bool bLoadoutGiven = false;
+	bool bInputBound = false;
+
+	// Last choice of the local player, kept across respawns in "Choice" modes.
+	static bool bPreferFirstPerson;
+};

@@ -39,6 +39,8 @@ public class DowntownCoreRuntime : ModuleRules
 				"Engine",
 				"GameplayAbilities",
 				"GameplayTags",
+				"EnhancedInput",
+				"ModularGameplay",
 				"Slate",
 				"SlateCore",
 				// ... add private dependencies that you statically link with here ...	

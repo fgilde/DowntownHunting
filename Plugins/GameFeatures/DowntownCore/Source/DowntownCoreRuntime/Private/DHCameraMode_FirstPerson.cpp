@@ -15,10 +15,14 @@
 
 UDHCameraMode_FirstPerson::UDHCameraMode_FirstPerson()
 {
-	const TCHAR* Poses = TEXT("/Game/Characters/Heroes/Mannequin/Animations/Locomotion");
-	WeaponPoses.Add(TEXT("Pistol"), TSoftObjectPtr<UAnimSequenceBase>(FSoftObjectPath(FString::Printf(TEXT("%s/Pistol/MM_Pistol_Idle_ADS.MM_Pistol_Idle_ADS"), Poses))));
-	WeaponPoses.Add(TEXT("Shotgun"), TSoftObjectPtr<UAnimSequenceBase>(FSoftObjectPath(FString::Printf(TEXT("%s/Shotgun/MM_Shotgun_Idle_ADS.MM_Shotgun_Idle_ADS"), Poses))));
-	DefaultPose = TSoftObjectPtr<UAnimSequenceBase>(FSoftObjectPath(FString::Printf(TEXT("%s/Rifle/MM_Rifle_Idle_ADS.MM_Rifle_Idle_ADS"), Poses)));
+	auto Pose = [](const TCHAR* Path)
+	{
+		return TSoftObjectPtr<UAnimSequenceBase>(FSoftObjectPath(FString::Printf(TEXT("/Game/Characters/Heroes/Mannequin/Animations/Locomotion/%s"), Path)));
+	};
+	// Long guns sit further away so the receiver does not fill the screen.
+	WeaponViews.Add(TEXT("Pistol"), { Pose(TEXT("Pistol/MM_Pistol_Idle_ADS.MM_Pistol_Idle_ADS")), FVector(22.0, 9.0, -11.0), FVector(30.0, 0.0, -10.0) });
+	WeaponViews.Add(TEXT("Shotgun"), { Pose(TEXT("Shotgun/MM_Shotgun_Idle_ADS.MM_Shotgun_Idle_ADS")), FVector(38.0, 13.0, -17.0), FVector(32.0, 0.0, -10.0) });
+	DefaultView = { Pose(TEXT("Rifle/MM_Rifle_Idle_ADS.MM_Rifle_Idle_ADS")), FVector(38.0, 13.0, -17.0), FVector(32.0, 0.0, -9.0) };
 }
 
 void UDHCameraMode_FirstPerson::OnDeactivation()
@@ -84,7 +88,7 @@ void UDHCameraMode_FirstPerson::UpdateView(float DeltaTime)
 	const FQuat Kick(ViewQuat.GetRightVector(), FMath::DegreesToRadians(-RecoilPitch * Recoil));
 	const FQuat BodyQuat = Kick * Correction * Facing;
 
-	FVector Offset = FMath::Lerp(HipWeaponOffset, ADSWeaponOffset, ADSAlpha);
+	FVector Offset = FMath::Lerp(CurrentView.HipOffset, CurrentView.ADSOffset, ADSAlpha);
 	Offset.X -= RecoilBack * Recoil;
 	const FVector Target = View.Location + ViewQuat.RotateVector(Offset);
 	Body->SetWorldLocationAndRotation(Target - BodyQuat.RotateVector(Grip * Body->GetComponentScale()), BodyQuat);
@@ -180,7 +184,8 @@ void UDHCameraMode_FirstPerson::BuildCopies(ACharacter& Character)
 		{
 			Copy->SetWorldScale3D(Mesh->GetComponentScale());
 			Copy->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-			Copy->AnimationData.AnimToPlay = FindPose(GetAttachedWeapons(Character));
+			CurrentView = FindView(GetAttachedWeapons(Character));
+			Copy->AnimationData.AnimToPlay = CurrentView.Pose.LoadSynchronous();
 			Copy->AnimationData.bSavedLooping = true;
 			Copy->AnimationData.bSavedPlaying = true;
 		}
@@ -271,20 +276,20 @@ void UDHCameraMode_FirstPerson::SetOriginalsHidden(bool bHidden)
 	}
 }
 
-UAnimSequenceBase* UDHCameraMode_FirstPerson::FindPose(const TArray<AActor*>& Weapons) const
+const FDHFirstPersonWeaponView& UDHCameraMode_FirstPerson::FindView(const TArray<AActor*>& Weapons) const
 {
 	for (const AActor* Weapon : Weapons)
 	{
 		const FString ClassName = Weapon->GetClass()->GetName();
-		for (const TPair<FString, TSoftObjectPtr<UAnimSequenceBase>>& Pose : WeaponPoses)
+		for (const TPair<FString, FDHFirstPersonWeaponView>& Entry : WeaponViews)
 		{
-			if (ClassName.Contains(Pose.Key))
+			if (ClassName.Contains(Entry.Key))
 			{
-				return Pose.Value.LoadSynchronous();
+				return Entry.Value;
 			}
 		}
 	}
-	return DefaultPose.LoadSynchronous();
+	return DefaultView;
 }
 
 TArray<AActor*> UDHCameraMode_FirstPerson::GetAttachedWeapons(const ACharacter& Character) const
