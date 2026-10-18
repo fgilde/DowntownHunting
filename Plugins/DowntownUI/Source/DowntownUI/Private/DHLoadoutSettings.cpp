@@ -28,6 +28,25 @@ TArray<FString> UDHLoadoutSettings::GetLoadout()
 	return Loadout.IsEmpty() ? GetDefault<UDHLoadoutSettings>()->DefaultLoadout : Loadout;
 }
 
+TArray<FDHAttachmentEntry> UDHLoadoutSettings::GetAttachments()
+{
+	return {
+		{ FString(), NSLOCTEXT("DowntownHunting", "AttachNone", "NONE"), NSLOCTEXT("DowntownHunting", "AttachNoneInfo", "Stock weapon") },
+		{ TEXT("ExtMag"), NSLOCTEXT("DowntownHunting", "AttachExtMag", "EXTENDED MAG"), NSLOCTEXT("DowntownHunting", "AttachExtMagInfo", "+50% magazine") },
+		{ TEXT("Laser"), NSLOCTEXT("DowntownHunting", "AttachLaser", "LASER SIGHT"), NSLOCTEXT("DowntownHunting", "AttachLaserInfo", "Tighter spread") },
+		{ TEXT("Barrel"), NSLOCTEXT("DowntownHunting", "AttachBarrel", "LONG BARREL"), NSLOCTEXT("DowntownHunting", "AttachBarrelInfo", "Damage reaches further") },
+	};
+}
+
+void UDHLoadoutSettings::SplitEntry(const FString& Entry, FString& OutWeapon, FString& OutAttachment)
+{
+	OutAttachment.Reset();
+	if (!Entry.Split(TEXT(":"), &OutWeapon, &OutAttachment))
+	{
+		OutWeapon = Entry;
+	}
+}
+
 void UDHLoadoutSettings::ChooseLoadout(APlayerController* Player, const TArray<FString>& Loadout)
 {
 	GConfig->SetString(LoadoutSection, LoadoutKey, *FString::Join(Loadout, TEXT(",")), GGameUserSettingsIni);

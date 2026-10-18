@@ -4,8 +4,8 @@
 #include "DHPlayerChoicesComponent.h"
 #include "Character/LyraHealthComponent.h"
 #include "Curves/CurveFloat.h"
-#include "Equipment/LyraEquipmentManagerComponent.h"
 #include "DHPlayerRulesComponent.h"
+#include "DHWeaponAccess.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
 #include "Messages/LyraVerbMessage.h"
@@ -216,6 +216,18 @@ TArray<UClass*> UDHGameRulesComponent::GetLoadoutItems(const AController* Contro
 	return Items;
 }
 
+FName UDHGameRulesComponent::GetWeaponName(const UClass* ItemClass) const
+{
+	for (const TPair<FName, TSoftClassPtr<UObject>>& Item : WeaponItems)
+	{
+		if (Item.Value.Get() == ItemClass)
+		{
+			return Item.Key;
+		}
+	}
+	return NAME_None;
+}
+
 void UDHGameRulesComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -304,20 +316,6 @@ void UDHGameRulesComponent::OnElimination(FGameplayTag Channel, const FLyraVerbM
 
 namespace DHHitFeedback
 {
-	/** The shooter's active Lyra ranged weapon instance (Lyra's equipment classes are not exported: found by name). */
-	UObject* ActiveWeapon(const APawn* Pawn)
-	{
-		static UClass* RangedClass = FindObject<UClass>(nullptr, TEXT("/Script/LyraGame.LyraRangedWeaponInstance"));
-		for (UActorComponent* Component : Pawn ? Pawn->GetComponents() : TSet<UActorComponent*>())
-		{
-			if (Component->GetClass()->GetFName() == TEXT("LyraEquipmentManagerComponent") && RangedClass)
-			{
-				return reinterpret_cast<UObject*>(static_cast<ULyraEquipmentManagerComponent*>(Component)->GetFirstInstanceOfType(RangedClass));
-			}
-		}
-		return nullptr;
-	}
-
 	/** Damage of a hit without the weapon's distance falloff. */
 	float WithoutFalloff(const UObject* Weapon, float Damage, float Distance)
 	{
@@ -334,7 +332,7 @@ void UDHGameRulesComponent::OnDamage(FGameplayTag Channel, const FLyraVerbMessag
 	const APlayerState* Target = ULyraVerbMessageHelpers::GetPlayerStateFromObject(Message.Target);
 	const APawn* ShooterPawn = Shooter ? Shooter->GetPawn() : nullptr;
 	const APawn* TargetPawn = Target ? Target->GetPawn() : nullptr;
-	UObject* Weapon = DHHitFeedback::ActiveWeapon(ShooterPawn);
+	UObject* Weapon = DHWeaponAccess::ActiveWeapon(ShooterPawn);
 	if (!Weapon || !TargetPawn || Shooter == Target)
 	{
 		return;

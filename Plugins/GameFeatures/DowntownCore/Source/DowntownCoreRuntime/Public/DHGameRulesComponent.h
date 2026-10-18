@@ -53,6 +53,9 @@ public:
 	// Server only. Item definition classes to give the controller's pawn, in quick bar order.
 	TArray<UClass*> GetLoadoutItems(const AController* Controller) const;
 
+	/** Name (WeaponItems key) of a weapon item definition class, None if it is not one of them. */
+	FName GetWeaponName(const UClass* ItemClass) const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

@@ -9,8 +9,8 @@ class UHorizontalBox;
 class UTextBlock;
 
 /**
- * Loadout builder: pick the primary and the secondary weapon (cards with the HUD weapon icons), built in code.
- * Picking a weapon that sits in the other slot swaps the two. Stored via UDHLoadoutSettings; in a match the
+ * Loadout builder: pick the primary and the secondary weapon (cards with the HUD weapon icons) and an attachment for
+ * each, built in code. Picking a weapon that sits in the other slot swaps the two. Stored via UDHLoadoutSettings; in a match the
  * new loadout applies from the next spawn. Back (Esc / gamepad B) closes the screen.
  */
 UCLASS()
@@ -34,14 +34,18 @@ private:
 	void HandleBackClicked();
 
 	void AddRow(class UVerticalBox* Column, const FText& Title, int32 SlotIndex);
+	void AddAttachmentRow(class UVerticalBox* Column, int32 SlotIndex);
 	void Pick(int32 SlotIndex, const FString& WeaponId);
+	void PickAttachment(int32 SlotIndex, const FString& AttachmentId);
+	void Store(const FString (&Weapons)[2], const FString (&Attachments)[2]);
 	void Refresh();
 
 	struct FCard
 	{
 		TObjectPtr<UButton> Button;
 		int32 SlotIndex = 0;
-		FString WeaponId;
+		FString WeaponId;      // or the attachment id on attachment cards
+		bool bAttachment = false;
 	};
 	TArray<FCard> Cards;
 	TArray<FString> CurrentLoadout;

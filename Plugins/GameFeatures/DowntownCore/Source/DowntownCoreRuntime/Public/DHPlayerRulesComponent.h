@@ -64,11 +64,13 @@ private:
 	void HideScoreboard();
 	void TrySlide();
 	void TryWallJump();
+	void ApplyAttachments();
 	bool IsFirstPerson() const;
 	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
 
 	FTimerHandle RetryTimer;
 	FTimerHandle HunterTimer;
+	TWeakObjectPtr<UObject> ModifiedWeapon;
 	int32 Retries = 0;
 	double LastWallJump = -1.0;
 	bool bLoadoutGiven = false;

@@ -20,11 +20,19 @@ struct DOWNTOWNUI_API FDHWeaponEntry
 	FSoftObjectPath Icon;
 };
 
+/** An attachment the loadout builder offers; Id is what the server understands (UDHPlayerChoicesComponent). */
+struct FDHAttachmentEntry
+{
+	FString Id;
+	FText Name;
+	FText Description;
+};
+
 DECLARE_MULTICAST_DELEGATE_TwoParams(FDHLoadoutChosen, APlayerController* /*Player*/, const TArray<FString>& /*Loadout*/);
 
 /**
  * Weapons for the loadout builder (Config/DefaultGame.ini) and the player's loadout: primary and secondary weapon,
- * stored in GameUserSettings.ini. Used in modes whose rule is Loadout=Player.
+ * each with an optional attachment, stored in GameUserSettings.ini. Used in modes whose rule is Loadout=Player.
  */
 UCLASS(Config = Game)
 class DOWNTOWNUI_API UDHLoadoutSettings : public UObject
@@ -35,9 +43,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Loadout")
 	static TArray<FDHWeaponEntry> GetWeapons();
 
-	/** Primary, secondary. */
+	/** Primary, secondary; each "Weapon" or "Weapon:Attachment". */
 	UFUNCTION(BlueprintPure, Category = "Loadout")
 	static TArray<FString> GetLoadout();
+
+	/** None (empty id) first, then the attachments. */
+	static TArray<FDHAttachmentEntry> GetAttachments();
+
+	/** "Weapon:Attachment" -> Weapon, Attachment (empty without one). */
+	static void SplitEntry(const FString& Entry, FString& OutWeapon, FString& OutAttachment);
 
 	/** Stores the loadout and tells a running match (UDHPlayerChoicesComponent listens). */
 	UFUNCTION(BlueprintCallable, Category = "Loadout")

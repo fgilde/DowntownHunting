@@ -59,7 +59,9 @@ void UDHLoadoutScreen::NativeOnInitialized()
 	SummarySlot->SetPadding(FMargin(0, 6, 0, 20));
 
 	AddRow(Column, NSLOCTEXT("DowntownHunting", "Primary", "PRIMARY"), 0);
+	AddAttachmentRow(Column, 0);
 	AddRow(Column, NSLOCTEXT("DowntownHunting", "Secondary", "SECONDARY"), 1);
+	AddAttachmentRow(Column, 1);
 
 	UButton* Back = WidgetTree->ConstructWidget<UButton>();
 	Back->SetBackgroundColor(DHScreenStyle::Card);
@@ -117,6 +119,40 @@ void UDHLoadoutScreen::AddRow(UVerticalBox* Column, const FText& Title, int32 Sl
 	}
 }
 
+void UDHLoadoutScreen::AddAttachmentRow(UVerticalBox* Column, int32 SlotIndex)
+{
+	UHorizontalBox* Row = WidgetTree->ConstructWidget<UHorizontalBox>();
+	Column->AddChildToVerticalBox(Row)->SetPadding(FMargin(0, 2, 0, 4));
+	for (const FDHAttachmentEntry& Attachment : UDHLoadoutSettings::GetAttachments())
+	{
+		UDHCardButton* Button = WidgetTree->ConstructWidget<UDHCardButton>();
+		Button->SetBackgroundColor(DHScreenStyle::Card);
+		Button->CardId = Attachment.Id;
+		Button->CardSlot = SlotIndex;
+		Button->bAttachment = true;
+		Button->OnCardClicked.BindUObject(this, &ThisClass::HandleCardClicked);
+
+		USizeBox* Box = WidgetTree->ConstructWidget<USizeBox>();
+		Box->SetWidthOverride(176.f);
+		UVerticalBox* Content = WidgetTree->ConstructWidget<UVerticalBox>();
+		UTextBlock* Name = WidgetTree->ConstructWidget<UTextBlock>();
+		Name->SetText(Attachment.Name);
+		Name->SetFont(DHScreenStyle::Font(TEXT("Orbitron"), 12));
+		Content->AddChildToVerticalBox(Name)->SetHorizontalAlignment(HAlign_Center);
+		UTextBlock* Info = WidgetTree->ConstructWidget<UTextBlock>();
+		Info->SetText(Attachment.Description);
+		Info->SetFont(DHScreenStyle::Font(TEXT("NotoSans"), 11));
+		Info->SetColorAndOpacity(DHScreenStyle::Text);
+		Content->AddChildToVerticalBox(Info)->SetHorizontalAlignment(HAlign_Center);
+		Box->AddChild(Content);
+		Button->AddChild(Box);
+
+		Row->AddChildToHorizontalBox(Button)->SetPadding(FMargin(8, 0));
+		Cards.Add({ Button, SlotIndex, Attachment.Id, true });
+		CardButtons.Add(Button);
+	}
+}
+
 void UDHLoadoutScreen::NativeOnActivated()
 {
 	Super::NativeOnActivated();
@@ -136,7 +172,9 @@ void UDHLoadoutScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 	for (const FCard& Card : Cards)
 	{
 		const bool bFocused = Card.Button->HasAnyUserFocus() || Card.Button->IsHovered();
-		const bool bChosen = CurrentLoadout.IsValidIndex(Card.SlotIndex) && CurrentLoadout[Card.SlotIndex] == Card.WeaponId;
+		FString Weapon, Attachment;
+		UDHLoadoutSettings::SplitEntry(CurrentLoadout.IsValidIndex(Card.SlotIndex) ? CurrentLoadout[Card.SlotIndex] : FString(), Weapon, Attachment);
+		const bool bChosen = (Card.bAttachment ? Attachment : Weapon) == Card.WeaponId;
 		Card.Button->SetBackgroundColor(bChosen ? DHScreenStyle::Accent : bFocused ? DHScreenStyle::Focus : DHScreenStyle::Card);
 		Card.Button->SetRenderScale(FVector2D(bFocused ? 1.06f : 1.f));
 	}
@@ -144,7 +182,14 @@ void UDHLoadoutScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 
 void UDHLoadoutScreen::HandleCardClicked(UDHCardButton* Card)
 {
-	Pick(Card->CardSlot, Card->CardId);
+	if (Card->bAttachment)
+	{
+		PickAttachment(Card->CardSlot, Card->CardId);
+	}
+	else
+	{
+		Pick(Card->CardSlot, Card->CardId);
+	}
 }
 
 void UDHLoadoutScreen::HandleBackClicked()
@@ -156,13 +201,43 @@ void UDHLoadoutScreen::Pick(int32 SlotIndex, const FString& WeaponId)
 {
 	TArray<FString> Loadout = UDHLoadoutSettings::GetLoadout();
 	Loadout.SetNum(2);
-	const int32 Other = 1 - SlotIndex;
-	if (Loadout[Other] == WeaponId)
+	FString Weapons[2], Attachments[2];
+	for (int32 Index = 0; Index < 2; ++Index)
 	{
-		Loadout[Other] = Loadout[SlotIndex];  // swap instead of carrying the same weapon twice
+		UDHLoadoutSettings::SplitEntry(Loadout[Index], Weapons[Index], Attachments[Index]);
 	}
-	Loadout[SlotIndex] = WeaponId;
-	Loadout.Remove(FString());
+	const int32 Other = 1 - SlotIndex;
+	if (Weapons[Other] == WeaponId)
+	{
+		Weapons[Other] = Weapons[SlotIndex];  // swap instead of carrying the same weapon twice
+	}
+	Weapons[SlotIndex] = WeaponId;
+	Store(Weapons, Attachments);
+}
+
+void UDHLoadoutScreen::PickAttachment(int32 SlotIndex, const FString& AttachmentId)
+{
+	TArray<FString> Loadout = UDHLoadoutSettings::GetLoadout();
+	Loadout.SetNum(2);
+	FString Weapons[2], Attachments[2];
+	for (int32 Index = 0; Index < 2; ++Index)
+	{
+		UDHLoadoutSettings::SplitEntry(Loadout[Index], Weapons[Index], Attachments[Index]);
+	}
+	Attachments[SlotIndex] = AttachmentId;
+	Store(Weapons, Attachments);
+}
+
+void UDHLoadoutScreen::Store(const FString (&Weapons)[2], const FString (&Attachments)[2])
+{
+	TArray<FString> Loadout;
+	for (int32 Index = 0; Index < 2; ++Index)
+	{
+		if (!Weapons[Index].IsEmpty())
+		{
+			Loadout.Add(Attachments[Index].IsEmpty() ? Weapons[Index] : Weapons[Index] + TEXT(":") + Attachments[Index]);
+		}
+	}
 	UDHLoadoutSettings::ChooseLoadout(GetOwningPlayer(), Loadout);
 	Refresh();
 }
@@ -172,7 +247,20 @@ void UDHLoadoutScreen::Refresh()
 	TArray<FString> Loadout = UDHLoadoutSettings::GetLoadout();
 	Loadout.SetNum(2);
 	CurrentLoadout = Loadout;
+	FText Parts[2];
+	for (int32 Index = 0; Index < 2; ++Index)
+	{
+		FString Weapon, Attachment;
+		UDHLoadoutSettings::SplitEntry(Loadout[Index], Weapon, Attachment);
+		Parts[Index] = FText::FromString(Weapon.IsEmpty() ? TEXT("-") : Weapon);
+		for (const FDHAttachmentEntry& Entry : UDHLoadoutSettings::GetAttachments())
+		{
+			if (!Attachment.IsEmpty() && Entry.Id == Attachment)
+			{
+				Parts[Index] = FText::Format(NSLOCTEXT("DowntownHunting", "WeaponWithAttachment", "{0} ({1})"), Parts[Index], Entry.Name);
+			}
+		}
+	}
 	SummaryText->SetText(FText::Format(
-		NSLOCTEXT("DowntownHunting", "LoadoutSummary", "{0} + {1}\nUsed in modes without a fixed loadout. Applies from your next spawn."),
-		FText::FromString(Loadout[0]), FText::FromString(Loadout[1].IsEmpty() ? TEXT("-") : Loadout[1])));
+		NSLOCTEXT("DowntownHunting", "LoadoutSummary", "{0} + {1}\nUsed in modes without a fixed loadout. Applies from your next spawn."), Parts[0], Parts[1]));
 }

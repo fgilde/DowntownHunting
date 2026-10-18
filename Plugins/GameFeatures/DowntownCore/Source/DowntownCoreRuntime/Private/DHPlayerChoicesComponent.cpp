@@ -114,11 +114,19 @@ void UDHPlayerChoicesComponent::HandleLoadoutChosen(APlayerController* Player, c
 void UDHPlayerChoicesComponent::ServerSetLoadout_Implementation(const TArray<FString>& NewLoadout)
 {
 	Loadout.Reset();
-	for (const FString& Name : NewLoadout)
+	Attachments.Reset();
+	for (const FString& Entry : NewLoadout)
 	{
+		// "Weapon" or "Weapon:Attachment"
+		FString Weapon = Entry, Attachment;
+		Entry.Split(TEXT(":"), &Weapon, &Attachment);
 		if (Loadout.Num() < 2)  // primary and secondary
 		{
-			Loadout.Add(FName(*Name));
+			Loadout.Add(FName(*Weapon));
+			if (Attachment == TEXT("ExtMag") || Attachment == TEXT("Laser") || Attachment == TEXT("Barrel"))
+			{
+				Attachments.Add(FName(*Weapon), FName(*Attachment));
+			}
 		}
 	}
 	UE_LOG(LogDHRules, Log, TEXT("%s: loadout %s"), *GetNameSafe(GetOwner()), *FString::Join(NewLoadout, TEXT(",")));

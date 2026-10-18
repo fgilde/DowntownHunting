@@ -22,6 +22,7 @@ public:
 
 	FString CardId;
 	int32 CardSlot = 0;
+	bool bAttachment = false;
 	FDHCardClicked OnCardClicked;
 
 	virtual void SynchronizeProperties() override;

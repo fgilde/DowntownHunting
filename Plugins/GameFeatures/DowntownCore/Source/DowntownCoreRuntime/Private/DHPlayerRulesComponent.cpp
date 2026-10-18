@@ -12,6 +12,8 @@
 #include "DHMinimap.h"
 #include "DHMovement.h"
 #include "DHPlayerChoicesComponent.h"
+#include "DHWeaponAccess.h"
+#include "Curves/CurveFloat.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DHObjectiveHud.h"
@@ -158,9 +160,11 @@ void UDHPlayerRulesComponent::BeginPlay()
 		}
 	}, RetryInterval, true);
 
-	// Killstreak hunter mode: faster while it runs (server and owning client alike, or movement corrections follow).
+	// Killstreak hunter mode: faster while it runs; attachments on the equipped weapon. On the server and the owning
+	// client alike (movement corrections, client-side spread).
 	GetWorld()->GetTimerManager().SetTimer(HunterTimer, [this]()
 	{
+		ApplyAttachments();
 		ACharacter* Character = GetPawn<ACharacter>();
 		UCharacterMovementComponent* Movement = Character ? Character->GetCharacterMovement() : nullptr;
 		if (Movement)
@@ -227,6 +231,29 @@ void UDHPlayerRulesComponent::GiveLoadout()
 		{
 			const bool bSlotted = AddToFirstFreeQuickBarSlot(QuickBar, Inventory->AddItemDefinition(ItemDef));
 			UE_LOG(LogDHRules, Log, TEXT("%s: gave %s (quick bar: %s)"), *GetNameSafe(Controller), *ItemClass->GetName(), bSlotted ? TEXT("yes") : TEXT("full"));
+		}
+	}
+	// Chosen attachments, once per item (items stay in the inventory across respawns).
+	if (const UDHPlayerChoicesComponent* Choices = Controller->FindComponentByClass<UDHPlayerChoicesComponent>())
+	{
+		for (ULyraInventoryItemInstance* Item : Inventory->GetAllItems())
+		{
+			const FName Attachment = Choices->GetAttachment(Rules->GetWeaponName(Item->GetItemDef().Get()));
+			const FGameplayTag Tag = Attachment.IsNone() ? FGameplayTag() : FGameplayTag::RequestGameplayTag(*(TEXT("DH.Attachment.") + Attachment.ToString()), false);
+			if (!Tag.IsValid() || DHWeaponAccess::ItemStat(Item, Tag) > 0)
+			{
+				continue;
+			}
+			DHWeaponAccess::AddItemStat(Item, Tag, 1);
+			UE_LOG(LogDHRules, Log, TEXT("%s: %s with %s"), *GetNameSafe(Controller), *GetNameSafe(Item->GetItemDef().Get()), *Attachment.ToString());
+			if (Attachment == TEXT("ExtMag"))
+			{
+				// Half a magazine more, loaded.
+				const int32 Extra = DHWeaponAccess::ItemStat(Item, FGameplayTag::RequestGameplayTag(TEXT("Lyra.ShooterGame.Weapon.MagazineSize"))) / 2;
+				DHWeaponAccess::AddItemStat(Item, FGameplayTag::RequestGameplayTag(TEXT("Lyra.ShooterGame.Weapon.MagazineSize")), Extra);
+				DHWeaponAccess::AddItemStat(Item, FGameplayTag::RequestGameplayTag(TEXT("Lyra.ShooterGame.Weapon.MagazineAmmo")), Extra);
+				UE_LOG(LogDHRules, Log, TEXT("%s: magazine %d"), *GetNameSafe(Item->GetItemDef().Get()), DHWeaponAccess::ItemStat(Item, FGameplayTag::RequestGameplayTag(TEXT("Lyra.ShooterGame.Weapon.MagazineSize"))));
+			}
 		}
 	}
 	// The quick bar lives on the controller and may still count slot 0 as active from the previous pawn (Lyra's
@@ -303,6 +330,47 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 	{
 		Input->AddMappingContext(Mapping, 1);
 		bMappingAdded = true;
+	}
+}
+
+void UDHPlayerRulesComponent::ApplyAttachments()
+{
+	// Lyra makes a new weapon instance on every equip: modify each one once.
+	UObject* Weapon = DHWeaponAccess::ActiveWeapon(GetPawn<APawn>());
+	if (!Weapon || Weapon == ModifiedWeapon.Get())
+	{
+		return;
+	}
+	ULyraInventoryItemInstance* Item = DHWeaponAccess::ItemOf(Weapon);
+	if (!Item)
+	{
+		return;
+	}
+	ModifiedWeapon = Weapon;
+	auto Scale = [Weapon](const TCHAR* Name, float Factor)
+	{
+		if (FFloatProperty* Property = FindFProperty<FFloatProperty>(Weapon->GetClass(), Name))
+		{
+			Property->SetPropertyValue_InContainer(Weapon, Property->GetPropertyValue_InContainer(Weapon) * Factor);
+		}
+	};
+	if (DHWeaponAccess::ItemStat(Item, FGameplayTag::RequestGameplayTag(TEXT("DH.Attachment.Laser"))) > 0)
+	{
+		UE_LOG(LogDHRules, Verbose, TEXT("%s: laser on %s"), *GetNameSafe(GetPawn<APawn>()), *GetNameSafe(Weapon));
+		// Shots gather closer to the centre of the spread cone, and a tighter cone when aiming.
+		Scale(TEXT("SpreadExponent"), 2.5f);
+		Scale(TEXT("SpreadAngleMultiplier_Aiming"), 0.75f);
+	}
+	if (DHWeaponAccess::ItemStat(Item, FGameplayTag::RequestGameplayTag(TEXT("DH.Attachment.Barrel"))) > 0)
+	{
+		// Damage falls off 60 % further out.
+		if (FStructProperty* Property = FindFProperty<FStructProperty>(Weapon->GetClass(), TEXT("DistanceDamageFalloff")))
+		{
+			for (FRichCurveKey& Key : Property->ContainerPtrToValuePtr<FRuntimeFloatCurve>(Weapon)->GetRichCurve()->Keys)
+			{
+				Key.Time *= 1.6f;
+			}
+		}
 	}
 }
 

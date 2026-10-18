@@ -60,6 +60,9 @@ public:
 	/** Server: the player's loadout, empty for bots and before the client sent it. */
 	const TArray<FName>& GetLoadout() const { return Loadout; }
 
+	/** Server: attachment chosen for a weapon of the loadout (ExtMag, Laser, Barrel), None without one. */
+	FName GetAttachment(FName Weapon) const { return Attachments.FindRef(Weapon); }
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -75,6 +78,7 @@ private:
 	TObjectPtr<class UDHHitMarker> HitMarker;
 	FString AppliedId;
 	TArray<FName> Loadout;
+	TMap<FName, FName> Attachments;
 	FDelegateHandle ChosenHandle;
 	FDelegateHandle LoadoutHandle;
 };
