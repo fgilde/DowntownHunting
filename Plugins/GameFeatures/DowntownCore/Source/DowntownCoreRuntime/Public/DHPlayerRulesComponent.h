@@ -62,11 +62,14 @@ private:
 	void TogglePerspective();
 	void ShowScoreboard();
 	void HideScoreboard();
+	void TrySlide();
+	void TryWallJump();
 	bool IsFirstPerson() const;
 	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
 
 	FTimerHandle RetryTimer;
 	int32 Retries = 0;
+	double LastWallJump = -1.0;
 	bool bLoadoutGiven = false;
 	bool bMappingAdded = false;
 	TWeakObjectPtr<UInputComponent> BoundInputComponent;

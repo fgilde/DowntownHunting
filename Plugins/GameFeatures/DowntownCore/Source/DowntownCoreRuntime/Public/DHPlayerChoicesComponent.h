@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Components/ControllerComponent.h"
+#include "Engine/NetSerialization.h"
 
 #include "DHPlayerChoicesComponent.generated.h"
 
@@ -37,6 +38,13 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientShowKiller(APlayerState* Killer, float KillerHealth, float Distance);
 
+	/** Moves of DHMovement, done on the owning client first and repeated here on the server. */
+	UFUNCTION(Server, Reliable)
+	void ServerSlide();
+
+	UFUNCTION(Server, Reliable)
+	void ServerWallJump(FVector_NetQuantizeNormal WallNormal);
+
 	/** Primary and secondary weapon; given from the next spawn. */
 	UFUNCTION(Server, Reliable)
 	void ServerSetLoadout(const TArray<FString>& NewLoadout);
@@ -53,6 +61,7 @@ private:
 	void HandleLoadoutChosen(APlayerController* Player, const TArray<FString>& NewLoadout);
 	void ApplyCharacter(const FString& Id);
 
+	double LastWallJump = -1.0;
 	FString AppliedId;
 	TArray<FName> Loadout;
 	FDelegateHandle ChosenHandle;

@@ -4,6 +4,9 @@
 #include "DHLoadoutSettings.h"
 #include "DHGameRulesComponent.h"
 #include "DHKillcam.h"
+#include "DHMovement.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/PlayerController.h"
@@ -126,6 +129,28 @@ void UDHPlayerChoicesComponent::ClientShowKiller_Implementation(APlayerState* Ki
 		UDHKillcam* Killcam = CreateWidget<UDHKillcam>(Player);
 		Killcam->Start(Killer, KillerHealth, Distance);
 		Killcam->AddToViewport(30);
+	}
+}
+
+void UDHPlayerChoicesComponent::ServerSlide_Implementation()
+{
+	ACharacter* Character = Cast<ACharacter>(GetPawn<APawn>());
+	if (DHMovement::CanSlide(Character))
+	{
+		DHMovement::Slide(Character);
+	}
+}
+
+void UDHPlayerChoicesComponent::ServerWallJump_Implementation(FVector_NetQuantizeNormal WallNormal)
+{
+	// The client found the wall; the server only checks the jump is possible at all (falling, not too often).
+	ACharacter* Character = Cast<ACharacter>(GetPawn<APawn>());
+	const double Now = GetWorld()->GetTimeSeconds();
+	const FVector Normal = FVector(WallNormal).GetSafeNormal2D();
+	if (Character && Character->GetCharacterMovement()->IsFalling() && !Normal.IsZero() && Now - LastWallJump > DHMovement::WallJumpCooldown)
+	{
+		LastWallJump = Now;
+		DHMovement::WallJump(Character, Normal);
 	}
 }
 

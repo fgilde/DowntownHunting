@@ -9,6 +9,10 @@
 #include "DHGunGameHud.h"
 #include "DHMatchEndScreen.h"
 #include "DHMinimap.h"
+#include "DHMovement.h"
+#include "DHPlayerChoicesComponent.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "DHObjectiveHud.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
@@ -251,6 +255,15 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::ShowScoreboard);
 			InputComponent->BindAction(Action, ETriggerEvent::Completed, this, &ThisClass::HideScoreboard);
 		}
+		// Lyra's own crouch and jump stay bound; slide and wall jump only add to them.
+		if (UInputAction* Action = LoadObject<UInputAction>(nullptr, TEXT("/Game/Input/Actions/IA_Crouch.IA_Crouch")))
+		{
+			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::TrySlide);
+		}
+		if (UInputAction* Action = LoadObject<UInputAction>(nullptr, TEXT("/Game/Input/Actions/IA_Jump.IA_Jump")))
+		{
+			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::TryWallJump);
+		}
 		BoundInputComponent = InputComponent;
 	}
 	const UDHGameRulesComponent* Rules = UDHGameRulesComponent::Find(this);
@@ -276,6 +289,31 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 	{
 		Input->AddMappingContext(Mapping, 1);
 		bMappingAdded = true;
+	}
+}
+
+void UDHPlayerRulesComponent::TrySlide()
+{
+	ACharacter* Character = GetPawn<ACharacter>();
+	UDHPlayerChoicesComponent* Choices = Character && Character->GetController() ? Character->GetController()->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
+	if (Choices && DHMovement::CanSlide(Character))
+	{
+		DHMovement::Slide(Character);
+		Choices->ServerSlide();
+	}
+}
+
+void UDHPlayerRulesComponent::TryWallJump()
+{
+	ACharacter* Character = GetPawn<ACharacter>();
+	UDHPlayerChoicesComponent* Choices = Character && Character->GetController() ? Character->GetController()->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
+	const double Now = GetWorld()->GetTimeSeconds();
+	const FVector WallNormal = Choices && Now - LastWallJump > DHMovement::WallJumpCooldown ? DHMovement::FindWall(Character) : FVector::ZeroVector;
+	if (!WallNormal.IsZero())
+	{
+		LastWallJump = Now;
+		DHMovement::WallJump(Character, WallNormal);
+		Choices->ServerWallJump(WallNormal);
 	}
 }
 
