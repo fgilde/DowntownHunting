@@ -60,4 +60,5 @@ private:
 	FVector2D ViewOrigin = FVector2D::ZeroVector;
 	float CaptureDelay = 3.f;
 	int32 Captures = 0;
+	float RadarPulse = 0.f;
 };

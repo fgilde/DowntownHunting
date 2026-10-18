@@ -289,3 +289,8 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
   Fester Zeitschritt: Spielzeit läuft pro Frame 1/30 s weiter, egal wie lange der Screenshot dauert.
 - Schnitt: `Tools/Branding/make_intro_movie.py` (Tagline, Logo, Drone, synthetische Schusssalven bis 14 s, Whoosh zur Kranfahrt). `Tools/Python/make_intro.py` (MRQ-Kamerafahrt) ist damit abgelöst.
 - Hinlegen: keine Liege-Animation in Lyra, City Sample, Blacksite oder Fab-Cache. Ohne Animation nicht gebaut.
+
+## Killstreaks (2026-10-19)
+- `DHKillstreaks` (DowntownCore): Kills ohne Tod zählen im Stat-Tag `DH.Streak` (Lyra-PlayerState, repliziert). 3 = Radar (Gegner 12 s rot auf der Minimap, fürs ganze Team, entfernte am Rand), 5 = Luftschlag (`ADHAirstrike` auf die größte Gegnergruppe: 3 s blinkende rote Leuchtfackel, 6 Einschläge in 9 m Umkreis; Schaden über Lyras Damage-GE mit dem Spieler als Instigator, also zählen die Kills; wer ein Dach über dem Kopf hat, ist sicher), 7 = Hunter-Modus (volle Gesundheit, 20 s +30 % Tempo, gesetzt auf Server und Client).
+- Zeitbelohnungen als Server-Zeit in Stat-Tags (`DH.Streak.RadarUntil`, `DH.Streak.HunterUntil`), Banner beim Spieler über `UDHPlayerChoicesComponent::ClientStreak` (`UDHStreakBanner`).
+- Test: Konsole `DH.Streak N` schreibt dem ersten Spieler N Kills gut.

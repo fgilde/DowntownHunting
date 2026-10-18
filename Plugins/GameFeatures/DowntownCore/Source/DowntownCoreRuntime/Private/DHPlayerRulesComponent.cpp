@@ -7,6 +7,7 @@
 #include "DHGameRulesComponent.h"
 #include "DHFreeForAllScoring.h"
 #include "DHGunGameHud.h"
+#include "DHKillstreaks.h"
 #include "DHMatchEndScreen.h"
 #include "DHMinimap.h"
 #include "DHMovement.h"
@@ -156,11 +157,24 @@ void UDHPlayerRulesComponent::BeginPlay()
 			GetWorld()->GetTimerManager().ClearTimer(RetryTimer);
 		}
 	}, RetryInterval, true);
+
+	// Killstreak hunter mode: faster while it runs (server and owning client alike, or movement corrections follow).
+	GetWorld()->GetTimerManager().SetTimer(HunterTimer, [this]()
+	{
+		ACharacter* Character = GetPawn<ACharacter>();
+		UCharacterMovementComponent* Movement = Character ? Character->GetCharacterMovement() : nullptr;
+		if (Movement)
+		{
+			const float Base = CastChecked<UCharacterMovementComponent>(Movement->GetArchetype())->MaxWalkSpeed;
+			Movement->MaxWalkSpeed = Base * (DHKillstreaks::IsHunting(Character->GetPlayerState()) ? DHKillstreaks::HunterSpeed : 1.f);
+		}
+	}, 0.25f, true);
 }
 
 void UDHPlayerRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	GetWorld()->GetTimerManager().ClearTimer(RetryTimer);
+	GetWorld()->GetTimerManager().ClearTimer(HunterTimer);
 	if (GunGameHud)
 	{
 		GunGameHud->RemoveFromParent();

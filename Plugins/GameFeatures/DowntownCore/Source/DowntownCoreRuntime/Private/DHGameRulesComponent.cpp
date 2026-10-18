@@ -1,5 +1,6 @@
 #include "DHGameRulesComponent.h"
 
+#include "DHKillstreaks.h"
 #include "DHPlayerChoicesComponent.h"
 #include "Character/LyraHealthComponent.h"
 #include "DHPlayerRulesComponent.h"
@@ -235,13 +236,17 @@ void UDHGameRulesComponent::OnElimination(FGameplayTag Channel, const FLyraVerbM
 	APlayerState* Killer = ULyraVerbMessageHelpers::GetPlayerStateFromObject(Message.Instigator);
 	APlayerState* Victim = ULyraVerbMessageHelpers::GetPlayerStateFromObject(Message.Target);
 	ShowKiller(Killer, Victim);
+	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	const int32 KillerTeam = Teams ? Teams->FindTeamFromObject(Killer) : INDEX_NONE;
+	const bool bTeamKill = KillerTeam != INDEX_NONE && KillerTeam == Teams->FindTeamFromObject(Victim);
+	if (GetOwner()->HasAuthority())  // clients get the message again for the kill feed
+	{
+		DHKillstreaks::OnElimination(Killer, Victim, Killer && Killer != Victim && !bTeamKill);
+	}
 	if (GunGame.IsEmpty())
 	{
 		return;
 	}
-	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
-	const int32 KillerTeam = Teams ? Teams->FindTeamFromObject(Killer) : INDEX_NONE;
-	const bool bTeamKill = KillerTeam != INDEX_NONE && KillerTeam == Teams->FindTeamFromObject(Victim);
 	if (bGunGameWon || !Killer || Killer == Victim || bTeamKill)
 	{
 		return;

@@ -12,6 +12,7 @@
 #include "Components/TextBlock.h"
 #include "DHBombSite.h"
 #include "DHFreeForAllScoring.h"
+#include "DHKillstreaks.h"
 #include "DHScreenStyle.h"
 #include "Engine/SceneCapture2D.h"
 #include "Engine/Texture2D.h"
@@ -255,9 +256,11 @@ void UDHMinimap::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Place(Arrow, ToWidget(Location));
 	Arrow->SetRenderTransformAngle(Player->GetControlRotation().Yaw);
 
-	// Teammates.
+	// Teammates, and enemies (red, pulsing) while a killstreak radar runs.
 	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
 	const AGameStateBase* GameState = GetWorld()->GetGameState();
+	const bool bRadar = DHKillstreaks::HasRadar(Player->PlayerState);
+	RadarPulse += InDeltaTime;
 	int32 Used = 0;
 	if (Teams && GameState)
 	{
@@ -265,7 +268,8 @@ void UDHMinimap::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		for (const APlayerState* Other : GameState->PlayerArray)
 		{
 			const APawn* OtherPawn = Other->GetPawn();
-			if (!OtherPawn || Other == Player->PlayerState || OwnTeam == INDEX_NONE || Teams->FindTeamFromObject(Other) != OwnTeam)
+			const bool bMate = OwnTeam != INDEX_NONE && Teams->FindTeamFromObject(Other) == OwnTeam;
+			if (!OtherPawn || Other == Player->PlayerState || !(bMate || bRadar))
 			{
 				continue;
 			}
@@ -274,9 +278,20 @@ void UDHMinimap::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 				Dots.Add(MakeMarker(DotTexture, 10.f));
 			}
 			UImage* Dot = Dots[Used++];
-			const ULyraTeamDisplayAsset* Display = const_cast<ULyraTeamSubsystem*>(Teams)->GetTeamDisplayAsset(OwnTeam, INDEX_NONE);
-			const FLinearColor* Colour = Display ? Display->ColorParameters.Find(TEXT("TeamColor")) : nullptr;
-			Dot->SetColorAndOpacity(Colour ? *Colour : FLinearColor(0.2f, 0.6f, 1.f));
+			if (bMate)
+			{
+				const ULyraTeamDisplayAsset* Display = const_cast<ULyraTeamSubsystem*>(Teams)->GetTeamDisplayAsset(OwnTeam, INDEX_NONE);
+				const FLinearColor* Colour = Display ? Display->ColorParameters.Find(TEXT("TeamColor")) : nullptr;
+				Dot->SetColorAndOpacity(Colour ? *Colour : FLinearColor(0.2f, 0.6f, 1.f));
+			}
+			else
+			{
+				Dot->SetColorAndOpacity(FLinearColor(1.f, 0.08f, 0.05f, 0.55f + 0.45f * FMath::Abs(FMath::Sin(RadarPulse * 4.f))));
+				// Enemies further away stay at the edge, in their direction.
+				const FVector2D Position = ToWidget(OtherPawn->GetActorLocation());
+				Place(Dot, FVector2D(FMath::Clamp(Position.X, 5.f, WidgetSize - 5.f), FMath::Clamp(Position.Y, 5.f, WidgetSize - 5.f)));
+				continue;
+			}
 			Place(Dot, ToWidget(OtherPawn->GetActorLocation()));
 		}
 	}

@@ -4,6 +4,8 @@
 #include "DHLoadoutSettings.h"
 #include "DHGameRulesComponent.h"
 #include "DHKillcam.h"
+#include "DHKillstreaks.h"
+#include "DHStreakBanner.h"
 #include "DHMovement.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -129,6 +131,17 @@ void UDHPlayerChoicesComponent::ClientShowKiller_Implementation(APlayerState* Ki
 		UDHKillcam* Killcam = CreateWidget<UDHKillcam>(Player);
 		Killcam->Start(Killer, KillerHealth, Distance);
 		Killcam->AddToViewport(30);
+	}
+}
+
+void UDHPlayerChoicesComponent::ClientStreak_Implementation(int32 Streak, uint8 Reward)
+{
+	if (APlayerController* Player = GetController<APlayerController>())
+	{
+		UDHStreakBanner* Banner = CreateWidget<UDHStreakBanner>(Player);
+		const DHKillstreaks::EReward Kind = static_cast<DHKillstreaks::EReward>(Reward);
+		Banner->Show(DHKillstreaks::RewardText(Streak, Kind), Kind != DHKillstreaks::EReward::None);
+		Banner->AddToViewport(25);
 	}
 }
 

@@ -68,6 +68,7 @@ private:
 	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
 
 	FTimerHandle RetryTimer;
+	FTimerHandle HunterTimer;
 	int32 Retries = 0;
 	double LastWallJump = -1.0;
 	bool bLoadoutGiven = false;

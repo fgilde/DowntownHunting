@@ -38,6 +38,10 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientShowKiller(APlayerState* Killer, float KillerHealth, float Distance);
 
+	/** Killstreak banner on the killer's screen (DHKillstreaks::EReward as Reward). */
+	UFUNCTION(Client, Reliable)
+	void ClientStreak(int32 Streak, uint8 Reward);
+
 	/** Moves of DHMovement, done on the owning client first and repeated here on the server. */
 	UFUNCTION(Server, Reliable)
 	void ServerSlide();
