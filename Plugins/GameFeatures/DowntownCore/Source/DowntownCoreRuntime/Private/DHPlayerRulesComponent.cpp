@@ -8,6 +8,7 @@
 #include "DHFreeForAllScoring.h"
 #include "DHGunGameHud.h"
 #include "DHMatchEndScreen.h"
+#include "DHMinimap.h"
 #include "DHObjectiveHud.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
@@ -162,6 +163,11 @@ void UDHPlayerRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		GunGameHud = nullptr;
 	}
 	HideScoreboard();
+	if (Minimap)
+	{
+		Minimap->RemoveFromParent();
+		Minimap = nullptr;
+	}
 
 	const APawn* Pawn = GetPawn<APawn>();
 	const APlayerController* PC = Pawn ? Pawn->GetController<APlayerController>() : nullptr;
@@ -248,6 +254,11 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 		BoundInputComponent = InputComponent;
 	}
 	const UDHGameRulesComponent* Rules = UDHGameRulesComponent::Find(this);
+	if (!Minimap && PC)
+	{
+		Minimap = CreateWidget<UDHMinimap>(const_cast<APlayerController*>(PC));
+		Minimap->AddToViewport(5);
+	}
 	if (!GunGameHud && PC)
 	{
 		// Mode overlays: Gun Game progress, Search & Destroy objective.

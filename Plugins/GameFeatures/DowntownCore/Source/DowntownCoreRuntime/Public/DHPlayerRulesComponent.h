@@ -78,6 +78,9 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UUserWidget> Scoreboard;
 
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> Minimap;
+
 	// Last choice of the local player, kept across respawns in "Choice" modes.
 	static bool bPreferFirstPerson;
 };

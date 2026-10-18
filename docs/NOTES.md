@@ -252,3 +252,8 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Gehalten `IA_ShowScoreboard` (ShooterCore, Tab und Gamepad Select): `UDHPlayerRulesComponent` blendet `UDHMatchEndScreen` im Live-Modus ein (alle Spieler, nach Team in Teamfarbe, Kills, Tode, K/D; aktualisiert 2×/s, Zeilen werden nur bei Spielerwechsel neu gebaut). Läuft in allen Modi (Kills/Tode sind Stat-Tags am PlayerState, die auch Lyras Wertung schreibt).
 - Lyras Leaderboard-Ability (`GA_ShowLeaderboard_*`, kennt nur 2 Teams) ist raus: DH-Sets `AbilitySet_DH_Match`, `AbilitySet_DH_Rounds`, `AbilitySet_DH_ControlPoint` in allen DH-Experiences (`mcp_make_experiences.py`).
 - Testhilfe: `DH.Key Gamepad_Special_Left:3` hält die Taste 3 s.
+
+## Minimap
+- `UDHMinimap` (oben rechts, 220 px, ~70 m Ausschnitt, Norden oben): einmal pro Map nimmt eine orthografische Scene-Capture (`SCS_BaseColor`, 1024²) den Bereich aller Spawns + Bombenplätze von 250 m Höhe auf; Pfeil = Blickrichtung, Punkte = Teammitglieder in Teamfarbe, Buchstaben = S&D-Plätze (rot, wenn scharf). Gegner werden nicht gezeigt.
+- Scene-Capture schreibt Alpha 0 (invertierte Deckkraft) → Bild war unsichtbar; die Pixel werden einmal ausgelesen und aufgehellt in eine normale Textur kopiert (gecacht für spätere Pawns derselben Map).
+- Erste Versuche: `SCS_FinalColorLDR` aus großer Höhe überbelichtet; Kamera bei +500 m sah nur Grau (Himmelskuppel/Alpha).
