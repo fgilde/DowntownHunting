@@ -1,4 +1,4 @@
-"""Intro movie, step 1: camera flight through DH_Block as /Game/DH/Cinematics/LS_DH_Intro, rendered with Movie Render Queue
+"""Superseded by the bot match intro (DH.Intro, see docs/NOTES.md). Intro movie, step 1: camera flight through DH_Block as /Game/DH/Cinematics/LS_DH_Intro, rendered with Movie Render Queue
 to Saved/IntroFrames (PNG). Runs in the GUI editor (rendering needs a real RHI) and quits when done:
   UnrealEditor.exe DowntownHunting.uproject -ExecCmds="py <repo>/Tools/Python/make_intro.py"
 Step 2 (frames -> Content/Movies/DH_Intro.mp4 with title and sound): Tools/Branding/make_intro_movie.py."""

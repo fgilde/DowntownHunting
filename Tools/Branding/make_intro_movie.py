@@ -1,7 +1,13 @@
-"""Intro movie, step 2: Saved/IntroFrames (from Tools/Python/make_intro.py) -> Content/Movies/DH_Intro.mp4.
-Adds fade in/out, a tagline, the logo at the end and a synthesized drone/whoosh soundtrack. Needs ffmpeg on PATH."""
+"""Intro movie, step 2: Saved/IntroFrames -> Content/Movies/DH_Intro.mp4.
+Frames come from a bot match filmed by the console command DH.Intro (see docs/NOTES.md, "Intro mit Bots"): fights
+until 14 s, then a crane shot up over the street. Adds fade in/out, a tagline, the logo at the end and a synthesized
+soundtrack (drone, gunfire bursts during the fights, whoosh for the crane). Needs ffmpeg on PATH."""
+import math
 import os
+import random
+import struct
 import subprocess
+import wave
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -14,6 +20,34 @@ FPS, SECONDS = 30, 20
 TAGLINE = "EVERY STREET IS A HUNTING GROUND"
 
 os.makedirs(TMP, exist_ok=True)
+
+
+def gunfire(path, rate=48000):
+    """Bursts of shots (noise crack + low thump, fast decay), near and far, during the fights."""
+    random.seed(3)
+    samples = [0.0] * (rate * SECONDS)
+    t = 0.6
+    while t < 13.6:
+        near = random.random() < 0.5
+        for k in range(random.randint(1, 4)):
+            start = int((t + k * random.uniform(0.09, 0.16)) * rate)
+            gain = random.uniform(0.5, 0.8) if near else random.uniform(0.12, 0.25)
+            smooth = 0.0
+            for i in range(int(0.35 * rate)):
+                if start + i >= len(samples):
+                    break
+                x = i / rate
+                smooth += (random.uniform(-1, 1) - smooth) * (0.6 if near else 0.15)  # far shots duller
+                samples[start + i] += gain * (smooth * math.exp(-x / 0.045) + 0.8 * math.sin(2 * math.pi * 70 * x) * math.exp(-x / 0.09))
+        t += random.uniform(0.35, 1.3)
+    with wave.open(path, "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(rate)
+        w.writeframes(b"".join(struct.pack("<h", int(max(-1.0, min(1.0, v)) * 32000)) for v in samples))
+
+
+gunfire(os.path.join(TMP, "gunfire.wav"))
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 
 logo = Image.open(os.path.join(HERE, "T_DH_Logo.png")).convert("RGBA")
@@ -36,14 +70,16 @@ video = (
 # drone (55/110 Hz with slow swell) + filtered noise whoosh for the crane shot
 audio = (
     f"aevalsrc='0.35*sin(2*PI*55*t)*(0.6+0.4*sin(2*PI*0.25*t))+0.18*sin(2*PI*110.5*t)':s=48000:d={SECONDS}[drone];"
-    f"anoisesrc=d={SECONDS}:c=pink:a=0.5,lowpass=f=900,volume='if(between(t,8,14),(t-8)/6,if(gt(t,14),max(0,1-(t-14)/2),0))':eval=frame[whoosh];"
-    "[drone][whoosh]amix=inputs=2:normalize=0,afade=t=in:st=0:d=1.5,afade=t=out:st=18.5:d=1.5,volume=0.8[a]"
+    f"anoisesrc=d={SECONDS}:c=pink:a=0.5,lowpass=f=900,volume='if(between(t,13.5,17.5),(t-13.5)/4,if(gt(t,17.5),max(0,1-(t-17.5)/2),0))':eval=frame[whoosh];"
+    "[3:a]volume=0.9[shots];"
+    "[drone][whoosh][shots]amix=inputs=3:normalize=0,afade=t=in:st=0:d=1.5,afade=t=out:st=18.5:d=1.5,volume=0.8[a]"
 )
 cmd = [
     "ffmpeg", "-y", "-loglevel", "error",
     "-framerate", str(FPS), "-i", os.path.join(FRAMES, "%04d.png"),
     "-loop", "1", "-framerate", str(FPS), "-t", str(SECONDS), "-i", os.path.join(TMP, "tagline.png"),
     "-loop", "1", "-framerate", str(FPS), "-t", str(SECONDS), "-i", os.path.join(TMP, "logo.png"),
+    "-i", os.path.join(TMP, "gunfire.wav"),
     "-filter_complex", video + ";" + audio,
     "-map", "[v]", "-map", "[a]", "-t", str(SECONDS),
     "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20", "-preset", "slow",

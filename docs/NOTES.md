@@ -281,3 +281,11 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - `Tools/Python/freeway_map.py` (nutzt die MCP-Helfer aus `roof_map.py`): 5-m-Raster, Deck = längste zusammenhängende Fläche 5–30 m über der Straße (240 m, Hauptachse per PCA), Stau auf allen Spuren (Gegenrichtung gedreht, Lücken zum Durchlaufen), quergestellte Vans an beiden Enden, 16 Starts zwischen den Autos, 3 Kontrollpunkte entlang des Decks, unsichtbare Wände an den Auffahrten, KillZ unter dem Deck.
 - Nur `vehCar_vehicle03`, `vehCar_vehicle05`, `vehVan_vehicle01` haben Kollision (die anderen City-Sample-Autos sind reine Optik); Glas als zweites Mesh (`Transparent/SM_All_Trans_*`) an gleicher Stelle.
 - Modi: TDM, FFA, Domination, Search & Destroy; `Play-Downtown.cmd GRIDLOCK`. Getestet: TDM mit Bots, Killcam.
+
+## Intro mit Bots (2026-10-18)
+- `Content/Movies/DH_Intro.mp4` neu: echte Bot-Gefechte statt leerer Kamerafahrt. Aufnahme im Spiel mit `ADHIntroDirector` (DowntownCore, Konsole `DH.Intro [Sekunden]`): eigener Pawn wird entfernt, Kamera schneidet alle 3 s zwischen Bots, die einen Gegner (`TargetEnemy` im Blackboard) in Sichtlinie haben (über die Schulter / flach seitlich, Seite gespiegelt wenn eine Wand im Weg ist), die letzten 6 s Kranfahrt: erst in die Straßenmitte (Seiten-Traces zu den Fassaden), dann senkrecht hoch. Jeder Frame als PNG ohne UI nach `Saved/IntroFrames`.
+- Aufnahme (Ordner `Saved/IntroFrames` vorher löschen):
+  `UnrealEditor.exe DowntownHunting.uproject /Game/DH/Maps/DH_Block?Experience=B_DH_TDM?NumBots=10 -game -windowed -ResX=1920 -ResY=1080 -UseFixedTimeStep -FPS=30 "-ExecCmds=DisableAllScreenMessages, DH.Run wait 45; DH.Intro 20"`
+  Fester Zeitschritt: Spielzeit läuft pro Frame 1/30 s weiter, egal wie lange der Screenshot dauert.
+- Schnitt: `Tools/Branding/make_intro_movie.py` (Tagline, Logo, Drone, synthetische Schusssalven bis 14 s, Whoosh zur Kranfahrt). `Tools/Python/make_intro.py` (MRQ-Kamerafahrt) ist damit abgelöst.
+- Hinlegen: keine Liege-Animation in Lyra, City Sample, Blacksite oder Fab-Cache. Ohne Animation nicht gebaut.
