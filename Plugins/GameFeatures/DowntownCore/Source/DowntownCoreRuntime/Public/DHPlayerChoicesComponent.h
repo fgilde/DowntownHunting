@@ -5,6 +5,7 @@
 #include "DHPlayerChoicesComponent.generated.h"
 
 class APlayerController;
+class APlayerState;
 
 /**
  * Carries a player's menu choices to the server: character (UDHCharacterSettings) and loadout (UDHLoadoutSettings).
@@ -31,6 +32,10 @@ public:
 	 */
 	UFUNCTION(Server, Reliable)
 	void ServerSetPlayerName(const FString& Name, const FString& OfflineName);
+
+	/** Killcam on the victim's machine (UDHKillcam): who killed this player, with how much health left, from how far. */
+	UFUNCTION(Client, Reliable)
+	void ClientShowKiller(APlayerState* Killer, float KillerHealth, float Distance);
 
 	/** Primary and secondary weapon; given from the next spawn. */
 	UFUNCTION(Server, Reliable)

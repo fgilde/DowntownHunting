@@ -3,6 +3,7 @@
 #include "DHCharacterSettings.h"
 #include "DHLoadoutSettings.h"
 #include "DHGameRulesComponent.h"
+#include "DHKillcam.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/PlayerController.h"
@@ -115,6 +116,17 @@ void UDHPlayerChoicesComponent::ServerSetLoadout_Implementation(const TArray<FSt
 		}
 	}
 	UE_LOG(LogDHRules, Log, TEXT("%s: loadout %s"), *GetNameSafe(GetOwner()), *FString::Join(NewLoadout, TEXT(",")));
+}
+
+void UDHPlayerChoicesComponent::ClientShowKiller_Implementation(APlayerState* Killer, float KillerHealth, float Distance)
+{
+	if (APlayerController* Player = GetController<APlayerController>())
+	{
+		UE_LOG(LogDHRules, Log, TEXT("Killcam: killed by %s"), *GetNameSafe(Killer));
+		UDHKillcam* Killcam = CreateWidget<UDHKillcam>(Player);
+		Killcam->Start(Killer, KillerHealth, Distance);
+		Killcam->AddToViewport(30);
+	}
 }
 
 void UDHPlayerChoicesComponent::ServerSetPlayerName_Implementation(const FString& Name, const FString& OfflineName)

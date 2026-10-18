@@ -74,6 +74,7 @@ protected:
 private:
 	void ApplyLimits();
 	void OnElimination(FGameplayTag Channel, const FLyraVerbMessage& Message);
+	void ShowKiller(APlayerState* Killer, APlayerState* Victim) const;
 	void WinGunGame(const FLyraVerbMessage& Message);
 
 	int32 ScoreLimit = 0;

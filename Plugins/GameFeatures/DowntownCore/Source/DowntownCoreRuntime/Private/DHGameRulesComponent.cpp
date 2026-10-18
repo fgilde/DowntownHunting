@@ -1,6 +1,7 @@
 #include "DHGameRulesComponent.h"
 
 #include "DHPlayerChoicesComponent.h"
+#include "Character/LyraHealthComponent.h"
 #include "DHPlayerRulesComponent.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
@@ -99,9 +100,10 @@ void UDHGameRulesComponent::BeginPlay()
 	if (!GunGame.IsEmpty())
 	{
 		bWeaponSwitch = false;
-		EliminationListener = UGameplayMessageSubsystem::Get(this).RegisterListener(
-			FGameplayTag::RequestGameplayTag(TEXT("Lyra.Elimination.Message")), this, &ThisClass::OnElimination);
 	}
+	// Gun Game progress and the victims' killcam.
+	EliminationListener = UGameplayMessageSubsystem::Get(this).RegisterListener(
+		FGameplayTag::RequestGameplayTag(TEXT("Lyra.Elimination.Message")), this, &ThisClass::OnElimination);
 
 	ScoreLimit = UGameplayStatics::GetIntOption(Options, TEXT("ScoreLimit"), 0);
 	TimeLimit = UGameplayStatics::GetIntOption(Options, TEXT("TimeLimit"), 0);
@@ -213,10 +215,30 @@ void UDHGameRulesComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME(UDHGameRulesComponent, GunGame);
 }
 
+void UDHGameRulesComponent::ShowKiller(APlayerState* Killer, APlayerState* Victim) const
+{
+	const AController* VictimController = Victim ? Victim->GetOwningController() : nullptr;
+	UDHPlayerChoicesComponent* Choices = VictimController ? VictimController->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
+	const APawn* KillerPawn = Killer ? Killer->GetPawn() : nullptr;
+	if (!Choices || !VictimController->IsPlayerController() || !KillerPawn || Killer == Victim)
+	{
+		return;
+	}
+	const ULyraHealthComponent* Health = ULyraHealthComponent::FindHealthComponent(KillerPawn);
+	const APawn* VictimPawn = Victim->GetPawn();
+	Choices->ClientShowKiller(Killer, Health ? Health->GetHealth() : 0.f,
+		VictimPawn ? FVector::Dist(VictimPawn->GetActorLocation(), KillerPawn->GetActorLocation()) : 0.f);
+}
+
 void UDHGameRulesComponent::OnElimination(FGameplayTag Channel, const FLyraVerbMessage& Message)
 {
 	APlayerState* Killer = ULyraVerbMessageHelpers::GetPlayerStateFromObject(Message.Instigator);
 	APlayerState* Victim = ULyraVerbMessageHelpers::GetPlayerStateFromObject(Message.Target);
+	ShowKiller(Killer, Victim);
+	if (GunGame.IsEmpty())
+	{
+		return;
+	}
 	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
 	const int32 KillerTeam = Teams ? Teams->FindTeamFromObject(Killer) : INDEX_NONE;
 	const bool bTeamKill = KillerTeam != INDEX_NONE && KillerTeam == Teams->FindTeamFromObject(Victim);

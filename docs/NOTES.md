@@ -257,3 +257,7 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - `UDHMinimap` (oben rechts, 220 px, ~70 m Ausschnitt, Norden oben): einmal pro Map nimmt eine orthografische Scene-Capture (`SCS_BaseColor`, 1024²) den Bereich aller Spawns + Bombenplätze von 250 m Höhe auf; Pfeil = Blickrichtung, Punkte = Teammitglieder in Teamfarbe, Buchstaben = S&D-Plätze (rot, wenn scharf). Gegner werden nicht gezeigt.
 - Scene-Capture schreibt Alpha 0 (invertierte Deckkraft) → Bild war unsichtbar; die Pixel werden einmal ausgelesen und aufgehellt in eine normale Textur kopiert (gecacht für spätere Pawns derselben Map).
 - Erste Versuche: `SCS_FinalColorLDR` aus großer Höhe überbelichtet; Kamera bei +500 m sah nur Grau (Himmelskuppel/Alpha).
+
+## Killcam
+- Server (`UDHGameRulesComponent`, hört auf `Lyra.Elimination.Message`) ruft beim Opfer `UDHPlayerChoicesComponent::ClientShowKiller(Killer, HP, Entfernung)`. Client: `UDHKillcam` wartet 1 s (eigener Tod), fährt dann eine eigene Kamera (CameraActor, weich nachgeführt) hinter den Killer und zeigt „KILLED BY Name · x m away · y HP left“; Ende nach 4,5 s oder beim Respawn.
+- Eigene Kamera statt Pawn-Kamera des Killers: Lyras Kamera-Modi sind nur für den eigenen Spieler gebunden.
