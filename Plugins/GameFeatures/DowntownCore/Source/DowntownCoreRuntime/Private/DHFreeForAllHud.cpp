@@ -98,9 +98,15 @@ void UDHFreeForAllHud::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 	ClockText->SetText(Seconds < 0.f ? NSLOCTEXT("DowntownHunting", "FfaWarmup", "WARMUP")
 		: FText::FromString(FString::Printf(TEXT("%d:%02d"), Whole / 60, Whole % 60)));
 
+	LeaderText->SetColorAndOpacity(DHScreenStyle::Text);
 	if (Scoring->IsMatchOver())
 	{
 		LeaderText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "FfaWinner", "WINNER: {0}"), FText::FromString(Scoring->GetWinnerName())));
+		LeaderText->SetColorAndOpacity(DHScreenStyle::Accent);
+	}
+	else if (!Scoring->GetAnnouncement().IsEmpty())
+	{
+		LeaderText->SetText(FText::FromString(Scoring->GetAnnouncement()));
 		LeaderText->SetColorAndOpacity(DHScreenStyle::Accent);
 	}
 	else if (Scoring->IsTeamScoring())

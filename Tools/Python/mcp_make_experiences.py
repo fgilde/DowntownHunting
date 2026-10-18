@@ -1,8 +1,10 @@
 """Experiences beyond Lyra's two teams, as an Unreal MCP tool script in the running editor (python mcp.py script
-mcp_make_ffa.py): instanced experience actions and EditDefaultsOnly maps are not editable from Python.
+mcp_make_experiences.py): instanced experience actions and EditDefaultsOnly maps are not editable from Python.
 - B_DH_FFA (free-for-all), a copy of B_DH_TDM3: every player gets a team of their own (16 teams, all red).
 - B_DH_TDM3 (three teams), changed in place.
-In both, Lyra's two-team scoring and score widget are replaced by UDHFreeForAllScoring / UDHTeamScoring and
+- B_DH_Elimination (rounds without respawn), a copy of B_DH_TDM with AbilitySet_DH_Rounds (Lyra's elimination ability
+  set without GA_AutoRespawn) and UDHRoundScoring.
+In all of them, Lyra's two-team scoring and score widget are replaced by UDHFreeForAllScoring / UDHTeamScoring and
 UDHFreeForAllHud, the music manager (reads the team scoring) is dropped."""
 import json
 
@@ -16,6 +18,10 @@ HUD = {'W_ScoreWidget_Elimination': '/Script/DowntownCoreRuntime.DHFreeForAllHud
 FFA = dict(HUD, B_TeamDeathMatchScoring='/Script/DowntownCoreRuntime.DHFreeForAllScoring',
            B_DH_TeamSetup_ThreeTeams=TEAMS + '.B_DH_TeamSetup_FFA_C')
 THREE_TEAMS = dict(HUD, B_TeamDeathMatchScoring='/Script/DowntownCoreRuntime.DHTeamScoring')
+ROUND_ABILITIES = ROOT + 'Game/AbilitySet_DH_Rounds'
+ELIMINATION = dict(HUD, B_TeamDeathMatchScoring='/Script/DowntownCoreRuntime.DHRoundScoring')
+ELIMINATION_ABILITIES = {'/ShooterCore/Elimination/AbilitySet_Elimination.AbilitySet_Elimination':
+                         ROUND_ABILITIES + '.AbilitySet_DH_Rounds'}
 DROP = ['B_MusicManagerComponent_Elimination']
 
 
@@ -55,7 +61,7 @@ def put_list(path, prop, replace):
     return put(path, {prop: swapped})
 
 
-def rewire(experience, replace):
+def rewire(experience, replace, abilities=None):
     r = {}
     for action in get(cdo(experience), 'Actions'):
         path = action['refPath']
@@ -63,6 +69,11 @@ def rewire(experience, replace):
             r['components'] = put_list(path, 'ComponentList', replace)
         elif 'AddWidgets' in path:
             r['widgets'] = put_list(path, 'Widgets', replace)
+        elif 'AddAbilities' in path and abilities:
+            text = json.dumps(get(path, 'AbilitiesList'))
+            for old, new in abilities.items():
+                text = text.replace(old, new)
+            r['abilities'] = put(path, {'AbilitiesList': json.loads(text)})
     return r
 
 
@@ -74,9 +85,16 @@ def run():
     r['ffa'] = rewire(EXPERIENCE, FFA)
     three = ROOT + 'Experiences/B_DH_TDM3'
     r['tdm3'] = rewire(three, THREE_TEAMS)
-    for bp in (TEAMS, EXPERIENCE, three):
+    fresh_copy('/ShooterCore/Elimination/AbilitySet_Elimination', ROUND_ABILITIES)
+    asset_ref = ROUND_ABILITIES + '.AbilitySet_DH_Rounds'
+    granted = get(asset_ref, 'GrantedGameplayAbilities')
+    r['no_respawn'] = put(asset_ref, {'GrantedGameplayAbilities': [g for g in granted if 'GA_AutoRespawn' not in json.dumps(g)]})
+    elimination = ROOT + 'Experiences/B_DH_Elimination'
+    fresh_copy(ROOT + 'Experiences/B_DH_TDM', elimination)
+    r['elimination'] = rewire(elimination, ELIMINATION, ELIMINATION_ABILITIES)
+    for bp in (TEAMS, EXPERIENCE, three, elimination):
         execute_tool(B + 'compile_blueprint', json.dumps({'blueprint': {'refPath': '%s.%s' % (bp, bp.split('/')[-1])}, 'warnings_as_errors': False}))
-    r['save'] = execute_tool(A + 'save_assets', json.dumps({'asset_paths': [TEAMS, EXPERIENCE, three]}))['returnValue']
+    r['save'] = execute_tool(A + 'save_assets', json.dumps({'asset_paths': [TEAMS, EXPERIENCE, three, elimination, ROUND_ABILITIES]}))['returnValue']
     r['check'] = [json.dumps(get(a['refPath'], 'ComponentList' if 'AddComponents' in a['refPath'] else 'Widgets'))[:700]
-                  for e in (EXPERIENCE, three) for a in get(cdo(e), 'Actions') if 'AddComponents' in a['refPath'] or 'AddWidgets' in a['refPath']]
+                  for e in (EXPERIENCE, three, elimination) for a in get(cdo(e), 'Actions') if 'AddComponents' in a['refPath'] or 'AddWidgets' in a['refPath']]
     return r

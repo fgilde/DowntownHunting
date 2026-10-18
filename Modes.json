@@ -1,9 +1,9 @@
 {
   "_help": [
     "Game modes shown in the menu (Play). Edit, then run Sync-Modes.cmd (editor must be closed).",
-    "game: TDM | Domination | FFA (free-for-all) | TDM3 (three teams)",
+    "game: TDM | Domination | FFA (free-for-all) | TDM3 (three teams) | Elimination (rounds, no respawn)",
     "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = Player (loadout builder) or a fixed comma list of Pistol, Rifle, Shotgun, AK47, MP5, M1911,",
-    "       ScoreLimit = points (FFA: kills) to win, TimeLimit = minutes (TDM, FFA), GunGame = weapon list: each kill gives the next weapon, a kill with the last one wins",
+    "       ScoreLimit = points (FFA: kills, Elimination: rounds) to win, TimeLimit = minutes (TDM, FFA; Elimination: per round), GunGame = weapon list: each kill gives the next weapon, a kill with the last one wins",
     "       WeaponSwitch = 1 | 0, NumBots = number of bots",
     "maps: /Game/DH/Maps/DH_Block (Downtown), /Game/DH/Maps/DH_Park (Waterfront), /DowntownCore/Maps/DH_Depot (Depot), /ShooterMaps/Maps/L_Expanse, /ShooterMaps/Maps/L_Convolution_Blockout",
     "image: menu tile (1024x512 texture); empty = image of the template"
@@ -105,6 +105,20 @@
         "NumBots": "8"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM3_Downtown"
+    },
+    {
+      "id": "ELIM_Downtown",
+      "title": "Elimination",
+      "subtitle": "Downtown",
+      "description": "No respawns. Wipe out the other team to win the round, first to four rounds takes the match.",
+      "game": "Elimination",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "7"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_ELIM_Downtown"
     },
     {
       "id": "DOM_Downtown",
@@ -210,6 +224,20 @@
         "NumBots": "7"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_FFA_Depot"
+    },
+    {
+      "id": "ELIM_Depot",
+      "title": "Elimination",
+      "subtitle": "Depot",
+      "description": "One life per round in the concrete halls. First team to four rounds wins.",
+      "game": "Elimination",
+      "map": "/DowntownCore/Maps/DH_Depot",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "7"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_ELIM_Depot"
     },
     {
       "id": "TDM_Expanse",

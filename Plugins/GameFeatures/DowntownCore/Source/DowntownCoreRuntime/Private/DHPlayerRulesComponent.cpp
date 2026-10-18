@@ -200,7 +200,16 @@ void UDHPlayerRulesComponent::GiveLoadout()
 			UE_LOG(LogDHRules, Log, TEXT("%s: gave %s (quick bar: %s)"), *GetNameSafe(Controller), *ItemClass->GetName(), bSlotted ? TEXT("yes") : TEXT("full"));
 		}
 	}
-	SetActiveQuickBarSlot(QuickBar, 0);  // no-op if slot 0 is still equipped
+	// The quick bar lives on the controller and may still count slot 0 as active from the previous pawn (Lyra's
+	// auto respawn resets it, round modes have none): switching away and back equips the weapon on this pawn.
+	if (const FIntProperty* Active = FindFProperty<FIntProperty>(QuickBar->GetClass(), TEXT("ActiveSlotIndex")))
+	{
+		if (Active->GetPropertyValue_InContainer(QuickBar) == 0)
+		{
+			SetActiveQuickBarSlot(QuickBar, 1);
+		}
+	}
+	SetActiveQuickBarSlot(QuickBar, 0);
 	bLoadoutGiven = true;
 }
 

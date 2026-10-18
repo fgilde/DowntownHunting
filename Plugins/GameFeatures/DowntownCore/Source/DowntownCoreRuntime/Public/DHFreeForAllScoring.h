@@ -39,6 +39,8 @@ public:
 	static int32 GetTeamKills(const UObject* WorldContextObject, int32 TeamId);
 	// Player with the most kills, nullptr before the first kill.
 	const APlayerState* GetLeader() const;
+	// Round result or similar announcement for the HUD, empty when there is none.
+	const FString& GetAnnouncement() const { return Announcement; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -54,29 +56,40 @@ protected:
 	// Teams play for a shared score (the kill limit counts team kills, team kills of your own team do not count).
 	bool bTeamScoring = false;
 
+	// Hooks for match variants (UDHRoundScoring). Server only.
+	// Warmup is over: start the clock (default: whole match, MatchMinutes).
+	virtual void StartClock();
+	virtual void OnClockExpired() { EndMatch(); }
+	// A kill of another player (stats are counted already); default: team/player score and kill limit.
+	virtual void OnKill(class ALyraPlayerState* Killer, class ALyraPlayerState* Victim, int32 KillerTeam);
+	// Every death in the playing phase, also suicides and falls.
+	virtual void OnDeath(class ALyraPlayerState* Victim) {}
+	void EndMatch();
+	void SetClock(double Seconds);
+
+	UPROPERTY(Replicated)
+	int32 KillLimit = 20;
+
+	UPROPERTY(Replicated)
+	FString Announcement;
+
+	int32 MatchMinutes = 10;
+	FTimerHandle ClockTimer;
+
 private:
 	void ReadRules();
 	void OnElimination(FGameplayTag Channel, const FLyraVerbMessage& Message);
 	void StartPhase(const TSoftClassPtr<ULyraGamePhaseAbility>& Phase, FName EndedCallback);
 	UFUNCTION()
 	void OnWarmupEnded(const ULyraGamePhaseAbility* Phase);
-	void EndMatch();
 
-protected:
-	UPROPERTY(Replicated)
-	int32 KillLimit = 20;
-
-private:
-
-	// Server world time when the match ends, 0 while warming up.
+	// Server world time when the match (or round) ends, 0 while warming up.
 	UPROPERTY(Replicated)
 	double MatchEndTime = 0.0;
 
 	UPROPERTY(Replicated)
 	FString WinnerName;
 
-	int32 MatchMinutes = 10;
-	FTimerHandle ClockTimer;
 	FGameplayMessageListenerHandle EliminationListener;
 };
 
@@ -88,4 +101,35 @@ class UDHTeamScoring : public UDHFreeForAllScoring
 
 public:
 	UDHTeamScoring(const FObjectInitializer& ObjectInitializer);
+};
+
+/**
+ * Elimination: rounds without respawn (the experience grants no auto respawn). A team wins the round when nobody of the
+ * other teams is left, or with more survivors when the round clock (TimeLimit, default 2 minutes) runs out. Round wins
+ * are the team score; ScoreLimit rounds (default 4) win the match. Between rounds everyone is restarted.
+ * Base for Search & Destroy.
+ */
+UCLASS(meta = (BlueprintSpawnableComponent))
+class UDHRoundScoring : public UDHFreeForAllScoring
+{
+	GENERATED_BODY()
+
+public:
+	UDHRoundScoring(const FObjectInitializer& ObjectInitializer);
+
+protected:
+	virtual void StartClock() override;
+	virtual void OnClockExpired() override;
+	virtual void OnKill(ALyraPlayerState* Killer, ALyraPlayerState* Victim, int32 KillerTeam) override {}
+	virtual void OnDeath(ALyraPlayerState* Victim) override;
+
+	void CheckRoundOver();
+	void EndRound(int32 WinnerTeam);
+	void StartNextRound();
+	// Players alive per team.
+	TMap<int32, int32> CountAlive() const;
+
+	bool bRoundOver = false;
+	int32 Round = 0;
+	FTimerHandle RoundTimer;
 };

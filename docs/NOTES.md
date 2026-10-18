@@ -203,7 +203,7 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 ## Free-for-all
 - Statt Lyras 45 Zwei-Team-Knoten umzubauen: jeder Spieler bekommt ein eigenes Team (`B_DH_TeamSetup_FFA`, 16 Teams, alle rot). Lyras Freund/Feind-Logik (Bots, Namensschilder, Killfeed) passt damit unverändert.
 - Ersetzt werden nur die Teile, die genau zwei Teams kennen: `B_TeamDeathMatchScoring` → `UDHFreeForAllScoring` (Phasen Warmup → Playing → PostGame wie Lyra, Kills/Tode als Stat-Tags am PlayerState, Sieg bei Kill-Limit oder Zeitende) und `W_ScoreWidget_Elimination` → `UDHFreeForAllHud` (Slot `HUD.Slot.TeamScore`). Musik-Manager fällt weg (liest die Team-Wertung).
-- Experience `B_DH_FFA` entsteht aus `B_DH_TDM3` per `Tools/Python/mcp_make_ffa.py` (MCP im Editor). MCP-Eigenheit: Array verkleinern und Elemente ändern geht nicht in einem `set_properties`-Aufruf.
+- Experience `B_DH_FFA` entsteht aus `B_DH_TDM3` per `Tools/Python/mcp_make_experiences.py` (MCP im Editor). MCP-Eigenheit: Array verkleinern und Elemente ändern geht nicht in einem `set_properties`-Aufruf.
 - `ULyraGamePhaseSubsystem` ist nicht exportiert: `K2_StartPhase` per `ProcessEvent`.
 - Offen: Lyras Meldung „assigned to the Red Team“ erscheint auch im FFA.
 
@@ -220,3 +220,9 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - `UDHMainMenu` (DowntownUI, in Code gebaut) ersetzt `W_LyraFrontEnd` als `MainScreenClass` von `/Game/UI/B_LyraFrontendStateComponent`: Logo und Einträge rechts über einem dunklen Verlauf; Fokus (Gamepad/Tastatur/Maus) schiebt den Eintrag ein, zeigt Akzentbalken und Untertitel.
 - Hintergrund `UDHMenuBackground` auf `UI.Layer.Game` (unter allen Menü-Screens, bleibt hinter Play/Character/Options sichtbar): pro Eintrag eine Kamerafahrt durch DH_Block als Video, Wechsel mit Überblendung und leichtem Zoom. Zwei MediaPlayer im Wechsel; beendet sich beim Verlassen des Front-Ends.
 - Videos: `Tools/Python/make_menu_backgrounds.py` (Sequenz `LS_DH_MenuBackgrounds`, 6 Kameras, Movie Render Queue, ~40 min) → `Tools/Branding/make_menu_movies.py` (12-s-Loops, letzte 1,5 s in den Anfang überblendet) → `Content/Movies/Menu/DH_Menu_<Eintrag>.mp4` (Git LFS, beim Packen als NonUFS gestaged).
+
+## Elimination (Runden)
+- `UDHRoundScoring` (Unterklasse der FFA/Team-Wertung, über virtuelle Hooks `StartClock`/`OnKill`/`OnDeath`/`OnClockExpired`): Rundensieg, wenn von den anderen Teams niemand mehr lebt, bei Zeitende (TimeLimit, Standard 2 min) mehr Überlebende; Rundensiege sind der Team-Punktestand, ScoreLimit (Standard 4) gewinnt. Ansagen („ROUND 2“, „BLUE TEAM WINS ROUND 1“) im Score-HUD.
+- Kein Respawn: `AbilitySet_DH_Rounds` = Lyras `AbilitySet_Elimination` ohne `GA_AutoRespawn`. Rundenstart: Pawns zerstören, `ALyraGameMode::RequestPlayerRestartNextFrame` per Reflection.
+- Lyras AutoRespawn setzt sonst die Schnellleiste zurück; ohne ihn stand die Figur nach dem Neustart ohne Waffe in A-Pose. `GiveLoadout` schaltet den aktiven Slot jetzt kurz weg und zurück, das rüstet die Waffe am neuen Pawn aus.
+- Experience `B_DH_Elimination` (Kopie von `B_DH_TDM`) und das AbilitySet entstehen per `Tools/Python/mcp_make_experiences.py`.
