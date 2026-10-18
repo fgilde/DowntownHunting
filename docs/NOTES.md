@@ -236,3 +236,7 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Testhilfe: `DH.Teleport X Y Z [Yaw]` (Dev-Konsole).
 - Effekte, die erst beim Ereignis geladen werden, kompiliert das Editor-Spiel dann erst: im BeginPlay vorladen.
 - Experience `B_DH_SearchAndDestroy` per `Tools/Python/mcp_make_experiences.py`. Fix dabei: FFA wurde aus dem schon umgebauten TDM3 kopiert und bekam die Team-Wertung; die Ersetzungstabelle deckt das jetzt ab.
+
+## Play-Screen
+- `UDHPlayScreen` (DowntownUI) ersetzt Lyras `W_ExperienceSelectionScreen` hinter „PLAY“ im Hauptmenü: alle Modi als Karten (Kachel, Titel, Map) in der Reihenfolge von `Modes.json` (`sync_modes.py` schreibt `MenuOrder` in die ExtraArgs, das Spiel ignoriert die Option), Beschreibung des fokussierten Modus, Schalter NETWORK (Offline/LAN/Online) und BOTS, „JOIN A GAME“ öffnet Lyras Server-Browser. Online meldet erst per `UCommonUserSubsystem::TryToLoginForOnlinePlay` an.
+- Lyra-Typen (`ULyraUserFacingExperienceDefinition`, `CreateHostingRequest`) per Reflection, DowntownUI linkt LyraGame nicht.

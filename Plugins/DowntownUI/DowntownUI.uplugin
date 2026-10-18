@@ -27,6 +27,10 @@
 		{
 			"Name": "CommonLoadingScreen",
 			"Enabled": true
+		},
+		{
+			"Name": "CommonUser",
+			"Enabled": true
 		}
 	]
 }

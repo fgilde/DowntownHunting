@@ -46,7 +46,10 @@ for mode in modes:
     entry = unreal.load_asset(path)
     entry.set_editor_property("map_id", asset_id("Map", mode["map"]))
     entry.set_editor_property("experience_id", asset_id("LyraExperienceDefinition", experience))
-    entry.set_editor_property("extra_args", {k: str(v) for k, v in mode.get("rules", {}).items()})
+    # MenuOrder: position in Modes.json, the play screen (UDHPlayScreen) sorts by it; the game ignores the option.
+    args = {k: str(v) for k, v in mode.get("rules", {}).items()}
+    args["MenuOrder"] = str(modes.index(mode))
+    entry.set_editor_property("extra_args", args)
     entry.set_editor_property("tile_title", mode["title"])
     entry.set_editor_property("tile_sub_title", mode.get("subtitle", ""))
     entry.set_editor_property("tile_description", mode.get("description", ""))

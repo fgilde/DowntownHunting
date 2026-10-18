@@ -16,6 +16,7 @@
 #include "DHCharacterSelectScreen.h"
 #include "DHLoadoutScreen.h"
 #include "DHMenuBackground.h"
+#include "DHPlayScreen.h"
 #include "DHScreenStyle.h"
 #include "Engine/Texture2D.h"
 #include "Sound/SoundBase.h"
@@ -228,7 +229,7 @@ void UDHMainMenu::Open(const FString& Id)
 	};
 	if (Id == TEXT("Play"))
 	{
-		Push(LoadClass<UCommonActivatableWidget>(nullptr, TEXT("/Game/UI/Menu/Experiences/W_ExperienceSelectionScreen.W_ExperienceSelectionScreen_C")));
+		Push(UDHPlayScreen::StaticClass());
 	}
 	else if (Id == TEXT("Character"))
 	{
