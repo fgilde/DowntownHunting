@@ -5,7 +5,10 @@ mcp_make_experiences.py): instanced experience actions and EditDefaultsOnly maps
 - B_DH_Elimination (rounds without respawn), a copy of B_DH_TDM with AbilitySet_DH_Rounds (Lyra's elimination ability
   set without GA_AutoRespawn) and UDHRoundScoring.
 - B_DH_SearchAndDestroy, a copy of B_DH_Elimination with UDHSearchAndDestroyScoring (bomb sites, plant, defuse).
-In all of them, Lyra's two-team scoring and score widget are replaced by UDHFreeForAllScoring / UDHTeamScoring and
+- Ability sets without Lyra's two-team leaderboard (UDHPlayerRulesComponent shows its own on Tab / Select):
+  AbilitySet_DH_Match (elimination set), AbilitySet_DH_Rounds (also without auto respawn), AbilitySet_DH_ControlPoint,
+  swapped into every DH experience.
+In the first three, Lyra's two-team scoring and score widget are replaced by UDHFreeForAllScoring / UDHTeamScoring and
 UDHFreeForAllHud, the music manager (reads the team scoring) is dropped."""
 import json
 
@@ -22,10 +25,18 @@ FFA = dict(HUD, B_TeamDeathMatchScoring='/Script/DowntownCoreRuntime.DHFreeForAl
            B_DH_TeamSetup_ThreeTeams=TEAMS + '.B_DH_TeamSetup_FFA_C')
 THREE_TEAMS = dict(HUD, B_TeamDeathMatchScoring='/Script/DowntownCoreRuntime.DHTeamScoring')
 ROUND_ABILITIES = ROOT + 'Game/AbilitySet_DH_Rounds'
+MATCH_ABILITIES = ROOT + 'Game/AbilitySet_DH_Match'
+CP_ABILITIES = ROOT + 'Game/AbilitySet_DH_ControlPoint'
+SET_SWAP = {'/ShooterCore/Elimination/AbilitySet_Elimination.AbilitySet_Elimination': MATCH_ABILITIES + '.AbilitySet_DH_Match',
+            '/ShooterCore/ControlPoint/AbilitySet_ControlPoint.AbilitySet_ControlPoint': CP_ABILITIES + '.AbilitySet_DH_ControlPoint'}
+ALL_EXPERIENCES = ['B_DH_TDM', 'B_DH_TDM_FP', 'B_DH_TDM3', 'B_DH_FFA', 'B_DH_Domination', 'B_DH_Domination_FP',
+                   'B_DH_Elimination', 'B_DH_SearchAndDestroy']
 ELIMINATION = dict(HUD, B_TeamDeathMatchScoring='/Script/DowntownCoreRuntime.DHRoundScoring')
 SEARCH_AND_DESTROY = {'DHRoundScoring': '/Script/DowntownCoreRuntime.DHSearchAndDestroyScoring'}
 ELIMINATION_ABILITIES = {'/ShooterCore/Elimination/AbilitySet_Elimination.AbilitySet_Elimination':
-                         ROUND_ABILITIES + '.AbilitySet_DH_Rounds'}
+                         ROUND_ABILITIES + '.AbilitySet_DH_Rounds',
+                         # B_DH_TDM after an earlier run
+                         ROOT + 'Game/AbilitySet_DH_Match.AbilitySet_DH_Match': ROUND_ABILITIES + '.AbilitySet_DH_Rounds'}
 DROP = ['B_MusicManagerComponent_Elimination']
 
 
@@ -65,6 +76,22 @@ def put_list(path, prop, replace):
     return put(path, {prop: swapped})
 
 
+def make_set(src, dst, drop):
+    fresh_copy(src, dst)
+    ref = '%s.%s' % (dst, dst.split('/')[-1])
+    granted = get(ref, 'GrantedGameplayAbilities')
+    return put(ref, {'GrantedGameplayAbilities': [g for g in granted if not any(d in json.dumps(g) for d in drop)]})
+
+
+def swap_sets(experience):
+    for action in get(cdo(experience), 'Actions'):
+        if 'AddAbilities' in action['refPath']:
+            text = json.dumps(get(action['refPath'], 'AbilitiesList'))
+            for old, new in SET_SWAP.items():
+                text = text.replace(old, new)
+            return put(action['refPath'], {'AbilitiesList': json.loads(text)})
+
+
 def rewire(experience, replace, abilities=None):
     r = {}
     for action in get(cdo(experience), 'Actions'):
@@ -89,19 +116,19 @@ def run():
     r['ffa'] = rewire(EXPERIENCE, FFA)
     three = ROOT + 'Experiences/B_DH_TDM3'
     r['tdm3'] = rewire(three, THREE_TEAMS)
-    fresh_copy('/ShooterCore/Elimination/AbilitySet_Elimination', ROUND_ABILITIES)
-    asset_ref = ROUND_ABILITIES + '.AbilitySet_DH_Rounds'
-    granted = get(asset_ref, 'GrantedGameplayAbilities')
-    r['no_respawn'] = put(asset_ref, {'GrantedGameplayAbilities': [g for g in granted if 'GA_AutoRespawn' not in json.dumps(g)]})
+    r['rounds_set'] = make_set('/ShooterCore/Elimination/AbilitySet_Elimination', ROUND_ABILITIES, ['GA_AutoRespawn', 'GA_ShowLeaderboard'])
+    r['match_set'] = make_set('/ShooterCore/Elimination/AbilitySet_Elimination', MATCH_ABILITIES, ['GA_ShowLeaderboard'])
+    r['cp_set'] = make_set('/ShooterCore/ControlPoint/AbilitySet_ControlPoint', CP_ABILITIES, ['GA_ShowLeaderboard'])
     elimination = ROOT + 'Experiences/B_DH_Elimination'
     fresh_copy(ROOT + 'Experiences/B_DH_TDM', elimination)
     r['elimination'] = rewire(elimination, ELIMINATION, ELIMINATION_ABILITIES)
     snd = ROOT + 'Experiences/B_DH_SearchAndDestroy'
     fresh_copy(elimination, snd)
     r['snd'] = rewire(snd, SEARCH_AND_DESTROY)
-    for bp in (TEAMS, EXPERIENCE, three, elimination, snd):
+    r['sets'] = {e: swap_sets(ROOT + 'Experiences/' + e) for e in ALL_EXPERIENCES}
+    for bp in [TEAMS] + [ROOT + 'Experiences/' + e for e in ALL_EXPERIENCES]:
         execute_tool(B + 'compile_blueprint', json.dumps({'blueprint': {'refPath': '%s.%s' % (bp, bp.split('/')[-1])}, 'warnings_as_errors': False}))
-    r['save'] = execute_tool(A + 'save_assets', json.dumps({'asset_paths': [TEAMS, EXPERIENCE, three, elimination, snd, ROUND_ABILITIES]}))['returnValue']
+    r['save'] = execute_tool(A + 'save_assets', json.dumps({'asset_paths': [TEAMS, ROUND_ABILITIES, MATCH_ABILITIES, CP_ABILITIES] + [ROOT + 'Experiences/' + e for e in ALL_EXPERIENCES]}))['returnValue']
     r['check'] = [json.dumps(get(a['refPath'], 'ComponentList' if 'AddComponents' in a['refPath'] else 'Widgets'))[:700]
                   for e in (EXPERIENCE, three, elimination, snd) for a in get(cdo(e), 'Actions') if 'AddComponents' in a['refPath'] or 'AddWidgets' in a['refPath']]
     return r

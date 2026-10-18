@@ -247,3 +247,8 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 ## Match-Ende
 - `UDHMatchEndScreen` (vom Score-HUD eingeblendet, sobald `UDHFreeForAllScoring` das Match beendet): VICTORY/DEFEAT (Team bzw. Spieler, repliziert `WinnerTeam`/`WinnerPlayer`), Sieger, beste 8 Spieler mit Kills/Toden, eigener Spieler orange; blendet mit leichtem Zoom ein. Gilt für FFA, Three Teams, Elimination, S&D und alle Modi mit eigener Wertung; Lyras TDM/Domination zeigen weiter Lyras Ende.
 - Unity-Build: gleichnamige Hilfsfunktionen in anonymen Namespaces kollidieren, sobald Dateien zusammen kompiliert werden; gemeinsamer Text-Helfer `DHScreenStyle::MakeText`.
+
+## Scoreboard (Tab / Select)
+- Gehalten `IA_ShowScoreboard` (ShooterCore, Tab und Gamepad Select): `UDHPlayerRulesComponent` blendet `UDHMatchEndScreen` im Live-Modus ein (alle Spieler, nach Team in Teamfarbe, Kills, Tode, K/D; aktualisiert 2×/s, Zeilen werden nur bei Spielerwechsel neu gebaut). Läuft in allen Modi (Kills/Tode sind Stat-Tags am PlayerState, die auch Lyras Wertung schreibt).
+- Lyras Leaderboard-Ability (`GA_ShowLeaderboard_*`, kennt nur 2 Teams) ist raus: DH-Sets `AbilitySet_DH_Match`, `AbilitySet_DH_Rounds`, `AbilitySet_DH_ControlPoint` in allen DH-Experiences (`mcp_make_experiences.py`).
+- Testhilfe: `DH.Key Gamepad_Special_Left:3` hält die Taste 3 s.

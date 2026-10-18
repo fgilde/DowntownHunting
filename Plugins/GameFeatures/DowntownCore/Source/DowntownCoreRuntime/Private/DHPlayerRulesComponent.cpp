@@ -7,6 +7,7 @@
 #include "DHGameRulesComponent.h"
 #include "DHFreeForAllScoring.h"
 #include "DHGunGameHud.h"
+#include "DHMatchEndScreen.h"
 #include "DHObjectiveHud.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
@@ -122,6 +123,7 @@ UDHPlayerRulesComponent::UDHPlayerRulesComponent(const FObjectInitializer& Objec
 	FirstPersonMode = TSoftClassPtr<ULyraCameraMode>(FSoftObjectPath(TEXT("/DowntownCore/Camera/CM_DH_FirstPerson.CM_DH_FirstPerson_C")));
 	ToggleAction = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/DowntownCore/Input/IA_DH_TogglePerspective.IA_DH_TogglePerspective")));
 	InputMapping = TSoftObjectPtr<UInputMappingContext>(FSoftObjectPath(TEXT("/DowntownCore/Input/IMC_DH_Perspective.IMC_DH_Perspective")));
+	ScoreboardAction = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/ShooterCore/Input/Actions/IA_ShowScoreboard.IA_ShowScoreboard")));
 }
 
 void UDHPlayerRulesComponent::BeginPlay()
@@ -159,6 +161,7 @@ void UDHPlayerRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		GunGameHud->RemoveFromParent();
 		GunGameHud = nullptr;
 	}
+	HideScoreboard();
 
 	const APawn* Pawn = GetPawn<APawn>();
 	const APlayerController* PC = Pawn ? Pawn->GetController<APlayerController>() : nullptr;
@@ -237,6 +240,11 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 		{
 			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::TogglePerspective);
 		}
+		if (UInputAction* Action = ScoreboardAction.LoadSynchronous())
+		{
+			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::ShowScoreboard);
+			InputComponent->BindAction(Action, ETriggerEvent::Completed, this, &ThisClass::HideScoreboard);
+		}
 		BoundInputComponent = InputComponent;
 	}
 	const UDHGameRulesComponent* Rules = UDHGameRulesComponent::Find(this);
@@ -257,6 +265,27 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 	{
 		Input->AddMappingContext(Mapping, 1);
 		bMappingAdded = true;
+	}
+}
+
+void UDHPlayerRulesComponent::ShowScoreboard()
+{
+	APlayerController* PC = GetPawn<APawn>() ? GetPawn<APawn>()->GetController<APlayerController>() : nullptr;
+	if (!Scoreboard && PC)
+	{
+		UDHMatchEndScreen* Board = CreateWidget<UDHMatchEndScreen>(PC);
+		Board->bLiveScoreboard = true;
+		Board->AddToViewport(40);
+		Scoreboard = Board;
+	}
+}
+
+void UDHPlayerRulesComponent::HideScoreboard()
+{
+	if (Scoreboard)
+	{
+		Scoreboard->RemoveFromParent();
+		Scoreboard = nullptr;
 	}
 }
 

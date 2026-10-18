@@ -1,6 +1,6 @@
 // Developer console commands to drive and check the menus without touching the real mouse/keyboard:
 //   DH.OpenScreen Character|Loadout|Settings|<widget class path>   push a screen onto the menu layer
-//   DH.Key <Key> [<Key> ...]   press keys through Slate, e.g. Gamepad_DPad_Down Gamepad_FaceButton_Bottom Escape
+//   DH.Key <Key>[:Seconds] ...  press (and hold) keys through Slate, e.g. Gamepad_DPad_Down Gamepad_Special_Left:3 Escape
 //   DH.Shot <Name> [noui]      screenshot (with UI unless "noui") to Saved/DHShots/<Name>.png
 //   DH.Run cmd; wait 2; cmd    run console commands one after another, "wait N" pauses N seconds
 //   DH.Teleport X Y Z [Yaw]    move the first player's pawn (listen server / standalone), e.g. onto a bomb site
@@ -73,8 +73,13 @@ namespace
 	void PressKeys(const TArray<FString>& Args)
 	{
 		FSlateApplication& Slate = FSlateApplication::Get();
-		for (const FString& Name : Args)
+		for (const FString& Arg : Args)
 		{
+			// "Key" or "Key:Seconds" to hold it
+			FString Name = Arg, Hold;
+			Arg.Split(TEXT(":"), &Name, &Hold);
+			Name = Name.IsEmpty() ? Arg : Name;
+			const float Seconds = Hold.IsEmpty() ? 0.1f : FCString::Atof(*Hold);
 			const FKey Key(*Name);
 			if (!Key.IsValid())
 			{
@@ -89,7 +94,7 @@ namespace
 			{
 				FSlateApplication::Get().ProcessKeyUpEvent(Event);
 				return false;
-			}), 0.1f);
+			}), Seconds);
 		}
 	}
 

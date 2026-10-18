@@ -52,10 +52,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TSoftObjectPtr<UInputMappingContext> InputMapping;
 
+	// Held: live scoreboard (IA_ShowScoreboard of ShooterCore: Tab, gamepad Select).
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TSoftObjectPtr<UInputAction> ScoreboardAction;
+
 private:
 	void GiveLoadout();
 	void SetUpLocalPlayer();
 	void TogglePerspective();
+	void ShowScoreboard();
+	void HideScoreboard();
 	bool IsFirstPerson() const;
 	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
 
@@ -68,6 +74,9 @@ private:
 	// Mode overlay (Gun Game, Search & Destroy), local player only.
 	UPROPERTY(Transient)
 	TObjectPtr<UUserWidget> GunGameHud;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> Scoreboard;
 
 	// Last choice of the local player, kept across respawns in "Choice" modes.
 	static bool bPreferFirstPerson;
