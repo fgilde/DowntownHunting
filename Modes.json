@@ -5,7 +5,7 @@
     "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = Player (loadout builder) or a fixed comma list of Pistol, Rifle, Shotgun, AK47, MP5, M1911,",
     "       ScoreLimit = points (FFA: kills, Elimination: rounds) to win, TimeLimit = minutes (TDM, FFA; Elimination: per round), GunGame = weapon list: each kill gives the next weapon, a kill with the last one wins",
     "       WeaponSwitch = 1 | 0, NumBots = number of bots",
-    "maps: /Game/DH/Maps/DH_Block (Downtown), /Game/DH/Maps/DH_Park (Waterfront), /Game/DH/Maps/DH_Freeway (Overpass), /DowntownCore/Maps/DH_Depot (Depot), /ShooterMaps/Maps/L_Expanse, /ShooterMaps/Maps/L_Convolution_Blockout",
+    "maps: /Game/DH/Maps/DH_Block (Downtown), /Game/DH/Maps/DH_Park (Waterfront), /Game/DH/Maps/DH_Freeway (Overpass), /Game/DH/Maps/DH_Roofs (Rooftops), /DowntownCore/Maps/DH_Depot (Depot), /ShooterMaps/Maps/L_Expanse, /ShooterMaps/Maps/L_Convolution_Blockout",
     "image: menu tile (1024x512 texture); empty = image of the template"
   ],
   "modes": [
@@ -239,6 +239,46 @@
         "NumBots": "7"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_SND_Overpass"
+    },
+    {
+      "id": "TDM_Rooftops",
+      "title": "Team Deathmatch",
+      "subtitle": "Rooftops",
+      "description": "Fight on the roofs 25 to 33 metres above the streets. Steel planks bridge the gaps. Fall and you die.",
+      "game": "TDM",
+      "map": "/Game/DH/Maps/DH_Roofs",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Rooftops"
+    },
+    {
+      "id": "FFA_Rooftops",
+      "title": "Free-for-all",
+      "subtitle": "Rooftops",
+      "description": "Everyone against everyone above the city. Watch your step on the planks.",
+      "game": "FFA",
+      "map": "/Game/DH/Maps/DH_Roofs",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "5"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_FFA_Rooftops"
+    },
+    {
+      "id": "DOM_Rooftops",
+      "title": "Domination",
+      "subtitle": "Rooftops",
+      "description": "Three points spread over the roofs, linked by planks.",
+      "game": "Domination",
+      "map": "/Game/DH/Maps/DH_Roofs",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Rooftops"
     },
     {
       "id": "TDM_Depot",

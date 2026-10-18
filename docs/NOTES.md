@@ -268,3 +268,10 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Gameplay per `Tools/Python/mcp_region_gameplay.py` (verallgemeinert aus dem Waterfront-Skript: 16 Starts auf Straßenhöhe – Fahrbahndecks und Dächer liegen höher und fallen raus –, 3 Kontrollpunkte, Navmesh-Bounds, Randwände), Navmesh mit dem WorldPartitionNavigationDataBuilder, Streaming aus (`disable_streaming.py`).
 - Modi: TDM, FFA, Domination, Search & Destroy auf Overpass; `Play-Downtown.cmd OVERPASS`.
 - Stabilität: Commandlets in City Sample und hier stürzten mehrfach an wechselnden Stellen ab (StructuredArchive-Assertion, privilegierte Instruktion, Zugriffsverletzung, Array-Index mit Müllwerten), dazu zwei „Internal compiler error“ und ein Ausfall des PCs. Muster passt zu instabiler CPU (i9-13900K, bekanntes Raptor-Lake-Problem): BIOS mit aktuellem Intel-Microcode prüfen.
+
+## Map Rooftops / DH_Roofs (2026-10-18)
+- City-Sample-Ausschnitt 160 × 160 m um (-342 m, 181 m), gefunden mit `Tools/Python/cs_roofs.py` (bewertet 120-m-Fenster nach Dachfläche in einem 10-m-Höhenband: viele gleich hohe Nachbardächer).
+- Gameplay mit `Tools/Python/roof_map.py`, läuft lokal gegen den offenen Editor (MCP): Editor macht nur Traces und Actors (Skript-Sandbox ist langsam, ~17 min für ~1400 Raster- und alle Profil-Traces), Rechnung lokal. 4-m-Raster → Dachinseln (≥ 12 m über Straße, Höhensprünge ≤ 60 cm) → Stege zwischen Nachbardächern über genau eine Lücke, mit Rampe über die Brüstung → größte verbundene Gruppe wird gespielt (4 Dächer 24–33 m, 12 Stegteile).
+- Absturz: `KillZ` der WorldSettings 6 m über der Straße; Lyra `FellOutOfWorld` → `DamageSelfDestruct`, zählt als Tod (getestet).
+- Stege: `/Game/DH/Meshes/SM_DH_Plank` (Würfelkopie mit `MI_DH_Plank_Steel`, Kopie von Depots Triplanar-Stahl). Eigenes Mesh, weil Property-Änderungen an Actors über MCP nicht gespeichert werden (`save_assets` speichert die External-Actor-Pakete nicht, `save_actor` findet sie nicht); neue Actors und Assets werden gespeichert.
+- Modi: TDM, FFA, Domination; `Play-Downtown.cmd ROOFS`.
