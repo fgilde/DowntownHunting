@@ -123,8 +123,8 @@ protected:
 	virtual void OnKill(ALyraPlayerState* Killer, ALyraPlayerState* Victim, int32 KillerTeam) override {}
 	virtual void OnDeath(ALyraPlayerState* Victim) override;
 
-	void CheckRoundOver();
-	void EndRound(int32 WinnerTeam);
+	virtual void CheckRoundOver();
+	void EndRound(int32 WinnerTeam, const FString& Reason = FString());
 	void StartNextRound();
 	// Players alive per team.
 	TMap<int32, int32> CountAlive() const;
@@ -132,4 +132,61 @@ protected:
 	bool bRoundOver = false;
 	int32 Round = 0;
 	FTimerHandle RoundTimer;
+};
+
+class ADHBombSite;
+
+/**
+ * Search & Destroy on top of Elimination: two teams swap attack and defence every round. Attackers plant the bomb by
+ * standing in site A or B for PlantSeconds without a defender there, defenders defuse it the same way (DefuseSeconds).
+ * Attackers win by the explosion or by eliminating all defenders; defenders win by defusing, by eliminating all
+ * attackers before the plant, or when the round clock runs out without a plant. The sites are spawned at the first
+ * and last control point of the map.
+ */
+UCLASS(meta = (BlueprintSpawnableComponent))
+class UDHSearchAndDestroyScoring : public UDHRoundScoring
+{
+	GENERATED_BODY()
+
+public:
+	UDHSearchAndDestroyScoring(const FObjectInitializer& ObjectInitializer);
+
+	static constexpr float PlantSeconds = 5.f;
+	static constexpr float DefuseSeconds = 7.f;
+	static constexpr float BombSeconds = 40.f;
+
+	int32 GetAttackingTeam() const { return AttackingTeam; }
+	const TArray<TObjectPtr<ADHBombSite>>& GetSites() const { return Sites; }
+	const ADHBombSite* GetPlantedSite() const { return PlantedSite; }
+	// Plant or defuse progress 0..1 and who is at it.
+	float GetProgress() const { return Progress; }
+	bool IsDefusing() const { return bDefusing; }
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void StartClock() override;
+	virtual void OnClockExpired() override;
+	virtual void CheckRoundOver() override;
+
+private:
+	void TickObjective();
+	int32 DefendingTeam() const;
+
+	UPROPERTY(Replicated)
+	int32 AttackingTeam = INDEX_NONE;
+
+	UPROPERTY(Replicated)
+	TArray<TObjectPtr<ADHBombSite>> Sites;
+
+	UPROPERTY(Replicated)
+	TObjectPtr<ADHBombSite> PlantedSite;
+
+	UPROPERTY(Replicated)
+	float Progress = 0.f;
+
+	UPROPERTY(Replicated)
+	bool bDefusing = false;
+
+	FTimerHandle ObjectiveTimer;
 };

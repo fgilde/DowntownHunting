@@ -45,6 +45,7 @@ public class DowntownCoreRuntime : ModuleRules
 				"ModularGameplay",
 				"Slate",
 				"UMG",
+				"Niagara",
 				"SlateCore",
 				// ... add private dependencies that you statically link with here ...	
 			}

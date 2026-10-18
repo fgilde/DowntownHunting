@@ -1,7 +1,7 @@
 {
   "_help": [
     "Game modes shown in the menu (Play). Edit, then run Sync-Modes.cmd (editor must be closed).",
-    "game: TDM | Domination | FFA (free-for-all) | TDM3 (three teams) | Elimination (rounds, no respawn)",
+    "game: TDM | Domination | FFA (free-for-all) | TDM3 (three teams) | Elimination (rounds, no respawn) | SearchAndDestroy",
     "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = Player (loadout builder) or a fixed comma list of Pistol, Rifle, Shotgun, AK47, MP5, M1911,",
     "       ScoreLimit = points (FFA: kills, Elimination: rounds) to win, TimeLimit = minutes (TDM, FFA; Elimination: per round), GunGame = weapon list: each kill gives the next weapon, a kill with the last one wins",
     "       WeaponSwitch = 1 | 0, NumBots = number of bots",
@@ -121,6 +121,20 @@
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_ELIM_Downtown"
     },
     {
+      "id": "SND_Downtown",
+      "title": "Search & Destroy",
+      "subtitle": "Downtown",
+      "description": "One life per round. Attackers plant the bomb at A or B by holding the site for five seconds, defenders stop them or defuse. Sides swap every round.",
+      "game": "SearchAndDestroy",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "7"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_SND_Downtown"
+    },
+    {
       "id": "DOM_Downtown",
       "title": "Domination",
       "subtitle": "Downtown",
@@ -238,6 +252,20 @@
         "NumBots": "7"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_ELIM_Depot"
+    },
+    {
+      "id": "SND_Depot",
+      "title": "Search & Destroy",
+      "subtitle": "Depot",
+      "description": "Plant or defuse across the concrete floors. One life per round, sides swap every round.",
+      "game": "SearchAndDestroy",
+      "map": "/DowntownCore/Maps/DH_Depot",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "7"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_SND_Depot"
     },
     {
       "id": "TDM_Expanse",

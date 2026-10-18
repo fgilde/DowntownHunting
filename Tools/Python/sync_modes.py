@@ -13,6 +13,7 @@ GAMES = {
     "TDM3": ("B_DH_TDM3", "/ShooterMaps/System/Playlists/DA_Expanse_TDM"),
     "FFA": ("B_DH_FFA", "/ShooterMaps/System/Playlists/DA_Expanse_TDM"),
     "Elimination": ("B_DH_Elimination", "/ShooterMaps/System/Playlists/DA_Expanse_TDM"),
+    "SearchAndDestroy": ("B_DH_SearchAndDestroy", "/ShooterMaps/System/Playlists/DA_Expanse_TDM"),
     "Domination": ("B_DH_Domination", "/ShooterMaps/System/Playlists/DA_Convolution_ControlPoint"),
 }
 LOADING = {
@@ -20,6 +21,7 @@ LOADING = {
     "TDM3": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Streets.W_DH_LoadingScreen_Streets_C",
     "FFA": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Streets.W_DH_LoadingScreen_Streets_C",
     "Elimination": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Streets.W_DH_LoadingScreen_Streets_C",
+    "SearchAndDestroy": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Aerial.W_DH_LoadingScreen_Aerial_C",
     "Domination": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Aerial.W_DH_LoadingScreen_Aerial_C",
 }
 

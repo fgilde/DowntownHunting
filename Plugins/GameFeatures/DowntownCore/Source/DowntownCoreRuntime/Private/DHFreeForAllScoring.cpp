@@ -3,7 +3,9 @@
 #include "AbilitySystem/Phases/LyraGamePhaseAbility.h"
 #include "AbilitySystem/Phases/LyraGamePhaseSubsystem.h"
 #include "Character/LyraHealthComponent.h"
+#include "DHBombSite.h"
 #include "DHGameRulesComponent.h"
+#include "EngineUtils.h"
 #include "Engine/World.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
@@ -317,7 +319,7 @@ void UDHRoundScoring::OnClockExpired()
 	EndRound(bTie ? INDEX_NONE : Best);
 }
 
-void UDHRoundScoring::EndRound(int32 WinnerTeam)
+void UDHRoundScoring::EndRound(int32 WinnerTeam, const FString& Reason)
 {
 	bRoundOver = true;
 	GetWorld()->GetTimerManager().ClearTimer(ClockTimer);
@@ -327,7 +329,8 @@ void UDHRoundScoring::EndRound(int32 WinnerTeam)
 		Teams->AddTeamTagStack(WinnerTeam, EliminationsTag(), 1);  // round wins are the team score
 		const ULyraTeamDisplayAsset* Display = Teams->GetTeamDisplayAsset(WinnerTeam, INDEX_NONE);
 		const FString Name = Display && !Display->TeamShortName.IsEmpty() ? Display->TeamShortName.ToString().ToUpper() : FString::Printf(TEXT("TEAM %d"), WinnerTeam);
-		Announcement = FString::Printf(TEXT("%s TEAM WINS ROUND %d"), *Name, Round);
+		Announcement = Reason.IsEmpty() ? FString::Printf(TEXT("%s TEAM WINS ROUND %d"), *Name, Round)
+			: FString::Printf(TEXT("%s - %s TEAM WINS ROUND %d"), *Reason, *Name, Round);
 	}
 	else
 	{
@@ -371,4 +374,174 @@ void UDHRoundScoring::StartNextRound()
 		}
 	}
 	StartClock();
+}
+
+UDHSearchAndDestroyScoring::UDHSearchAndDestroyScoring(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	KillLimit = 5;  // rounds to win
+	MatchMinutes = 2;  // to plant
+}
+
+void UDHSearchAndDestroyScoring::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UDHSearchAndDestroyScoring, AttackingTeam);
+	DOREPLIFETIME(UDHSearchAndDestroyScoring, Sites);
+	DOREPLIFETIME(UDHSearchAndDestroyScoring, PlantedSite);
+	DOREPLIFETIME(UDHSearchAndDestroyScoring, Progress);
+	DOREPLIFETIME(UDHSearchAndDestroyScoring, bDefusing);
+}
+
+void UDHSearchAndDestroyScoring::BeginPlay()
+{
+	Super::BeginPlay();
+	if (!GetOwner()->HasAuthority())
+	{
+		return;
+	}
+	// Sites at the first and last control point of the map (placed for Domination: far apart, reachable by bots).
+	TArray<AActor*> Points;
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		if (It->GetClass()->GetName().Contains(TEXT("ControlPoint")))
+		{
+			Points.Add(*It);
+		}
+	}
+	Points.Sort([](const AActor& A, const AActor& B) { return A.GetName() < B.GetName(); });
+	if (Points.Num() < 2)
+	{
+		UE_LOG(LogDHRules, Warning, TEXT("Search & Destroy: the map has %d control points, needs 2 for the bomb sites"), Points.Num());
+		return;
+	}
+	for (const AActor* Point : { Points[0], Points.Last() })
+	{
+		ADHBombSite* Site = GetWorld()->SpawnActor<ADHBombSite>(Point->GetActorLocation(), FRotator::ZeroRotator);
+		Site->SetState(Sites.IsEmpty() ? TEXT("A") : TEXT("B"), false);
+		Sites.Add(Site);
+		UE_LOG(LogDHRules, Log, TEXT("Search & Destroy: site %s at %s"), *Site->Letter, *Site->GetActorLocation().ToString());
+	}
+}
+
+int32 UDHSearchAndDestroyScoring::DefendingTeam() const
+{
+	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	for (const int32 Team : Teams ? Teams->GetTeamIDs() : TArray<int32>())
+	{
+		if (Team != AttackingTeam)
+		{
+			return Team;
+		}
+	}
+	return INDEX_NONE;
+}
+
+void UDHSearchAndDestroyScoring::StartClock()
+{
+	Super::StartClock();
+	// Teams swap attack and defence every round.
+	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	TArray<int32> TeamIds = Teams ? Teams->GetTeamIDs() : TArray<int32>();
+	TeamIds.Sort();
+	AttackingTeam = TeamIds.IsEmpty() ? INDEX_NONE : TeamIds[(Round - 1) % TeamIds.Num()];
+	PlantedSite = nullptr;
+	Progress = 0.f;
+	bDefusing = false;
+	for (ADHBombSite* Site : Sites)
+	{
+		Site->SetState(Site->Letter, false);
+	}
+	GetWorld()->GetTimerManager().SetTimer(ObjectiveTimer, this, &ThisClass::TickObjective, 0.1f, true);
+}
+
+void UDHSearchAndDestroyScoring::TickObjective()
+{
+	if (bRoundOver || IsMatchOver())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(ObjectiveTimer);
+		return;
+	}
+	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	auto CountAt = [this, Teams](const ADHBombSite* Site, int32 Team)
+	{
+		int32 Count = 0;
+		for (const APlayerState* PlayerState : GetGameStateChecked<AGameStateBase>()->PlayerArray)
+		{
+			const APawn* Pawn = PlayerState->GetPawn();
+			const ULyraHealthComponent* Health = ULyraHealthComponent::FindHealthComponent(Pawn);
+			if (Health && !Health->IsDeadOrDying() && Teams->FindTeamFromObject(PlayerState) == Team && Site->Contains(Pawn->GetActorLocation()))
+			{
+				++Count;
+			}
+		}
+		return Count;
+	};
+	const int32 Defenders = DefendingTeam();
+	const float Step = 0.1f;
+
+	if (!PlantedSite)
+	{
+		// Planting: attackers alone on a site.
+		ADHBombSite* Busy = nullptr;
+		for (ADHBombSite* Site : Sites)
+		{
+			if (CountAt(Site, AttackingTeam) > 0 && CountAt(Site, Defenders) == 0)
+			{
+				Busy = Site;
+			}
+		}
+		Progress = Busy ? Progress + Step / PlantSeconds : FMath::Max(0.f, Progress - Step / PlantSeconds);
+		if (Busy && Progress >= 1.f)
+		{
+			PlantedSite = Busy;
+			PlantedSite->SetState(PlantedSite->Letter, true);
+			Progress = 0.f;
+			Announcement = FString::Printf(TEXT("BOMB PLANTED AT %s"), *PlantedSite->Letter);
+			SetClock(BombSeconds);  // the round clock now counts down the bomb
+			UE_LOG(LogDHRules, Log, TEXT("%s"), *Announcement);
+		}
+		return;
+	}
+
+	// Defusing: defenders alone on the planted site.
+	bDefusing = CountAt(PlantedSite, Defenders) > 0 && CountAt(PlantedSite, AttackingTeam) == 0;
+	Progress = bDefusing ? Progress + Step / DefuseSeconds : FMath::Max(0.f, Progress - Step / DefuseSeconds);
+	if (Progress >= 1.f)
+	{
+		PlantedSite->SetState(PlantedSite->Letter, false);
+		EndRound(Defenders, TEXT("BOMB DEFUSED"));
+	}
+}
+
+void UDHSearchAndDestroyScoring::OnClockExpired()
+{
+	if (PlantedSite)
+	{
+		PlantedSite->Explode();
+		EndRound(AttackingTeam, TEXT("BOMB EXPLODED"));
+	}
+	else
+	{
+		EndRound(DefendingTeam(), TEXT("TIME UP"));
+	}
+}
+
+void UDHSearchAndDestroyScoring::CheckRoundOver()
+{
+	if (bRoundOver || IsMatchOver())
+	{
+		return;
+	}
+	const TMap<int32, int32> Alive = CountAlive();
+	const int32 Defenders = DefendingTeam();
+	if (Alive.FindRef(Defenders) == 0)
+	{
+		EndRound(AttackingTeam, TEXT("DEFENDERS ELIMINATED"));
+	}
+	else if (Alive.FindRef(AttackingTeam) == 0 && !PlantedSite)
+	{
+		EndRound(Defenders, TEXT("ATTACKERS ELIMINATED"));
+	}
+	// Attackers dead after the plant: the defenders still have to defuse.
 }

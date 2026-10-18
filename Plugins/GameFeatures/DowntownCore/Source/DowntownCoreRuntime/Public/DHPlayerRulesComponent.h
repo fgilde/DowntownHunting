@@ -65,6 +65,7 @@ private:
 	bool bMappingAdded = false;
 	TWeakObjectPtr<UInputComponent> BoundInputComponent;
 
+	// Mode overlay (Gun Game, Search & Destroy), local player only.
 	UPROPERTY(Transient)
 	TObjectPtr<UUserWidget> GunGameHud;
 

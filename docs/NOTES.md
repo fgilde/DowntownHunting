@@ -226,3 +226,12 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Kein Respawn: `AbilitySet_DH_Rounds` = Lyras `AbilitySet_Elimination` ohne `GA_AutoRespawn`. Rundenstart: Pawns zerstören, `ALyraGameMode::RequestPlayerRestartNextFrame` per Reflection.
 - Lyras AutoRespawn setzt sonst die Schnellleiste zurück; ohne ihn stand die Figur nach dem Neustart ohne Waffe in A-Pose. `GiveLoadout` schaltet den aktiven Slot jetzt kurz weg und zurück, das rüstet die Waffe am neuen Pawn aus.
 - Experience `B_DH_Elimination` (Kopie von `B_DH_TDM`) und das AbilitySet entstehen per `Tools/Python/mcp_make_experiences.py`.
+
+## Search & Destroy
+- `UDHSearchAndDestroyScoring` (Unterklasse von `UDHRoundScoring`): Angriff/Verteidigung wechselt jede Runde. Bombenplätze `ADHBombSite` (Strichkreis 4,5 m, Buchstabe, rotes Blinklicht wenn scharf) spawnt der Server am ersten und letzten Kontrollpunkt der Map. Legen: Angreifer 5 s allein im Platz; Entschärfen: Verteidiger 7 s allein am gelegten Platz; Fortschritt baut sich ab, wenn niemand drin ist. Bombe 40 s (Rundenuhr zeigt den Countdown), Explosion tötet alle im Umkreis 12 m (`DamageSelfDestruct`), Effekt/Sound von Lyras Granate.
+- Sieg: Verteidiger tot → Angreifer; Angreifer tot vor dem Legen → Verteidiger; nach dem Legen müssen die Verteidiger noch entschärfen; Zeit ohne Bombe → Verteidiger.
+- HUD `UDHObjectiveHud` (vom PlayerRulesComponent in den Viewport gelegt): Aufgabe, Marker mit Entfernung über A/B, Fortschrittsbalken.
+- Bots kennen das Ziel nicht (laufen nur kämpfend herum). Lyras Bot-Verhalten müsste Bombenplätze ansteuern, offen.
+- Testhilfe: `DH.Teleport X Y Z [Yaw]` (Dev-Konsole).
+- Effekte, die erst beim Ereignis geladen werden, kompiliert das Editor-Spiel dann erst: im BeginPlay vorladen.
+- Experience `B_DH_SearchAndDestroy` per `Tools/Python/mcp_make_experiences.py`. Fix dabei: FFA wurde aus dem schon umgebauten TDM3 kopiert und bekam die Team-Wertung; die Ersetzungstabelle deckt das jetzt ab.

@@ -5,7 +5,9 @@
 #include "Camera/LyraCameraComponent.h"
 #include "Camera/LyraCameraMode.h"
 #include "DHGameRulesComponent.h"
+#include "DHFreeForAllScoring.h"
 #include "DHGunGameHud.h"
+#include "DHObjectiveHud.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -238,10 +240,16 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 		BoundInputComponent = InputComponent;
 	}
 	const UDHGameRulesComponent* Rules = UDHGameRulesComponent::Find(this);
-	if (Rules && !Rules->GetGunGame().IsEmpty() && !GunGameHud && PC)
+	if (!GunGameHud && PC)
 	{
-		GunGameHud = CreateWidget<UDHGunGameHud>(const_cast<APlayerController*>(PC));
-		GunGameHud->AddToViewport();
+		// Mode overlays: Gun Game progress, Search & Destroy objective.
+		TSubclassOf<UUserWidget> Overlay = Rules && !Rules->GetGunGame().IsEmpty() ? UDHGunGameHud::StaticClass()
+			: Cast<UDHSearchAndDestroyScoring>(UDHFreeForAllScoring::Find(this)) ? UDHObjectiveHud::StaticClass() : nullptr;
+		if (Overlay)
+		{
+			GunGameHud = CreateWidget<UUserWidget>(const_cast<APlayerController*>(PC), Overlay);
+			GunGameHud->AddToViewport();
+		}
 	}
 
 	UInputMappingContext* Mapping = InputMapping.LoadSynchronous();

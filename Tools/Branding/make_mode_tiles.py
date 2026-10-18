@@ -1,13 +1,14 @@
 """Menu tiles for modes that need more than a map view (1024x512, same look as make_tiles.py):
 python make_mode_tiles.py <out_dir> <icon_dir> gungame NAME=capture.png | quick NAME=capture.png | teams NAME=capture.png
 gungame: the weapon ladder as a row of white silhouettes (icon_dir/<Weapon>.png, 512x256 RGBA), quick: a stopwatch ring,
-teams: three team colour chevrons, rounds: a row of round markers (won rounds filled).
+teams: three team colour chevrons, rounds: a row of round markers (won rounds filled),
+sites: bomb sites A and B.
 The menu card shows only the upper middle of a tile (map name on top, title and text over the lower half, sides cut),
 so the overlay sits in a dark band at about 40 % height.
 Captures: in game with "DH.Shot <name> noui" (Saved/DHShots)."""
 import sys
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from make_tiles import vignette
 
@@ -89,8 +90,20 @@ def rounds(src):
     return img
 
 
+def sites(src):
+    y = 205
+    img = darken_band(base(src), y, 60)
+    d = ImageDraw.Draw(img)
+    font = ImageFont.truetype("C:/Windows/Fonts/impact.ttf", 88)
+    for x, letter, colour in ((430, "A", ACCENT), (594, "B", (230, 40, 30))):
+        d.rectangle([x - 52, y - 52, x + 52, y + 52], outline=colour, width=6)
+        d.text((x, y + 4), letter, font=font, fill=colour, anchor="mm")
+    return img
+
+
 KINDS = {"gungame": lambda src, icons: gungame(src, icons), "quick": lambda src, icons: quick(src),
-         "teams": lambda src, icons: teams(src), "rounds": lambda src, icons: rounds(src)}
+         "teams": lambda src, icons: teams(src), "rounds": lambda src, icons: rounds(src),
+         "sites": lambda src, icons: sites(src)}
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ mcp_make_experiences.py): instanced experience actions and EditDefaultsOnly maps
 - B_DH_TDM3 (three teams), changed in place.
 - B_DH_Elimination (rounds without respawn), a copy of B_DH_TDM with AbilitySet_DH_Rounds (Lyra's elimination ability
   set without GA_AutoRespawn) and UDHRoundScoring.
+- B_DH_SearchAndDestroy, a copy of B_DH_Elimination with UDHSearchAndDestroyScoring (bomb sites, plant, defuse).
 In all of them, Lyra's two-team scoring and score widget are replaced by UDHFreeForAllScoring / UDHTeamScoring and
 UDHFreeForAllHud, the music manager (reads the team scoring) is dropped."""
 import json
@@ -15,11 +16,14 @@ ROOT = '/DowntownCore/'
 TEAMS = ROOT + 'Game/B_DH_TeamSetup_FFA'
 EXPERIENCE = ROOT + 'Experiences/B_DH_FFA'
 HUD = {'W_ScoreWidget_Elimination': '/Script/DowntownCoreRuntime.DHFreeForAllHud'}
+# B_DH_TDM3 may already be rewired (DHTeamScoring) from an earlier run
 FFA = dict(HUD, B_TeamDeathMatchScoring='/Script/DowntownCoreRuntime.DHFreeForAllScoring',
+           **{'DowntownCoreRuntime.DHTeamScoring': '/Script/DowntownCoreRuntime.DHFreeForAllScoring'},
            B_DH_TeamSetup_ThreeTeams=TEAMS + '.B_DH_TeamSetup_FFA_C')
 THREE_TEAMS = dict(HUD, B_TeamDeathMatchScoring='/Script/DowntownCoreRuntime.DHTeamScoring')
 ROUND_ABILITIES = ROOT + 'Game/AbilitySet_DH_Rounds'
 ELIMINATION = dict(HUD, B_TeamDeathMatchScoring='/Script/DowntownCoreRuntime.DHRoundScoring')
+SEARCH_AND_DESTROY = {'DHRoundScoring': '/Script/DowntownCoreRuntime.DHSearchAndDestroyScoring'}
 ELIMINATION_ABILITIES = {'/ShooterCore/Elimination/AbilitySet_Elimination.AbilitySet_Elimination':
                          ROUND_ABILITIES + '.AbilitySet_DH_Rounds'}
 DROP = ['B_MusicManagerComponent_Elimination']
@@ -92,9 +96,12 @@ def run():
     elimination = ROOT + 'Experiences/B_DH_Elimination'
     fresh_copy(ROOT + 'Experiences/B_DH_TDM', elimination)
     r['elimination'] = rewire(elimination, ELIMINATION, ELIMINATION_ABILITIES)
-    for bp in (TEAMS, EXPERIENCE, three, elimination):
+    snd = ROOT + 'Experiences/B_DH_SearchAndDestroy'
+    fresh_copy(elimination, snd)
+    r['snd'] = rewire(snd, SEARCH_AND_DESTROY)
+    for bp in (TEAMS, EXPERIENCE, three, elimination, snd):
         execute_tool(B + 'compile_blueprint', json.dumps({'blueprint': {'refPath': '%s.%s' % (bp, bp.split('/')[-1])}, 'warnings_as_errors': False}))
-    r['save'] = execute_tool(A + 'save_assets', json.dumps({'asset_paths': [TEAMS, EXPERIENCE, three, elimination, ROUND_ABILITIES]}))['returnValue']
+    r['save'] = execute_tool(A + 'save_assets', json.dumps({'asset_paths': [TEAMS, EXPERIENCE, three, elimination, snd, ROUND_ABILITIES]}))['returnValue']
     r['check'] = [json.dumps(get(a['refPath'], 'ComponentList' if 'AddComponents' in a['refPath'] else 'Widgets'))[:700]
-                  for e in (EXPERIENCE, three, elimination) for a in get(cdo(e), 'Actions') if 'AddComponents' in a['refPath'] or 'AddWidgets' in a['refPath']]
+                  for e in (EXPERIENCE, three, elimination, snd) for a in get(cdo(e), 'Actions') if 'AddComponents' in a['refPath'] or 'AddWidgets' in a['refPath']]
     return r

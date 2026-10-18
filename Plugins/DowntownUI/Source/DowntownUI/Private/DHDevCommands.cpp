@@ -3,6 +3,7 @@
 //   DH.Key <Key> [<Key> ...]   press keys through Slate, e.g. Gamepad_DPad_Down Gamepad_FaceButton_Bottom Escape
 //   DH.Shot <Name> [noui]      screenshot (with UI unless "noui") to Saved/DHShots/<Name>.png
 //   DH.Run cmd; wait 2; cmd    run console commands one after another, "wait N" pauses N seconds
+//   DH.Teleport X Y Z [Yaw]    move the first player's pawn (listen server / standalone), e.g. onto a bomb site
 // Example: -ExecCmds="DH.Run wait 40; DH.OpenScreen Loadout; wait 2; DH.Shot loadout"
 // Not compiled into shipping builds.
 
@@ -18,6 +19,8 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 #include "Framework/Application/SlateApplication.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerController.h"
 #include "GameplayTagContainer.h"
 #include "HAL/IConsoleManager.h"
 #include "HighResScreenshot.h"
@@ -97,6 +100,21 @@ namespace
 		FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("DHShots") / (Name + TEXT(".png")), bShowUI, false);
 	}
 
+	void Teleport(const TArray<FString>& Args)
+	{
+		UWorld* World = GameWorld();
+		APlayerController* Player = World ? World->GetFirstPlayerController() : nullptr;
+		APawn* Pawn = Player ? Player->GetPawn() : nullptr;
+		if (Pawn && Args.Num() >= 3)
+		{
+			Pawn->TeleportTo(FVector(FCString::Atod(*Args[0]), FCString::Atod(*Args[1]), FCString::Atod(*Args[2])), Pawn->GetActorRotation());
+			if (Args.Num() >= 4)
+			{
+				Player->SetControlRotation(FRotator(0.f, FCString::Atof(*Args[3]), 0.f));
+			}
+		}
+	}
+
 	void RunSteps(TArray<FString> Steps)
 	{
 		while (!Steps.IsEmpty())
@@ -133,6 +151,8 @@ namespace
 		FConsoleCommandWithArgsDelegate::CreateStatic(&PressKeys));
 	FAutoConsoleCommand ShotCommand(TEXT("DH.Shot"), TEXT("Screenshot to Saved/DHShots/<Name>.png, 'noui' as second argument hides the UI"),
 		FConsoleCommandWithArgsDelegate::CreateStatic(&Shot));
+	FAutoConsoleCommand TeleportCommand(TEXT("DH.Teleport"), TEXT("Move the first player's pawn to X Y Z, optionally looking along Yaw"),
+		FConsoleCommandWithArgsDelegate::CreateStatic(&Teleport));
 	FAutoConsoleCommand RunCommand(TEXT("DH.Run"), TEXT("Run console commands separated by ';', 'wait N' pauses N seconds"),
 		FConsoleCommandWithArgsDelegate::CreateStatic(&Run));
 }

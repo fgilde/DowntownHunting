@@ -44,6 +44,10 @@
 		{
 			"Name": "DowntownUI",
 			"Enabled": true
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
 		}
 	]
 }
