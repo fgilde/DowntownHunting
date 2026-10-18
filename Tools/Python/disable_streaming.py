@@ -4,7 +4,7 @@ The maps are small cut-outs of City Sample, loading them whole is fine.
 UnrealEditor-Cmd.exe DowntownHunting.uproject -run=pythonscript -script="<repo>/Tools/Python/disable_streaming.py" -nullrhi"""
 import unreal
 
-MAPS = ["/Game/DH/Maps/DH_Block", "/Game/DH/Maps/DH_Park"]
+MAPS = ["/Game/DH/Maps/DH_Block", "/Game/DH/Maps/DH_Park", "/Game/DH/Maps/DH_Freeway"]
 
 for path in MAPS:
     unreal.EditorLoadingAndSavingUtils.load_map(path)

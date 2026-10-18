@@ -17,8 +17,10 @@ ring = float(sys.argv[5]) if len(sys.argv) > 5 else 40000.0
 
 PLAY_LAYERS = {"Buildings", "Buildings_Collision", "Buildings_RoofGeo", "ALL_ROOFTOP", "Buildings_Props", "Buildings_WindowStickers",
                "Ground", "Ground_Collision", "Ground_Decals", "StreetFurniture", "StreetFurniture_Parked", "StreetFuniture_Dependant",
-               "StreetFurniture_TrashCans", "Parked_Cars", "TrafficLights", "Hero_Buildings"}
-RING_LAYERS = {"Buildings", "Buildings_RoofGeo", "Ground", "Hero_Buildings", "Buildings_Collision", "Ground_Collision"}
+               "StreetFurniture_TrashCans", "Parked_Cars", "TrafficLights", "Hero_Buildings",
+               "Freeway_Deck", "Freeway_Supports", "Freeway_Props", "Freeway_Decals", "Freeway_Collision"}
+RING_LAYERS = {"Buildings", "Buildings_RoofGeo", "Ground", "Hero_Buildings", "Buildings_Collision", "Ground_Collision",
+               "Freeway_Deck", "Freeway_Supports", "Freeway_Collision"}
 LIGHTS = {"SkyLight", "DirectionalLight", "ExponentialHeightFog", "PostProcessVolume", "SkyAtmosphere", "VolumetricCloud"}
 SKIP_CLASSES = ("WorldAudioDataClusterActor", "WorldPartitionHLOD", "MassSpawner", "MassTraffic", "ZoneGraph", "SliceAndDice")
 

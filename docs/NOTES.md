@@ -261,3 +261,10 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 ## Killcam
 - Server (`UDHGameRulesComponent`, hört auf `Lyra.Elimination.Message`) ruft beim Opfer `UDHPlayerChoicesComponent::ClientShowKiller(Killer, HP, Entfernung)`. Client: `UDHKillcam` wartet 1 s (eigener Tod), fährt dann eine eigene Kamera (CameraActor, weich nachgeführt) hinter den Killer und zeigt „KILLED BY Name · x m away · y HP left“; Ende nach 4,5 s oder beim Respawn.
 - Eigene Kamera statt Pawn-Kamera des Killers: Lyras Kamera-Modi sind nur für den eigenen Spieler gebunden.
+
+## Map Overpass / DH_Freeway (2026-10-18)
+- City-Sample-Ausschnitt 250 × 250 m um (125 m, -125 m): unter und neben der Hochstraße (Pfeiler, Bauzäune, geparkte Autos), Bürotürme ringsum. Gefunden mit `Tools/Python/cs_survey.py` (zählt Freeway-/Baum-/Gebäude-Actors in 250-m-Zellen der City-Sample-Stadt, höchste Gebäude).
+- `cs_region.py` nimmt jetzt die Freeway-Data-Layer mit (`Freeway_Deck`, `_Supports`, `_Props`, `_Decals`, `_Collision`); vorher fehlte die Hochstraße.
+- Gameplay per `Tools/Python/mcp_region_gameplay.py` (verallgemeinert aus dem Waterfront-Skript: 16 Starts auf Straßenhöhe – Fahrbahndecks und Dächer liegen höher und fallen raus –, 3 Kontrollpunkte, Navmesh-Bounds, Randwände), Navmesh mit dem WorldPartitionNavigationDataBuilder, Streaming aus (`disable_streaming.py`).
+- Modi: TDM, FFA, Domination, Search & Destroy auf Overpass; `Play-Downtown.cmd OVERPASS`.
+- Stabilität: Commandlets in City Sample und hier stürzten mehrfach an wechselnden Stellen ab (StructuredArchive-Assertion, privilegierte Instruktion, Zugriffsverletzung, Array-Index mit Müllwerten), dazu zwei „Internal compiler error“ und ein Ausfall des PCs. Muster passt zu instabiler CPU (i9-13900K, bekanntes Raptor-Lake-Problem): BIOS mit aktuellem Intel-Microcode prüfen.

@@ -35,7 +35,7 @@ namespace
 	{
 		Text.RemoveFromStart(TEXT("DA_DH_"));
 		Text = FPaths::GetBaseFilename(Text);
-		static const TMap<FString, FString> Maps = { { TEXT("DH_Block"), TEXT("Downtown") }, { TEXT("DH_Park"), TEXT("Waterfront") }, { TEXT("DH_Depot"), TEXT("Depot") } };
+		static const TMap<FString, FString> Maps = { { TEXT("DH_Block"), TEXT("Downtown") }, { TEXT("DH_Park"), TEXT("Waterfront") }, { TEXT("DH_Depot"), TEXT("Depot") }, { TEXT("DH_Freeway"), TEXT("Overpass") } };
 		if (const FString* Name = Maps.Find(Text))
 		{
 			return *Name;

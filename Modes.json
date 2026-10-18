@@ -5,7 +5,7 @@
     "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = Player (loadout builder) or a fixed comma list of Pistol, Rifle, Shotgun, AK47, MP5, M1911,",
     "       ScoreLimit = points (FFA: kills, Elimination: rounds) to win, TimeLimit = minutes (TDM, FFA; Elimination: per round), GunGame = weapon list: each kill gives the next weapon, a kill with the last one wins",
     "       WeaponSwitch = 1 | 0, NumBots = number of bots",
-    "maps: /Game/DH/Maps/DH_Block (Downtown), /Game/DH/Maps/DH_Park (Waterfront), /DowntownCore/Maps/DH_Depot (Depot), /ShooterMaps/Maps/L_Expanse, /ShooterMaps/Maps/L_Convolution_Blockout",
+    "maps: /Game/DH/Maps/DH_Block (Downtown), /Game/DH/Maps/DH_Park (Waterfront), /Game/DH/Maps/DH_Freeway (Overpass), /DowntownCore/Maps/DH_Depot (Depot), /ShooterMaps/Maps/L_Expanse, /ShooterMaps/Maps/L_Convolution_Blockout",
     "image: menu tile (1024x512 texture); empty = image of the template"
   ],
   "modes": [
@@ -185,6 +185,60 @@
         "Loadout": "Player"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Park"
+    },
+    {
+      "id": "TDM_Overpass",
+      "title": "Team Deathmatch",
+      "subtitle": "Overpass",
+      "description": "Fight under an elevated freeway: concrete pillars, construction fences and parked cars, office towers all around.",
+      "game": "TDM",
+      "map": "/Game/DH/Maps/DH_Freeway",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Overpass"
+    },
+    {
+      "id": "FFA_Overpass",
+      "title": "Free-for-all",
+      "subtitle": "Overpass",
+      "description": "Everyone against everyone between the freeway pillars. 20 kills or ten minutes.",
+      "game": "FFA",
+      "map": "/Game/DH/Maps/DH_Freeway",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "7"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_FFA_Overpass"
+    },
+    {
+      "id": "DOM_Overpass",
+      "title": "Domination",
+      "subtitle": "Overpass",
+      "description": "Hold three points under and around the freeway.",
+      "game": "Domination",
+      "map": "/Game/DH/Maps/DH_Freeway",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Overpass"
+    },
+    {
+      "id": "SND_Overpass",
+      "title": "Search & Destroy",
+      "subtitle": "Overpass",
+      "description": "Plant at A or B beneath the freeway. One life per round, sides swap every round.",
+      "game": "SearchAndDestroy",
+      "map": "/Game/DH/Maps/DH_Freeway",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "7"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_SND_Overpass"
     },
     {
       "id": "TDM_Depot",
