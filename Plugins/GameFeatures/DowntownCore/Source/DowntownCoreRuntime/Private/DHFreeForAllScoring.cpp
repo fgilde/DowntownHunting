@@ -2,6 +2,10 @@
 
 #include "AbilitySystem/Phases/LyraGamePhaseAbility.h"
 #include "AbilitySystem/Phases/LyraGamePhaseSubsystem.h"
+#include "NavigationPath.h"
+#include "NavigationSystem.h"
+#include "GameFramework/PlayerStart.h"
+#include "Kismet/GameplayStatics.h"
 #include "Character/LyraHealthComponent.h"
 #include "DHBombSite.h"
 #include "DHGameRulesComponent.h"
@@ -410,10 +414,30 @@ void UDHSearchAndDestroyScoring::BeginPlay()
 		}
 	}
 	Points.Sort([](const AActor& A, const AActor& B) { return A.GetName() < B.GetName(); });
+	// Bots have to walk there: drop points the navmesh does not reach from a player start (map edges).
+	if (const AActor* Start = UGameplayStatics::GetActorOfClass(this, APlayerStart::StaticClass()))
+	{
+		TArray<AActor*> Reachable = Points.FilterByPredicate([this, Start](const AActor* Point)
+		{
+			const UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(this, Start->GetActorLocation(), Point->GetActorLocation());
+			return Path && Path->IsValid() && !Path->IsPartial();
+		});
+		UE_LOG(LogDHRules, Log, TEXT("Search & Destroy: %d of %d control points reachable"), Reachable.Num(), Points.Num());
+		if (Reachable.Num() >= 2)
+		{
+			Points = Reachable;
+		}
+	}
 	if (Points.Num() < 2)
 	{
 		UE_LOG(LogDHRules, Warning, TEXT("Search & Destroy: the map has %d control points, needs 2 for the bomb sites"), Points.Num());
 		return;
+	}
+	// Lyra's bots roam between control point volumes when they see no enemy (EQS_FindWeapon / EQS_Context_ControlPoints).
+	// Only the two at the sites stay, so bots of both teams head for A and B, and attackers alone on a site plant.
+	for (int32 Index = 1; Index < Points.Num() - 1; ++Index)
+	{
+		Points[Index]->Destroy();
 	}
 	for (const AActor* Point : { Points[0], Points.Last() })
 	{

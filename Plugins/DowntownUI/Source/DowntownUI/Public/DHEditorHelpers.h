@@ -5,6 +5,7 @@
 #include "DHEditorHelpers.generated.h"
 
 class USkeletalMesh;
+class UWorld;
 
 /** Small editor-time helpers for the asset scripts in Tools/Python (things Python cannot set itself). */
 UCLASS()
@@ -16,4 +17,8 @@ public:
 	/** Adds or updates a mesh socket; reuses an unnamed socket if there is one. Editor only, marks the mesh dirty. */
 	UFUNCTION(BlueprintCallable, Category = "Downtown Hunting|Editor")
 	static bool SetMeshSocket(USkeletalMesh* Mesh, FName SocketName, FName BoneName, FVector Location, FRotator Rotation);
+
+	/** Turns World Partition streaming of the world on or off (off: everything, navmesh included, is always loaded). */
+	UFUNCTION(BlueprintCallable, Category = "Downtown Hunting|Editor")
+	static bool SetWorldPartitionStreaming(UWorld* World, bool bEnable);
 };
