@@ -83,6 +83,8 @@ void UDHFreeForAllScoring::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(UDHFreeForAllScoring, KillLimit);
 	DOREPLIFETIME(UDHFreeForAllScoring, MatchEndTime);
 	DOREPLIFETIME(UDHFreeForAllScoring, WinnerName);
+	DOREPLIFETIME(UDHFreeForAllScoring, WinnerTeam);
+	DOREPLIFETIME(UDHFreeForAllScoring, WinnerPlayer);
 	DOREPLIFETIME(UDHFreeForAllScoring, Announcement);
 }
 
@@ -143,6 +145,12 @@ int32 UDHFreeForAllScoring::GetKills(const APlayerState* PlayerState)
 {
 	const ALyraPlayerState* LyraPlayerState = Cast<ALyraPlayerState>(PlayerState);
 	return LyraPlayerState ? LyraPlayerState->GetStatTagStackCount(EliminationsTag()) : 0;
+}
+
+int32 UDHFreeForAllScoring::GetDeaths(const APlayerState* PlayerState)
+{
+	const ALyraPlayerState* LyraPlayerState = Cast<ALyraPlayerState>(PlayerState);
+	return LyraPlayerState ? LyraPlayerState->GetStatTagStackCount(DeathsTag()) : 0;
 }
 
 int32 UDHFreeForAllScoring::GetTeamKills(const UObject* WorldContextObject, int32 TeamId)
@@ -221,6 +229,7 @@ void UDHFreeForAllScoring::EndMatch()
 				Best = TeamId;
 			}
 		}
+		WinnerTeam = Best;
 		const ULyraTeamDisplayAsset* Display = Best != INDEX_NONE ? Teams->GetTeamDisplayAsset(Best, INDEX_NONE) : nullptr;
 		WinnerName = Display && !Display->TeamShortName.IsEmpty() ? Display->TeamShortName.ToString().ToUpper() + TEXT(" TEAM")
 			: FString::Printf(TEXT("TEAM %d"), Best);
@@ -228,6 +237,7 @@ void UDHFreeForAllScoring::EndMatch()
 	else
 	{
 		const APlayerState* Leader = GetLeader();
+		WinnerPlayer = const_cast<APlayerState*>(Leader);
 		WinnerName = Leader ? Leader->GetPlayerName() : TEXT("-");
 	}
 	UE_LOG(LogDHRules, Log, TEXT("Match won by %s"), *WinnerName);
@@ -323,16 +333,16 @@ void UDHRoundScoring::OnClockExpired()
 	EndRound(bTie ? INDEX_NONE : Best);
 }
 
-void UDHRoundScoring::EndRound(int32 WinnerTeam, const FString& Reason)
+void UDHRoundScoring::EndRound(int32 RoundWinner, const FString& Reason)
 {
 	bRoundOver = true;
 	GetWorld()->GetTimerManager().ClearTimer(ClockTimer);
 	ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
-	if (Teams && WinnerTeam != INDEX_NONE)
+	if (Teams && RoundWinner != INDEX_NONE)
 	{
-		Teams->AddTeamTagStack(WinnerTeam, EliminationsTag(), 1);  // round wins are the team score
-		const ULyraTeamDisplayAsset* Display = Teams->GetTeamDisplayAsset(WinnerTeam, INDEX_NONE);
-		const FString Name = Display && !Display->TeamShortName.IsEmpty() ? Display->TeamShortName.ToString().ToUpper() : FString::Printf(TEXT("TEAM %d"), WinnerTeam);
+		Teams->AddTeamTagStack(RoundWinner, EliminationsTag(), 1);  // round wins are the team score
+		const ULyraTeamDisplayAsset* Display = Teams->GetTeamDisplayAsset(RoundWinner, INDEX_NONE);
+		const FString Name = Display && !Display->TeamShortName.IsEmpty() ? Display->TeamShortName.ToString().ToUpper() : FString::Printf(TEXT("TEAM %d"), RoundWinner);
 		Announcement = Reason.IsEmpty() ? FString::Printf(TEXT("%s TEAM WINS ROUND %d"), *Name, Round)
 			: FString::Printf(TEXT("%s - %s TEAM WINS ROUND %d"), *Reason, *Name, Round);
 	}
@@ -342,7 +352,7 @@ void UDHRoundScoring::EndRound(int32 WinnerTeam, const FString& Reason)
 	}
 	UE_LOG(LogDHRules, Log, TEXT("%s"), *Announcement);
 
-	if (WinnerTeam != INDEX_NONE && GetTeamKills(this, WinnerTeam) >= KillLimit)
+	if (RoundWinner != INDEX_NONE && GetTeamKills(this, RoundWinner) >= KillLimit)
 	{
 		EndMatch();
 		return;

@@ -29,7 +29,7 @@
 
 namespace
 {
-	constexpr int32 Columns = 4;
+	constexpr int32 GridColumns = 4;
 
 	FText TextOf(const UObject* Object, FName Name)
 	{
@@ -46,13 +46,6 @@ namespace
 		return Order ? FCString::Atoi(**Order) : MAX_int32;
 	}
 
-	UTextBlock* MakeText(UWidgetTree* Tree, const TCHAR* Font, int32 Size, const FLinearColor& Colour)
-	{
-		UTextBlock* Text = Tree->ConstructWidget<UTextBlock>();
-		Text->SetFont(DHScreenStyle::Font(Font, Size));
-		Text->SetColorAndOpacity(Colour);
-		return Text;
-	}
 }
 
 UDHPlayScreen::UDHPlayScreen(const FObjectInitializer& ObjectInitializer)
@@ -82,7 +75,7 @@ void UDHPlayScreen::NativeOnInitialized()
 	// Title row with the switches on the right.
 	UHorizontalBox* Header = WidgetTree->ConstructWidget<UHorizontalBox>();
 	Column->AddChildToVerticalBox(Header)->SetPadding(FMargin(8, 0, 8, 18));
-	UTextBlock* Title = MakeText(WidgetTree, TEXT("Orbitron"), 40, DHScreenStyle::Accent);
+	UTextBlock* Title = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 40, DHScreenStyle::Accent);
 	Title->SetText(NSLOCTEXT("DowntownHunting", "PlayTitle", "PLAY"));
 	UHorizontalBoxSlot* TitleSlot = Header->AddChildToHorizontalBox(Title);
 	TitleSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
@@ -94,7 +87,7 @@ void UDHPlayScreen::NativeOnInitialized()
 		Button->SetBackgroundColor(DHScreenStyle::Card);
 		Button->CardId = Id;
 		Button->OnCardClicked.BindUObject(this, &ThisClass::HandleCardClicked);
-		UTextBlock* Label = MakeText(WidgetTree, TEXT("Orbitron"), 15, DHScreenStyle::Text);
+		UTextBlock* Label = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 15, DHScreenStyle::Text);
 		Button->AddChild(Label);
 		UHorizontalBoxSlot* Slot = Header->AddChildToHorizontalBox(Button);
 		Slot->SetVerticalAlignment(VAlign_Center);
@@ -151,12 +144,12 @@ void UDHPlayScreen::NativeOnInitialized()
 		ImageBox->AddChild(Tile);
 		Content->AddChildToVerticalBox(ImageBox);
 		const FString TitleText = Mode.Title.ToString().ToUpper();
-		UTextBlock* ModeTitle = MakeText(WidgetTree, TEXT("Orbitron"), TitleText.Len() > 22 ? 12 : 16, DHScreenStyle::Text);
+		UTextBlock* ModeTitle = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), TitleText.Len() > 22 ? 12 : 16, DHScreenStyle::Text);
 		ModeTitle->SetText(FText::FromString(TitleText));
 		ModeTitle->SetClipping(EWidgetClipping::ClipToBounds);
 		ModeTitle->SetTextOverflowPolicy(ETextOverflowPolicy::Ellipsis);
 		Content->AddChildToVerticalBox(ModeTitle)->SetPadding(FMargin(4, 6, 4, 0));
-		UTextBlock* ModeMap = MakeText(WidgetTree, TEXT("NotoSans"), 13, DHScreenStyle::Accent);
+		UTextBlock* ModeMap = DHScreenStyle::MakeText(WidgetTree, TEXT("NotoSans"), 13, DHScreenStyle::Accent);
 		ModeMap->SetText(Mode.Subtitle);
 		Content->AddChildToVerticalBox(ModeMap)->SetPadding(FMargin(4, 0, 4, 4));
 		USizeBox* CardBox = WidgetTree->ConstructWidget<USizeBox>();  // same width for every card
@@ -164,13 +157,13 @@ void UDHPlayScreen::NativeOnInitialized()
 		CardBox->AddChild(Content);
 		Mode.Button->AddChild(CardBox);
 
-		Grid->AddChildToUniformGrid(Mode.Button, Index / Columns, Index % Columns);
+		Grid->AddChildToUniformGrid(Mode.Button, Index / GridColumns, Index % GridColumns);
 		KeepAlive.Add(Mode.Button);
 		KeepAlive.Add(Mode.Definition);
 	}
 
 	// Gamepad: from the top row up to the switches, from the switches down into the cards.
-	for (int32 Index = 0; Index < FMath::Min(Columns, Modes.Num()); ++Index)
+	for (int32 Index = 0; Index < FMath::Min(GridColumns, Modes.Num()); ++Index)
 	{
 		Modes[Index].Button->SetNavigationRuleExplicit(EUINavigation::Up, Switches[FMath::Min(Index, Switches.Num() - 1)]);
 	}
@@ -182,7 +175,7 @@ void UDHPlayScreen::NativeOnInitialized()
 		}
 	}
 
-	DescriptionText = MakeText(WidgetTree, TEXT("NotoSans"), 16, DHScreenStyle::Text);
+	DescriptionText = DHScreenStyle::MakeText(WidgetTree, TEXT("NotoSans"), 16, DHScreenStyle::Text);
 	DescriptionText->SetAutoWrapText(true);
 	UVerticalBoxSlot* DescriptionSlot = Column->AddChildToVerticalBox(DescriptionText);
 	DescriptionSlot->SetPadding(FMargin(8, 16, 8, 0));

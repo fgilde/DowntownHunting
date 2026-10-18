@@ -37,6 +37,10 @@ private:
 	UPROPERTY()
 	TArray<TObjectPtr<UTextBlock>> TeamTexts;
 
+	// Full-screen result, shown once the match is over.
+	UPROPERTY()
+	TObjectPtr<UUserWidget> EndScreen;
+
 	UTextBlock* MakeText(int32 Size, const FLinearColor& Colour, float MinWidth) const;
 	void UpdateTeams();
 };

@@ -6,6 +6,7 @@
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/TextBlock.h"
 #include "DHFreeForAllScoring.h"
+#include "DHMatchEndScreen.h"
 #include "DHScreenStyle.h"
 #include "GameFramework/PlayerState.h"
 #include "Teams/LyraTeamDisplayAsset.h"
@@ -99,6 +100,11 @@ void UDHFreeForAllHud::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 		: FText::FromString(FString::Printf(TEXT("%d:%02d"), Whole / 60, Whole % 60)));
 
 	LeaderText->SetColorAndOpacity(DHScreenStyle::Text);
+	if (Scoring->IsMatchOver() && !EndScreen && GetOwningPlayer())
+	{
+		EndScreen = CreateWidget<UDHMatchEndScreen>(GetOwningPlayer());
+		EndScreen->AddToViewport(50);
+	}
 	if (Scoring->IsMatchOver())
 	{
 		LeaderText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "FfaWinner", "WINNER: {0}"), FText::FromString(Scoring->GetWinnerName())));

@@ -22,14 +22,6 @@
 
 namespace
 {
-	UTextBlock* MakeText(UWidgetTree* Tree, const TCHAR* Font, int32 Size, const FLinearColor& Colour)
-	{
-		UTextBlock* Text = Tree->ConstructWidget<UTextBlock>();
-		Text->SetFont(DHScreenStyle::Font(Font, Size));
-		Text->SetColorAndOpacity(Colour);
-		return Text;
-	}
-
 	FString Setting(const UCommonSession_SearchResult* Result, const TCHAR* Key)
 	{
 		FString Value;
@@ -81,7 +73,7 @@ void UDHJoinScreen::NativeOnInitialized()
 
 	UHorizontalBox* Header = WidgetTree->ConstructWidget<UHorizontalBox>();
 	Column->AddChildToVerticalBox(Header)->SetPadding(FMargin(0, 0, 0, 18));
-	UTextBlock* Title = MakeText(WidgetTree, TEXT("Orbitron"), 40, DHScreenStyle::Accent);
+	UTextBlock* Title = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 40, DHScreenStyle::Accent);
 	Title->SetText(NSLOCTEXT("DowntownHunting", "JoinTitle", "JOIN A GAME"));
 	UHorizontalBoxSlot* TitleSlot = Header->AddChildToHorizontalBox(Title);
 	TitleSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
@@ -91,7 +83,7 @@ void UDHJoinScreen::NativeOnInitialized()
 		UDHCardButton* Button = WidgetTree->ConstructWidget<UDHCardButton>();
 		Button->CardId = Id;
 		Button->OnCardClicked.BindUObject(this, &ThisClass::HandleCardClicked);
-		UTextBlock* Label = MakeText(WidgetTree, TEXT("Orbitron"), 15, DHScreenStyle::Text);
+		UTextBlock* Label = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 15, DHScreenStyle::Text);
 		Label->SetText(NSLOCTEXT("DowntownHunting", "JoinRefresh", "REFRESH"));
 		if (FCString::Strcmp(Id, TEXT("Network")) == 0)
 		{
@@ -105,7 +97,7 @@ void UDHJoinScreen::NativeOnInitialized()
 	}
 	UpdateNetworkText();
 
-	StatusText = MakeText(WidgetTree, TEXT("NotoSans"), 16, DHScreenStyle::Text);
+	StatusText = DHScreenStyle::MakeText(WidgetTree, TEXT("NotoSans"), 16, DHScreenStyle::Text);
 	Column->AddChildToVerticalBox(StatusText)->SetPadding(FMargin(4, 0, 0, 10));
 
 	UScrollBox* Scroll = WidgetTree->ConstructWidget<UScrollBox>();
@@ -218,19 +210,19 @@ void UDHJoinScreen::HandleSearchFinished(bool bSucceeded, const FText& Error)
 		Host = Result->Result.Session.OwningUserName;
 #endif
 		const int32 Max = Result->GetMaxPublicConnections();
-		const FString Columns[] = {
+		const FString CellTexts[] = {
 			Host.IsEmpty() ? TEXT("-") : Host,
 			Pretty(Setting(Result, TEXT("GAMEMODE"))),
 			Pretty(Setting(Result, TEXT("MAPNAME"))),
 			FString::Printf(TEXT("%d / %d"), Max - Result->GetNumOpenPublicConnections(), Max),
 			FString::Printf(TEXT("%d ms"), Result->GetPingInMs()) };
 		const float Widths[] = { 300.f, 260.f, 220.f, 120.f, 100.f };
-		for (int32 Column = 0; Column < UE_ARRAY_COUNT(Columns); ++Column)
+		for (int32 Column = 0; Column < UE_ARRAY_COUNT(CellTexts); ++Column)
 		{
 			USizeBox* Cell = WidgetTree->ConstructWidget<USizeBox>();
 			Cell->SetWidthOverride(Widths[Column]);
-			UTextBlock* Text = MakeText(WidgetTree, Column < 2 ? TEXT("Orbitron") : TEXT("NotoSans"), 15, Column == 1 ? DHScreenStyle::Accent : DHScreenStyle::Text);
-			Text->SetText(FText::FromString(Columns[Column]));
+			UTextBlock* Text = DHScreenStyle::MakeText(WidgetTree, Column < 2 ? TEXT("Orbitron") : TEXT("NotoSans"), 15, Column == 1 ? DHScreenStyle::Accent : DHScreenStyle::Text);
+			Text->SetText(FText::FromString(CellTexts[Column]));
 			Text->SetClipping(EWidgetClipping::ClipToBounds);
 			Cell->AddChild(Text);
 			Cells->AddChildToHorizontalBox(Cell)->SetPadding(FMargin(8, 6));

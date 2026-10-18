@@ -57,7 +57,7 @@ Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screens
   | `NumBots` | Zahl | Anzahl Bots (liest Lyra bereits) |
 
   Werkzeug: kleines Editor-Tool, das aus Vorlage + Regeln einen neuen Modus erzeugt; das Menü listet alle Modi automatisch, der Host-Screen bietet Bots/LAN/Online.
-- ✅ TDM, Domination (Lyra Control), jeweils Third-Person und Ego. ✅ Gun Game (Downtown, Depot), Quick Match (10 Kills, 5 Minuten). ✅ Gun-Game-Stufe im HUD. ⬜ eigene Menü-Kacheln für Gun Game/Quick Match. ✅ Free-for-all (Downtown, Depot): jeder Spieler eigenes Team, eigene Wertung und eigenes Score-HUD statt Lyras 2-Team-Teilen.
+- ✅ TDM, Domination (Lyra Control), jeweils Third-Person und Ego. ✅ Gun Game (Downtown, Depot), Quick Match (10 Kills, 5 Minuten). ✅ Gun-Game-Stufe im HUD. ✅ eigene Menü-Kacheln. ✅ Free-for-all (Downtown, Depot): jeder Spieler eigenes Team, eigene Wertung und eigenes Score-HUD statt Lyras 2-Team-Teilen.
 - ✅ 3 vs 3 vs 3 („Three Teams“, Downtown): eigene Wertung für beliebig viele Teams, Score-HUD in Teamfarben. ✅ Elimination (Runden ohne Respawn, Downtown, Depot). ✅ Search & Destroy (Downtown, Depot; Bots ignorieren die Bombe noch), Lyras Meldung „assigned to the Red Team“ im FFA.
 - 🔶 Mehr Maps: ✅ `DH_Park` „Waterfront“ (Bürotürme am Stadtrand, TDM + Domination; Pipeline `cs_region.py` → `Import-CitySample.ps1` → `Build-RegionMap.ps1`). ✅ `DH_Depot` „Depot“ (Lyras Convolution mit Sichtbeton statt Sci-Fi-Raster, `restyle_depot.py`). ⬜ weitere Stadtausschnitte (andere Viertel und Größen); Depot: Sprungpads/Teleporter und Team-Leuchtstreifen noch im Lyra-Look.
 - ⬜ Spielgefühl: Trefferfeedback, Killfeed/Killcam, Scoreboard, Runden-Ende-Screen (teils Lyra).
@@ -70,7 +70,7 @@ Legende: ✅ erledigt · 🔶 begonnen · ⬜ offen. Details und Belege (Screens
 
 ## Phase 6 – Online
 
-- 🔶 Listen-Server/LAN: aus dem Editor getestet; aus dem Menü (Host/Join) noch testen.
+- ✅ Listen-Server/LAN: aus dem Menü getestet (Play-Screen hostet LAN, Join-Screen findet und tritt bei, `Tools/Test-LanMenus.ps1`).
 - 🔶 Online über Steam (`Play-Online.cmd`, Dev-App-ID 480): ✅ Steam-Login, Hosten mit Steam-Lobby und Steam-Sockets, Suche filtert auf eigene Lobbys. ⬜ Beitritt mit zweitem Rechner/Account testen, eigene App-ID (Steamworks), Freunde einladen, Packaged Build mit Steam.
 - ⬜ Dedizierte Server brauchen eine aus dem Quellcode gebaute Engine (Launcher-Engine kann keinen Server-Target bauen). Bis dahin Listen-Server.
 

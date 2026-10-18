@@ -243,3 +243,7 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - `UDHJoinScreen` („JOIN A GAME“) ersetzt Lyras Server-Browser: NETWORK LAN/ONLINE, REFRESH, Zeilen mit Host, Modus, Map, Spieler, Ping; Auswahl tritt bei. Online-Suche meldet erst an.
 - Getestet LAN über die Menüs (`Tools/Test-LanMenus.ps1`, zwei Instanzen): Host wählt im Play-Screen LAN + TDM Downtown, Client findet „TDM Downtown, Downtown, 1/16, 95 ms“, tritt bei und spielt mit.
 - Gamepad im Play-Screen: oberste Kartenreihe ↑ führt zu den Schaltern, Schalter ↓ zur ersten Karte (explizite Navigationsregeln).
+
+## Match-Ende
+- `UDHMatchEndScreen` (vom Score-HUD eingeblendet, sobald `UDHFreeForAllScoring` das Match beendet): VICTORY/DEFEAT (Team bzw. Spieler, repliziert `WinnerTeam`/`WinnerPlayer`), Sieger, beste 8 Spieler mit Kills/Toden, eigener Spieler orange; blendet mit leichtem Zoom ein. Gilt für FFA, Three Teams, Elimination, S&D und alle Modi mit eigener Wertung; Lyras TDM/Domination zeigen weiter Lyras Ende.
+- Unity-Build: gleichnamige Hilfsfunktionen in anonymen Namespaces kollidieren, sobald Dateien zusammen kompiliert werden; gemeinsamer Text-Helfer `DHScreenStyle::MakeText`.

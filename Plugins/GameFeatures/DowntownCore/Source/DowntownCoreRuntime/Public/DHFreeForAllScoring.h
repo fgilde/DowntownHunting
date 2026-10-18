@@ -32,10 +32,14 @@ public:
 	float GetSecondsLeft() const;
 	bool IsMatchOver() const { return !WinnerName.IsEmpty(); }
 	const FString& GetWinnerName() const { return WinnerName; }
+	// Winning team (team modes) or player (free-for-all), set when the match is over.
+	int32 GetWinnerTeam() const { return WinnerTeam; }
+	const APlayerState* GetWinnerPlayer() const { return WinnerPlayer; }
 
 	bool IsTeamScoring() const { return bTeamScoring; }
 
 	static int32 GetKills(const APlayerState* PlayerState);
+	static int32 GetDeaths(const APlayerState* PlayerState);
 	static int32 GetTeamKills(const UObject* WorldContextObject, int32 TeamId);
 	// Player with the most kills, nullptr before the first kill.
 	const APlayerState* GetLeader() const;
@@ -90,6 +94,12 @@ private:
 	UPROPERTY(Replicated)
 	FString WinnerName;
 
+	UPROPERTY(Replicated)
+	int32 WinnerTeam = INDEX_NONE;
+
+	UPROPERTY(Replicated)
+	TObjectPtr<APlayerState> WinnerPlayer;
+
 	FGameplayMessageListenerHandle EliminationListener;
 };
 
@@ -124,7 +134,7 @@ protected:
 	virtual void OnDeath(ALyraPlayerState* Victim) override;
 
 	virtual void CheckRoundOver();
-	void EndRound(int32 WinnerTeam, const FString& Reason = FString());
+	void EndRound(int32 RoundWinner, const FString& Reason = FString());
 	void StartNextRound();
 	// Players alive per team.
 	TMap<int32, int32> CountAlive() const;
