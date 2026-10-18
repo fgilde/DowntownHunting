@@ -275,3 +275,9 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Absturz: `KillZ` der WorldSettings 6 m über der Straße; Lyra `FellOutOfWorld` → `DamageSelfDestruct`, zählt als Tod (getestet).
 - Stege: `/Game/DH/Meshes/SM_DH_Plank` (Würfelkopie mit `MI_DH_Plank_Steel`, Kopie von Depots Triplanar-Stahl). Eigenes Mesh, weil Property-Änderungen an Actors über MCP nicht gespeichert werden (`save_assets` speichert die External-Actor-Pakete nicht, `save_actor` findet sie nicht); neue Actors und Assets werden gespeichert.
 - Modi: TDM, FFA, Domination; `Play-Downtown.cmd ROOFS`.
+
+## Map Gridlock / DH_Gridlock (2026-10-18)
+- City-Sample-Ausschnitt 250 × 250 m um (-500 m, -125 m) auf der Hochstraße (Freeway-Zellen aus `cs_survey.py`).
+- `Tools/Python/freeway_map.py` (nutzt die MCP-Helfer aus `roof_map.py`): 5-m-Raster, Deck = längste zusammenhängende Fläche 5–30 m über der Straße (240 m, Hauptachse per PCA), Stau auf allen Spuren (Gegenrichtung gedreht, Lücken zum Durchlaufen), quergestellte Vans an beiden Enden, 16 Starts zwischen den Autos, 3 Kontrollpunkte entlang des Decks, unsichtbare Wände an den Auffahrten, KillZ unter dem Deck.
+- Nur `vehCar_vehicle03`, `vehCar_vehicle05`, `vehVan_vehicle01` haben Kollision (die anderen City-Sample-Autos sind reine Optik); Glas als zweites Mesh (`Transparent/SM_All_Trans_*`) an gleicher Stelle.
+- Modi: TDM, FFA, Domination, Search & Destroy; `Play-Downtown.cmd GRIDLOCK`. Getestet: TDM mit Bots, Killcam.

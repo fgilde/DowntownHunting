@@ -5,7 +5,7 @@
     "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = Player (loadout builder) or a fixed comma list of Pistol, Rifle, Shotgun, AK47, MP5, M1911,",
     "       ScoreLimit = points (FFA: kills, Elimination: rounds) to win, TimeLimit = minutes (TDM, FFA; Elimination: per round), GunGame = weapon list: each kill gives the next weapon, a kill with the last one wins",
     "       WeaponSwitch = 1 | 0, NumBots = number of bots",
-    "maps: /Game/DH/Maps/DH_Block (Downtown), /Game/DH/Maps/DH_Park (Waterfront), /Game/DH/Maps/DH_Freeway (Overpass), /Game/DH/Maps/DH_Roofs (Rooftops), /DowntownCore/Maps/DH_Depot (Depot), /ShooterMaps/Maps/L_Expanse, /ShooterMaps/Maps/L_Convolution_Blockout",
+    "maps: /Game/DH/Maps/DH_Block (Downtown), /Game/DH/Maps/DH_Park (Waterfront), /Game/DH/Maps/DH_Freeway (Overpass), /Game/DH/Maps/DH_Roofs (Rooftops), /Game/DH/Maps/DH_Gridlock (Gridlock), /DowntownCore/Maps/DH_Depot (Depot), /ShooterMaps/Maps/L_Expanse, /ShooterMaps/Maps/L_Convolution_Blockout",
     "image: menu tile (1024x512 texture); empty = image of the template"
   ],
   "modes": [
@@ -279,6 +279,60 @@
         "Loadout": "Player"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Rooftops"
+    },
+    {
+      "id": "TDM_Gridlock",
+      "title": "Team Deathmatch",
+      "subtitle": "Gridlock",
+      "description": "A traffic jam on the elevated freeway. Cars as cover, a long drop over the barrier.",
+      "game": "TDM",
+      "map": "/Game/DH/Maps/DH_Gridlock",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Gridlock"
+    },
+    {
+      "id": "FFA_Gridlock",
+      "title": "Free-for-all",
+      "subtitle": "Gridlock",
+      "description": "Everyone against everyone between the stuck cars on the freeway.",
+      "game": "FFA",
+      "map": "/Game/DH/Maps/DH_Gridlock",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "7"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_FFA_Gridlock"
+    },
+    {
+      "id": "DOM_Gridlock",
+      "title": "Domination",
+      "subtitle": "Gridlock",
+      "description": "Three points along the jammed freeway.",
+      "game": "Domination",
+      "map": "/Game/DH/Maps/DH_Gridlock",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Gridlock"
+    },
+    {
+      "id": "SND_Gridlock",
+      "title": "Search & Destroy",
+      "subtitle": "Gridlock",
+      "description": "Plant at A or B among the stuck cars. One life per round.",
+      "game": "SearchAndDestroy",
+      "map": "/Game/DH/Maps/DH_Gridlock",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "7"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_SND_Gridlock"
     },
     {
       "id": "TDM_Depot",

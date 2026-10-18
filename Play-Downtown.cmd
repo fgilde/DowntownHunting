@@ -7,6 +7,7 @@ rem   Play-Downtown.cmd PARK       Waterfront (DH_Park) instead of Downtown; com
 rem   Play-Downtown.cmd DEPOT      Depot (Lyra's Convolution, restyled)
 rem   Play-Downtown.cmd OVERPASS   Overpass (under the elevated freeway)
 rem   Play-Downtown.cmd ROOFS      Rooftops (on the roofs, falling kills)
+rem   Play-Downtown.cmd GRIDLOCK   Gridlock (traffic jam on the elevated freeway)
 rem   Play-Downtown.cmd GG         Gun Game (every kill the next weapon)
 rem Rules are URL options (see docs\PLAN.md, "Modi aus Konfiguration").
 set EXP=B_DH_TDM
@@ -19,6 +20,7 @@ for %%A in (%*) do (
   if /I "%%A"=="DEPOT" set MAP=/DowntownCore/Maps/DH_Depot
   if /I "%%A"=="OVERPASS" set MAP=/Game/DH/Maps/DH_Freeway
   if /I "%%A"=="ROOFS" set MAP=/Game/DH/Maps/DH_Roofs
+  if /I "%%A"=="GRIDLOCK" set MAP=/Game/DH/Maps/DH_Gridlock
   if /I "%%A"=="GG" set RULES=?Perspective=Choice?GunGame=MP5,AK47,Rifle,Shotgun,M1911,Pistol
 )
 start "" "C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe" "%~dp0DowntownHunting.uproject" "%MAP%?Experience=%EXP%%RULES%" -game -windowed -ResX=1600 -ResY=900 -ExecCmds="DisableAllScreenMessages" -log=Game.log
