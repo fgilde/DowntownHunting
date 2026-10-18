@@ -74,6 +74,7 @@ protected:
 private:
 	void ApplyLimits();
 	void OnElimination(FGameplayTag Channel, const FLyraVerbMessage& Message);
+	void OnDamage(FGameplayTag Channel, const FLyraVerbMessage& Message);
 	void ShowKiller(APlayerState* Killer, APlayerState* Victim) const;
 	void WinGunGame(const FLyraVerbMessage& Message);
 
@@ -87,4 +88,11 @@ private:
 
 	bool bGunGameWon = false;
 	FGameplayMessageListenerHandle EliminationListener;
+	FGameplayMessageListenerHandle DamageListener;
+
+	// Whether the last hit on a player (state) was a headshot, for the kill marker.
+	TMap<TWeakObjectPtr<const AActor>, bool> LastHitHeadshot;
+
+	// Lowest damage per weapon instance (distance falloff taken out): its body damage.
+	TMap<TWeakObjectPtr<UObject>, float> WeaponBodyDamage;
 };

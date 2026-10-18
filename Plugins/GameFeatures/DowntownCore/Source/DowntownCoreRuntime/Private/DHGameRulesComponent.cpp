@@ -3,6 +3,8 @@
 #include "DHKillstreaks.h"
 #include "DHPlayerChoicesComponent.h"
 #include "Character/LyraHealthComponent.h"
+#include "Curves/CurveFloat.h"
+#include "Equipment/LyraEquipmentManagerComponent.h"
 #include "DHPlayerRulesComponent.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
@@ -105,6 +107,8 @@ void UDHGameRulesComponent::BeginPlay()
 	// Gun Game progress and the victims' killcam.
 	EliminationListener = UGameplayMessageSubsystem::Get(this).RegisterListener(
 		FGameplayTag::RequestGameplayTag(TEXT("Lyra.Elimination.Message")), this, &ThisClass::OnElimination);
+	DamageListener = UGameplayMessageSubsystem::Get(this).RegisterListener(
+		FGameplayTag::RequestGameplayTag(TEXT("Lyra.Damage.Message")), this, &ThisClass::OnDamage);
 
 	ScoreLimit = UGameplayStatics::GetIntOption(Options, TEXT("ScoreLimit"), 0);
 	TimeLimit = UGameplayStatics::GetIntOption(Options, TEXT("TimeLimit"), 0);
@@ -123,6 +127,10 @@ void UDHGameRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (EliminationListener.IsValid())
 	{
 		EliminationListener.Unregister();
+	}
+	if (DamageListener.IsValid())
+	{
+		DamageListener.Unregister();
 	}
 	Super::EndPlay(EndPlayReason);
 }
@@ -241,7 +249,22 @@ void UDHGameRulesComponent::OnElimination(FGameplayTag Channel, const FLyraVerbM
 	const bool bTeamKill = KillerTeam != INDEX_NONE && KillerTeam == Teams->FindTeamFromObject(Victim);
 	if (GetOwner()->HasAuthority())  // clients get the message again for the kill feed
 	{
-		DHKillstreaks::OnElimination(Killer, Victim, Killer && Killer != Victim && !bTeamKill);
+		const bool bCountsAsKill = Killer && Killer != Victim && !bTeamKill;
+		DHKillstreaks::OnElimination(Killer, Victim, bCountsAsKill);
+		bool bHeadshot = false;
+		LastHitHeadshot.RemoveAndCopyValue(Victim, bHeadshot);
+		if (bCountsAsKill)
+		{
+			if (ALyraPlayerState* LyraKiller = Cast<ALyraPlayerState>(Killer); LyraKiller && bHeadshot)
+			{
+				LyraKiller->AddStatTagStack(FGameplayTag::RequestGameplayTag(TEXT("DH.Headshots")), 1);
+			}
+			const AController* KillerController = Killer->GetOwningController();
+			if (UDHPlayerChoicesComponent* Choices = KillerController ? KillerController->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr)
+			{
+				Choices->ClientHitFeedback(true, bHeadshot);
+			}
+		}
 	}
 	if (GunGame.IsEmpty())
 	{
@@ -277,6 +300,60 @@ void UDHGameRulesComponent::OnElimination(FGameplayTag Channel, const FLyraVerbM
 			PlayerRules->RefreshLoadout();
 		}
 	});
+}
+
+namespace DHHitFeedback
+{
+	/** The shooter's active Lyra ranged weapon instance (Lyra's equipment classes are not exported: found by name). */
+	UObject* ActiveWeapon(const APawn* Pawn)
+	{
+		static UClass* RangedClass = FindObject<UClass>(nullptr, TEXT("/Script/LyraGame.LyraRangedWeaponInstance"));
+		for (UActorComponent* Component : Pawn ? Pawn->GetComponents() : TSet<UActorComponent*>())
+		{
+			if (Component->GetClass()->GetFName() == TEXT("LyraEquipmentManagerComponent") && RangedClass)
+			{
+				return reinterpret_cast<UObject*>(static_cast<ULyraEquipmentManagerComponent*>(Component)->GetFirstInstanceOfType(RangedClass));
+			}
+		}
+		return nullptr;
+	}
+
+	/** Damage of a hit without the weapon's distance falloff. */
+	float WithoutFalloff(const UObject* Weapon, float Damage, float Distance)
+	{
+		const FStructProperty* Property = FindFProperty<FStructProperty>(Weapon->GetClass(), TEXT("DistanceDamageFalloff"));
+		const FRuntimeFloatCurve* Curve = Property ? Property->ContainerPtrToValuePtr<FRuntimeFloatCurve>(Weapon) : nullptr;
+		const float Falloff = Curve && Curve->GetRichCurveConst()->GetNumKeys() > 0 ? Curve->GetRichCurveConst()->Eval(Distance) : 1.f;
+		return Falloff > 0.01f ? Damage / Falloff : Damage;
+	}
+}
+
+void UDHGameRulesComponent::OnDamage(FGameplayTag Channel, const FLyraVerbMessage& Message)
+{
+	APlayerState* Shooter = ULyraVerbMessageHelpers::GetPlayerStateFromObject(Message.Instigator);
+	const APlayerState* Target = ULyraVerbMessageHelpers::GetPlayerStateFromObject(Message.Target);
+	const APawn* ShooterPawn = Shooter ? Shooter->GetPawn() : nullptr;
+	const APawn* TargetPawn = Target ? Target->GetPawn() : nullptr;
+	UObject* Weapon = DHHitFeedback::ActiveWeapon(ShooterPawn);
+	if (!Weapon || !TargetPawn || Shooter == Target)
+	{
+		return;
+	}
+	// Lyra multiplies damage on the head (weak spot physical material), but its damage message has no hit result:
+	// a hit is a headshot when it does clearly more than the weapon's body damage (the lowest seen so far).
+	const float Damage = DHHitFeedback::WithoutFalloff(Weapon, Message.Magnitude, FVector::Dist(ShooterPawn->GetActorLocation(), TargetPawn->GetActorLocation()));
+	float& BodyDamage = WeaponBodyDamage.FindOrAdd(Weapon, Damage);
+	BodyDamage = FMath::Min(BodyDamage, Damage);
+	const bool bHeadshot = Damage > BodyDamage * 1.45f;
+	LastHitHeadshot.Add(Target, bHeadshot);
+	UE_LOG(LogDHRules, Verbose, TEXT("Hit %s -> %s: %.1f (body %.1f), headshot %d"), *Shooter->GetPlayerName(), *Target->GetPlayerName(), Damage, BodyDamage, bHeadshot);
+	const AController* Controller = Shooter->GetOwningController();
+	UDHPlayerChoicesComponent* Choices = Controller ? Controller->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
+	const ULyraHealthComponent* Health = ULyraHealthComponent::FindHealthComponent(TargetPawn);
+	if (Choices && bHeadshot && Health && Health->GetHealth() > 0.f)  // kills get their marker on elimination
+	{
+		Choices->ClientHitFeedback(false, true);
+	}
 }
 
 void UDHGameRulesComponent::WinGunGame(const FLyraVerbMessage& Message)

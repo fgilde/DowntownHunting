@@ -38,6 +38,10 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientShowKiller(APlayerState* Killer, float KillerHealth, float Distance);
 
+	/** Kill marker / headshot on the shooter's screen (UDHHitMarker). */
+	UFUNCTION(Client, Unreliable)
+	void ClientHitFeedback(bool bKill, bool bHeadshot);
+
 	/** Killstreak banner on the killer's screen (DHKillstreaks::EReward as Reward). */
 	UFUNCTION(Client, Reliable)
 	void ClientStreak(int32 Streak, uint8 Reward);
@@ -66,6 +70,9 @@ private:
 	void ApplyCharacter(const FString& Id);
 
 	double LastWallJump = -1.0;
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UDHHitMarker> HitMarker;
 	FString AppliedId;
 	TArray<FName> Loadout;
 	FDelegateHandle ChosenHandle;

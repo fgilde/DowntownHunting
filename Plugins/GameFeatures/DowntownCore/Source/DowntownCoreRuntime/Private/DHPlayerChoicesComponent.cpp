@@ -3,6 +3,7 @@
 #include "DHCharacterSettings.h"
 #include "DHLoadoutSettings.h"
 #include "DHGameRulesComponent.h"
+#include "DHHitMarker.h"
 #include "DHKillcam.h"
 #include "DHKillstreaks.h"
 #include "DHStreakBanner.h"
@@ -132,6 +133,21 @@ void UDHPlayerChoicesComponent::ClientShowKiller_Implementation(APlayerState* Ki
 		Killcam->Start(Killer, KillerHealth, Distance);
 		Killcam->AddToViewport(30);
 	}
+}
+
+void UDHPlayerChoicesComponent::ClientHitFeedback_Implementation(bool bKill, bool bHeadshot)
+{
+	APlayerController* Player = GetController<APlayerController>();
+	if (!Player)
+	{
+		return;
+	}
+	if (!HitMarker)
+	{
+		HitMarker = CreateWidget<UDHHitMarker>(Player);
+		HitMarker->AddToViewport(20);
+	}
+	HitMarker->Show(bKill, bHeadshot);
 }
 
 void UDHPlayerChoicesComponent::ClientStreak_Implementation(int32 Streak, uint8 Reward)
