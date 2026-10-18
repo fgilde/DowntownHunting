@@ -6,6 +6,9 @@
 #include "NavigationSystem.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
+#include "AIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Navigation/PathFollowingComponent.h"
 #include "Character/LyraHealthComponent.h"
 #include "DHBombSite.h"
 #include "DHGameRulesComponent.h"
@@ -513,6 +516,10 @@ void UDHSearchAndDestroyScoring::TickObjective()
 	};
 	const int32 Defenders = DefendingTeam();
 	const float Step = 0.1f;
+	if (++ObjectiveTicks % 5 == 0)
+	{
+		GuideBots();
+	}
 
 	if (!PlantedSite)
 	{
@@ -578,4 +585,49 @@ void UDHSearchAndDestroyScoring::CheckRoundOver()
 		EndRound(Defenders, TEXT("ATTACKERS ELIMINATED"));
 	}
 	// Attackers dead after the plant: the defenders still have to defuse.
+}
+
+void UDHSearchAndDestroyScoring::GuideBots()
+{
+	// Lyra's bot tree moves to the blackboard key MoveGoal (its MoveTo follows changes of the key), filled from EQS:
+	// overwriting it sends bots to the objective: attackers into their site, defenders around theirs, everybody to the
+	// bomb once it is down. Only close fights (enemy within 15 m) are left to the tree. Bots that stand idle (the tree
+	// found nothing to walk to) are sent with a move of our own.
+	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	if (Sites.IsEmpty() || !Teams)
+	{
+		return;
+	}
+	int32 BotIndex = 0;
+	for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)
+	{
+		AAIController* Bot = Cast<AAIController>(It->Get());
+		UBlackboardComponent* Blackboard = Bot ? Bot->GetBlackboardComponent() : nullptr;
+		if (!Blackboard || !Bot->GetPawn())
+		{
+			continue;
+		}
+		++BotIndex;
+		// Close fights stay with the tree; with enemies far away bots keep shooting but push on to the objective.
+		const AActor* Enemy = Cast<AActor>(Blackboard->GetValueAsObject(TEXT("TargetEnemy")));
+		if (Enemy && FVector::Dist(Enemy->GetActorLocation(), Bot->GetPawn()->GetActorLocation()) < 1500.f)
+		{
+			continue;
+		}
+		const bool bAttacker = Teams->FindTeamFromObject(Bot) == AttackingTeam;
+		// Stable per bot (player id), so a bot keeps its site for the round.
+		const int32 Id = Bot->PlayerState ? Bot->PlayerState->GetPlayerId() : BotIndex;
+		const ADHBombSite* Site = PlantedSite ? PlantedSite.Get() : Sites[(Id + Round) % Sites.Num()].Get();
+		// Spot per bot: attackers inside the site (or guarding the bomb), defenders 6-9 m around it.
+		const bool bInside = PlantedSite ? !bAttacker : bAttacker;
+		const FVector Goal = Site->GetActorLocation() + FRotator(0.f, Id * 137.f, 0.f).Vector() * (bInside ? 150.f : 600.f + 100.f * (Id % 4));
+		Blackboard->SetValueAsVector(TEXT("MoveGoal"), Goal);
+		// When the tree has nothing to walk to it only waits: walk there ourselves.
+		if (Bot->GetMoveStatus() == EPathFollowingStatus::Idle && FVector::Dist2D(Bot->GetPawn()->GetActorLocation(), Goal) > 200.f)
+		{
+			const EPathFollowingRequestResult::Type Result = Bot->MoveToLocation(Goal, 100.f);
+			UE_LOG(LogDHRules, Verbose, TEXT("guide %s %s -> %s, %.0f m, move %d"), *Bot->GetName(), bAttacker ? TEXT("attack") : TEXT("defend"), *Site->Letter,
+				FVector::Dist(Bot->GetPawn()->GetActorLocation(), Site->GetActorLocation()) / 100.f, int32(Result));
+		}
+	}
 }

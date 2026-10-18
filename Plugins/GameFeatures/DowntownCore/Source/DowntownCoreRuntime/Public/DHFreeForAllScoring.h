@@ -181,6 +181,7 @@ protected:
 
 private:
 	void TickObjective();
+	void GuideBots();
 	int32 DefendingTeam() const;
 
 	UPROPERTY(Replicated)
@@ -199,4 +200,5 @@ private:
 	bool bDefusing = false;
 
 	FTimerHandle ObjectiveTimer;
+	int32 ObjectiveTicks = 0;
 };
