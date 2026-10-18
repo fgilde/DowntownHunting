@@ -18,6 +18,7 @@
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "DHCardButton.h"
+#include "DHJoinScreen.h"
 #include "DHScreenStyle.h"
 #include "Engine/AssetManager.h"
 #include "Engine/GameInstance.h"
@@ -168,6 +169,19 @@ void UDHPlayScreen::NativeOnInitialized()
 		KeepAlive.Add(Mode.Definition);
 	}
 
+	// Gamepad: from the top row up to the switches, from the switches down into the cards.
+	for (int32 Index = 0; Index < FMath::Min(Columns, Modes.Num()); ++Index)
+	{
+		Modes[Index].Button->SetNavigationRuleExplicit(EUINavigation::Up, Switches[FMath::Min(Index, Switches.Num() - 1)]);
+	}
+	for (UDHCardButton* Switch : Switches)
+	{
+		if (!Modes.IsEmpty())
+		{
+			Switch->SetNavigationRuleExplicit(EUINavigation::Down, Modes[0].Button);
+		}
+	}
+
 	DescriptionText = MakeText(WidgetTree, TEXT("NotoSans"), 16, DHScreenStyle::Text);
 	DescriptionText->SetAutoWrapText(true);
 	UVerticalBoxSlot* DescriptionSlot = Column->AddChildToVerticalBox(DescriptionText);
@@ -226,10 +240,7 @@ void UDHPlayScreen::HandleCardClicked(UDHCardButton* Card)
 	}
 	else if (Card->CardId == TEXT("Join"))
 	{
-		if (UClass* Browser = LoadClass<UCommonActivatableWidget>(nullptr, TEXT("/Game/UI/Menu/Experiences/W_SessionBrowserScreen.W_SessionBrowserScreen_C")))
-		{
-			UCommonUIExtensions::PushContentToLayer_ForPlayer(GetOwningLocalPlayer(), FGameplayTag::RequestGameplayTag(TEXT("UI.Layer.Menu")), Browser);
-		}
+		UCommonUIExtensions::PushContentToLayer_ForPlayer(GetOwningLocalPlayer(), FGameplayTag::RequestGameplayTag(TEXT("UI.Layer.Menu")), UDHJoinScreen::StaticClass());
 	}
 	else if (Modes.IsValidIndex(Card->CardSlot))
 	{

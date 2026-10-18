@@ -12,7 +12,7 @@ class UCommonUserInfo;
 /**
  * "Play" screen in the main menu style, built in code: every mode (Lyra user-facing experience shown in the front end,
  * written by Tools/Python/sync_modes.py from Modes.json) as a card with its tile, the focused mode's description,
- * network (offline, LAN, online) and bots switches, and "Join a game" (Lyra's session browser).
+ * network (offline, LAN, online) and bots switches, and "Join a game" (UDHJoinScreen).
  * Picking a card hosts the match. Lyra's types are reached by reflection, this plugin does not link LyraGame.
  */
 UCLASS()

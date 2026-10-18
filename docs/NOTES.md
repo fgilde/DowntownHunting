@@ -240,3 +240,6 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 ## Play-Screen
 - `UDHPlayScreen` (DowntownUI) ersetzt Lyras `W_ExperienceSelectionScreen` hinter „PLAY“ im Hauptmenü: alle Modi als Karten (Kachel, Titel, Map) in der Reihenfolge von `Modes.json` (`sync_modes.py` schreibt `MenuOrder` in die ExtraArgs, das Spiel ignoriert die Option), Beschreibung des fokussierten Modus, Schalter NETWORK (Offline/LAN/Online) und BOTS, „JOIN A GAME“ öffnet Lyras Server-Browser. Online meldet erst per `UCommonUserSubsystem::TryToLoginForOnlinePlay` an.
 - Lyra-Typen (`ULyraUserFacingExperienceDefinition`, `CreateHostingRequest`) per Reflection, DowntownUI linkt LyraGame nicht.
+- `UDHJoinScreen` („JOIN A GAME“) ersetzt Lyras Server-Browser: NETWORK LAN/ONLINE, REFRESH, Zeilen mit Host, Modus, Map, Spieler, Ping; Auswahl tritt bei. Online-Suche meldet erst an.
+- Getestet LAN über die Menüs (`Tools/Test-LanMenus.ps1`, zwei Instanzen): Host wählt im Play-Screen LAN + TDM Downtown, Client findet „TDM Downtown, Downtown, 1/16, 95 ms“, tritt bei und spielt mit.
+- Gamepad im Play-Screen: oberste Kartenreihe ↑ führt zu den Schaltern, Schalter ↓ zur ersten Karte (explizite Navigationsregeln).
