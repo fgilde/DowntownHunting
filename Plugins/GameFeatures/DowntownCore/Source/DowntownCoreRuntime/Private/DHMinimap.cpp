@@ -11,6 +11,7 @@
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "DHBombSite.h"
+#include "DHFlag.h"
 #include "DHFreeForAllScoring.h"
 #include "DHKillstreaks.h"
 #include "DHScreenStyle.h"
@@ -300,25 +301,33 @@ void UDHMinimap::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		Dots[Index]->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
-	// Bomb sites (Search & Destroy), the hill (King of the Hill).
-	const UDHSearchAndDestroyScoring* Bomb = Cast<UDHSearchAndDestroyScoring>(UDHFreeForAllScoring::Find(this));
+	// Letters for bomb sites (Search & Destroy), the hill, bases and flags (Capture the Flag); far ones at the edge.
 	int32 Shown = 0;
-	for (TActorIterator<ADHBombSite> It(GetWorld()); It; ++It)
+	auto ShowLabel = [&](const FString& Text, const FLinearColor& Colour, const FVector& Location)
 	{
 		if (SiteLabels.Num() <= Shown)
 		{
-			UTextBlock* Label = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 16, DHScreenStyle::Accent);
-			Label->SetShadowOffset(FVector2D(1, 1));
-			UCanvasPanelSlot* LabelSlot = Markers->AddChildToCanvas(Label);
+			UTextBlock* NewLabel = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 16, DHScreenStyle::Accent);
+			NewLabel->SetShadowOffset(FVector2D(1, 1));
+			UCanvasPanelSlot* LabelSlot = Markers->AddChildToCanvas(NewLabel);
 			LabelSlot->SetAutoSize(true);
 			LabelSlot->SetAlignment(FVector2D(0.5f, 0.5f));
-			SiteLabels.Add(Label);
+			SiteLabels.Add(NewLabel);
 		}
 		UTextBlock* Label = SiteLabels[Shown++];
-		Label->SetText(FText::FromString(It->Letter));
-		Label->SetColorAndOpacity(Bomb && *It == Bomb->GetPlantedSite() ? FLinearColor(1.f, 0.1f, 0.05f) : DHScreenStyle::Accent);
-		const FVector2D Position = ToWidget(It->GetActorLocation());
+		Label->SetText(FText::FromString(Text));
+		Label->SetColorAndOpacity(Colour);
+		const FVector2D Position = ToWidget(Location);
 		Place(Label, FVector2D(FMath::Clamp(Position.X, 8.f, WidgetSize - 8.f), FMath::Clamp(Position.Y, 8.f, WidgetSize - 8.f)));
+	};
+	const UDHSearchAndDestroyScoring* Bomb = Cast<UDHSearchAndDestroyScoring>(UDHFreeForAllScoring::Find(this));
+	for (TActorIterator<ADHBombSite> It(GetWorld()); It; ++It)
+	{
+		ShowLabel(It->Letter, Bomb && *It == Bomb->GetPlantedSite() ? FLinearColor(1.f, 0.1f, 0.05f) : DHScreenStyle::Accent, It->GetActorLocation());
+	}
+	for (TActorIterator<ADHFlag> It(GetWorld()); It; ++It)
+	{
+		ShowLabel(TEXT("F"), It->Colour, It->GetActorLocation());
 	}
 	for (int32 Index = Shown; Index < SiteLabels.Num(); ++Index)
 	{

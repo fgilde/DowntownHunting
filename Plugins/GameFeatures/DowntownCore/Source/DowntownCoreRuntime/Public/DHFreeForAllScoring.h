@@ -68,8 +68,12 @@ protected:
 	virtual void OnKill(class ALyraPlayerState* Killer, class ALyraPlayerState* Victim, int32 KillerTeam);
 	// Every death in the playing phase, also suicides and falls.
 	virtual void OnDeath(class ALyraPlayerState* Victim) {}
-	void EndMatch();
+	// Team modes: ForcedWinnerTeam wins instead of the team with the best score.
+	void EndMatch(int32 ForcedWinnerTeam = INDEX_NONE);
 	void SetClock(double Seconds);
+
+	// Server: removes the player's pawn and has Lyra spawn a new one (fresh loadout).
+	void RestartPlayer(AController* Controller) const;
 
 	UPROPERTY(Replicated)
 	int32 KillLimit = 20;
@@ -241,4 +245,78 @@ private:
 	float PointSeconds = 0.f;
 	int32 Ticks = 0;
 	FTimerHandle HillTimer;
+};
+
+/**
+ * Infected: everyone starts as a survivor (first team) except one random infected (second team). Survivors killed
+ * for any reason join the infected. Infected carry only a shotgun but run faster. The infected win when nobody is left
+ * to infect, the survivors when the clock (TimeLimit, default 5 minutes) runs out with someone alive.
+ */
+UCLASS(meta = (BlueprintSpawnableComponent))
+class UDHInfectedScoring : public UDHTeamScoring
+{
+	GENERATED_BODY()
+
+public:
+	UDHInfectedScoring(const FObjectInitializer& ObjectInitializer);
+
+	static constexpr float InfectedSpeed = 1.2f;
+
+	bool IsInfected(const UObject* PlayerOrController) const;
+
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void StartClock() override;
+	virtual void OnClockExpired() override;
+	virtual void OnDeath(ALyraPlayerState* Victim) override;
+
+private:
+	void UpdateAnnouncement();
+
+	UPROPERTY(Replicated)
+	int32 SurvivorTeam = INDEX_NONE;
+
+	UPROPERTY(Replicated)
+	int32 InfectedTeam = INDEX_NONE;
+};
+
+class ADHFlag;
+
+/**
+ * Capture the Flag: each of two teams has a base (a ring like the bomb sites, at the first and last control point of
+ * the map) with its flag. Touching the enemy flag picks it up; bringing it to the own base while the own flag is home
+ * scores a capture. A carrier who dies drops the flag; touching your dropped flag returns it, otherwise it returns by
+ * itself after DropSeconds. First team to ScoreLimit captures (default 3) wins, else the leader when time runs out.
+ */
+UCLASS(meta = (BlueprintSpawnableComponent))
+class UDHFlagScoring : public UDHTeamScoring
+{
+	GENERATED_BODY()
+
+public:
+	UDHFlagScoring(const FObjectInitializer& ObjectInitializer);
+
+	static constexpr float TouchRadius = 160.f;
+	static constexpr float DropSeconds = 20.f;
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void StartClock() override;
+	virtual void OnKill(ALyraPlayerState* Killer, ALyraPlayerState* Victim, int32 KillerTeam) override {}
+	virtual void OnDeath(ALyraPlayerState* Victim) override;
+
+private:
+	void TickFlags();
+	void GuideBots();
+	ADHFlag* FlagOf(int32 TeamId) const;
+	FString TeamName(int32 TeamId) const;
+
+	UPROPERTY()
+	TArray<TObjectPtr<ADHFlag>> Flags;
+
+	UPROPERTY()
+	TArray<TObjectPtr<ADHBombSite>> Bases;
+
+	FTimerHandle FlagTimer;
+	int32 Ticks = 0;
 };

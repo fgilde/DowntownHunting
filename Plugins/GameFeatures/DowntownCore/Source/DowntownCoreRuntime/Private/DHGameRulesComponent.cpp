@@ -1,5 +1,6 @@
 #include "DHGameRulesComponent.h"
 
+#include "DHFreeForAllScoring.h"
 #include "DHKillstreaks.h"
 #include "DHPlayerChoicesComponent.h"
 #include "Character/LyraHealthComponent.h"
@@ -190,6 +191,10 @@ TArray<UClass*> UDHGameRulesComponent::GetLoadoutItems(const AController* Contro
 	{
 		const int32 Level = Controller ? GetGunGameLevel(Controller->PlayerState) : 0;
 		Names = { GunGame[FMath::Min(Level, GunGame.Num() - 1)] };
+	}
+	else if (const UDHInfectedScoring* Infected = Cast<UDHInfectedScoring>(UDHFreeForAllScoring::Find(this)); Infected && Infected->IsInfected(Controller))
+	{
+		Names = { TEXT("Shotgun") };
 	}
 	else if (bPlayerLoadout)
 	{

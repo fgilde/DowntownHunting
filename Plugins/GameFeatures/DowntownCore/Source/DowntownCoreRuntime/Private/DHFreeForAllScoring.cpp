@@ -11,6 +11,7 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "Character/LyraHealthComponent.h"
 #include "DHBombSite.h"
+#include "DHFlag.h"
 #include "DHGameRulesComponent.h"
 #include "EngineUtils.h"
 #include "Engine/World.h"
@@ -214,7 +215,7 @@ void UDHFreeForAllScoring::OnKill(ALyraPlayerState* Killer, ALyraPlayerState* Vi
 	}
 }
 
-void UDHFreeForAllScoring::EndMatch()
+void UDHFreeForAllScoring::EndMatch(int32 ForcedWinnerTeam)
 {
 	if (IsMatchOver())
 	{
@@ -224,8 +225,8 @@ void UDHFreeForAllScoring::EndMatch()
 	if (bTeamScoring)
 	{
 		ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
-		int32 Best = INDEX_NONE;
-		for (const int32 TeamId : Teams ? Teams->GetTeamIDs() : TArray<int32>())
+		int32 Best = ForcedWinnerTeam;
+		for (const int32 TeamId : Teams && ForcedWinnerTeam == INDEX_NONE ? Teams->GetTeamIDs() : TArray<int32>())
 		{
 			if (Best == INDEX_NONE || GetTeamKills(this, TeamId) > GetTeamKills(this, Best))
 			{
@@ -245,6 +246,25 @@ void UDHFreeForAllScoring::EndMatch()
 	}
 	UE_LOG(LogDHRules, Log, TEXT("Match won by %s"), *WinnerName);
 	StartPhase(PostGamePhase, NAME_None);
+}
+
+void UDHFreeForAllScoring::RestartPlayer(AController* Controller) const
+{
+	if (APawn* Pawn = Controller->GetPawn())
+	{
+		Pawn->DetachFromControllerPendingDestroy();
+		Pawn->Destroy();
+	}
+	AGameModeBase* GameMode = GetWorld()->GetAuthGameMode();
+	if (UFunction* Restart = GameMode ? GameMode->FindFunction(TEXT("RequestPlayerRestartNextFrame")) : nullptr)  // ALyraGameMode, not exported
+	{
+		struct
+		{
+			AController* Controller;
+			bool bForceReset;
+		} Params{ Controller, false };
+		GameMode->ProcessEvent(Restart, &Params);
+	}
 }
 
 UDHRoundScoring::UDHRoundScoring(const FObjectInitializer& ObjectInitializer)
@@ -366,28 +386,12 @@ void UDHRoundScoring::EndRound(int32 RoundWinner, const FString& Reason)
 void UDHRoundScoring::StartNextRound()
 {
 	// Everybody back to a spawn point, then the next round's clock.
-	AGameModeBase* GameMode = GetWorld()->GetAuthGameMode();
-	UFunction* Restart = GameMode ? GameMode->FindFunction(TEXT("RequestPlayerRestartNextFrame")) : nullptr;  // ALyraGameMode, not exported
 	for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)
 	{
 		AController* Controller = It->Get();
-		if (!Controller || !Controller->PlayerState || Controller->PlayerState->IsOnlyASpectator())
+		if (Controller && Controller->PlayerState && !Controller->PlayerState->IsOnlyASpectator())
 		{
-			continue;
-		}
-		if (APawn* Pawn = Controller->GetPawn())
-		{
-			Pawn->DetachFromControllerPendingDestroy();
-			Pawn->Destroy();
-		}
-		if (Restart)
-		{
-			struct
-			{
-				AController* Controller;
-				bool bForceReset;
-			} Params{ Controller, false };
-			GameMode->ProcessEvent(Restart, &Params);
+			RestartPlayer(Controller);
 		}
 	}
 	StartClock();
@@ -778,6 +782,307 @@ void UDHHillScoring::GuideBots()
 		if (Bot->GetMoveStatus() == EPathFollowingStatus::Idle && FVector::Dist2D(Bot->GetPawn()->GetActorLocation(), Goal) > 200.f)
 		{
 			Bot->MoveToLocation(Goal, 100.f);
+		}
+	}
+}
+
+UDHInfectedScoring::UDHInfectedScoring(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	MatchMinutes = 5;
+	KillLimit = 1000;  // the match ends by infection or time, not by kills
+}
+
+void UDHInfectedScoring::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UDHInfectedScoring, SurvivorTeam);
+	DOREPLIFETIME(UDHInfectedScoring, InfectedTeam);
+}
+
+bool UDHInfectedScoring::IsInfected(const UObject* PlayerOrController) const
+{
+	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	return InfectedTeam != INDEX_NONE && Teams && Teams->FindTeamFromObject(PlayerOrController) == InfectedTeam;
+}
+
+void UDHInfectedScoring::StartClock()
+{
+	Super::StartClock();
+	ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	TArray<int32> TeamIds = Teams ? Teams->GetTeamIDs() : TArray<int32>();
+	TeamIds.Sort();
+	if (TeamIds.Num() < 2)
+	{
+		return;
+	}
+	SurvivorTeam = TeamIds[0];
+	InfectedTeam = TeamIds[1];
+	// Everybody survives, except patient zero.
+	TArray<APlayerState*> Players = GetGameStateChecked<AGameStateBase>()->PlayerArray;
+	Players.RemoveAll([](const APlayerState* Player) { return Player->IsOnlyASpectator(); });
+	const int32 Zero = FMath::RandHelper(FMath::Max(1, Players.Num()));
+	for (int32 Index = 0; Index < Players.Num(); ++Index)
+	{
+		const int32 Team = Index == Zero ? InfectedTeam : SurvivorTeam;
+		if (Teams->FindTeamFromObject(Players[Index]) != Team || Index == Zero)
+		{
+			Teams->ChangeTeamForActor(Players[Index], Team);
+			if (AController* Controller = Players[Index]->GetOwningController())
+			{
+				RestartPlayer(Controller);  // new pawn: team colours and loadout
+			}
+		}
+	}
+	UE_LOG(LogDHRules, Log, TEXT("Infected: %s is patient zero"), Players.IsValidIndex(Zero) ? *Players[Zero]->GetPlayerName() : TEXT("-"));
+	UpdateAnnouncement();
+}
+
+void UDHInfectedScoring::OnDeath(ALyraPlayerState* Victim)
+{
+	ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	if (!Teams || IsMatchOver() || InfectedTeam == INDEX_NONE || Teams->FindTeamFromObject(Victim) != SurvivorTeam)
+	{
+		return;
+	}
+	// Respawns as infected (Lyra's auto respawn; the new pawn gets the infected loadout).
+	Teams->ChangeTeamForActor(Victim, InfectedTeam);
+	UpdateAnnouncement();
+	bool bSurvivorLeft = false;
+	for (const APlayerState* Player : GetGameStateChecked<AGameStateBase>()->PlayerArray)
+	{
+		bSurvivorLeft |= Teams->FindTeamFromObject(Player) == SurvivorTeam;
+	}
+	if (!bSurvivorLeft)
+	{
+		Announcement = TEXT("EVERYONE IS INFECTED");
+		EndMatch(InfectedTeam);
+	}
+}
+
+void UDHInfectedScoring::OnClockExpired()
+{
+	Announcement = TEXT("THE SURVIVORS MADE IT");
+	EndMatch(SurvivorTeam);
+}
+
+void UDHInfectedScoring::UpdateAnnouncement()
+{
+	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	int32 Survivors = 0, Infected = 0;
+	for (const APlayerState* Player : GetGameStateChecked<AGameStateBase>()->PlayerArray)
+	{
+		const int32 Team = Teams->FindTeamFromObject(Player);
+		Survivors += Team == SurvivorTeam;
+		Infected += Team == InfectedTeam;
+	}
+	Announcement = FString::Printf(TEXT("SURVIVORS %d  ·  INFECTED %d"), Survivors, Infected);
+}
+
+UDHFlagScoring::UDHFlagScoring(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	KillLimit = 3;
+}
+
+void UDHFlagScoring::BeginPlay()
+{
+	Super::BeginPlay();
+	if (!GetOwner()->HasAuthority())
+	{
+		return;
+	}
+	// Bases at the first and last control point (far apart), the others go (Lyra's bots would roam to them).
+	TArray<AActor*> Points;
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		if (It->GetClass()->GetName().Contains(TEXT("ControlPoint")))
+		{
+			Points.Add(*It);
+		}
+	}
+	Points.Sort([](const AActor& A, const AActor& B) { return A.GetName() < B.GetName(); });
+	if (Points.Num() < 2)
+	{
+		UE_LOG(LogDHRules, Warning, TEXT("Capture the Flag: the map has %d control points, needs 2 for the bases"), Points.Num());
+		return;
+	}
+	for (const AActor* Point : { Points[0], Points.Last() })
+	{
+		Bases.Add(GetWorld()->SpawnActor<ADHBombSite>(Point->GetActorLocation(), FRotator::ZeroRotator));
+	}
+	for (AActor* Point : Points)
+	{
+		Point->Destroy();
+	}
+}
+
+void UDHFlagScoring::StartClock()
+{
+	Super::StartClock();
+	// Teams are known now: lowest team id at the first base.
+	ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	TArray<int32> TeamIds = Teams ? Teams->GetTeamIDs() : TArray<int32>();
+	TeamIds.Sort();
+	for (int32 Index = 0; Index < FMath::Min(TeamIds.Num(), Bases.Num()); ++Index)
+	{
+		const ULyraTeamDisplayAsset* Display = Teams->GetTeamDisplayAsset(TeamIds[Index], INDEX_NONE);
+		const FLinearColor* Colour = Display ? Display->ColorParameters.Find(TEXT("TeamColor")) : nullptr;
+		Bases[Index]->SetState(TeamName(TeamIds[Index]).Left(1), false);
+		ADHFlag* Flag = GetWorld()->SpawnActor<ADHFlag>(Bases[Index]->GetActorLocation(), FRotator::ZeroRotator);
+		Flag->TeamId = TeamIds[Index];
+		Flag->Home = Bases[Index]->GetActorLocation();
+		Flag->Colour = Colour ? *Colour : FLinearColor::White;
+		Flags.Add(Flag);
+		UE_LOG(LogDHRules, Log, TEXT("Capture the Flag: %s base at %s"), *TeamName(Flag->TeamId), *Flag->Home.ToString());
+	}
+	Announcement = TEXT("CAPTURE THE ENEMY FLAG");
+	GetWorld()->GetTimerManager().SetTimer(FlagTimer, this, &ThisClass::TickFlags, 0.1f, true);
+}
+
+ADHFlag* UDHFlagScoring::FlagOf(int32 TeamId) const
+{
+	for (ADHFlag* Flag : Flags)
+	{
+		if (Flag && Flag->TeamId == TeamId)
+		{
+			return Flag;
+		}
+	}
+	return nullptr;
+}
+
+FString UDHFlagScoring::TeamName(int32 TeamId) const
+{
+	const ULyraTeamDisplayAsset* Display = GetWorld()->GetSubsystem<ULyraTeamSubsystem>()->GetTeamDisplayAsset(TeamId, INDEX_NONE);
+	return Display && !Display->TeamShortName.IsEmpty() ? Display->TeamShortName.ToString().ToUpper() : FString::Printf(TEXT("TEAM %d"), TeamId);
+}
+
+void UDHFlagScoring::OnDeath(ALyraPlayerState* Victim)
+{
+	for (ADHFlag* Flag : Flags)
+	{
+		if (Flag && Flag->Carrier.IsValid() && Flag->Carrier.Get() == Victim->GetPawn())
+		{
+			Flag->Drop();
+			Announcement = FString::Printf(TEXT("%s FLAG DROPPED"), *TeamName(Flag->TeamId));
+		}
+	}
+}
+
+void UDHFlagScoring::TickFlags()
+{
+	if (IsMatchOver())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(FlagTimer);
+		return;
+	}
+	constexpr float Step = 0.1f;
+	if (++Ticks % 5 == 0)
+	{
+		GuideBots();
+	}
+	ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	for (ADHFlag* Flag : Flags)
+	{
+		if (Flag && Flag->DroppedSeconds >= 0.f && (Flag->DroppedSeconds += Step) > DropSeconds)
+		{
+			Flag->ReturnHome();
+			Announcement = FString::Printf(TEXT("%s FLAG RETURNED"), *TeamName(Flag->TeamId));
+		}
+	}
+	for (const APlayerState* PlayerState : GetGameStateChecked<AGameStateBase>()->PlayerArray)
+	{
+		APawn* Pawn = PlayerState->GetPawn();
+		const ULyraHealthComponent* Health = ULyraHealthComponent::FindHealthComponent(Pawn);
+		if (!Health || Health->IsDeadOrDying())
+		{
+			continue;
+		}
+		const int32 Team = Teams->FindTeamFromObject(PlayerState);
+		ADHFlag* Own = FlagOf(Team);
+		for (ADHFlag* Flag : Flags)
+		{
+			if (!Flag || Flag->Carrier.IsValid() || FVector::Dist(Flag->GetActorLocation(), Pawn->GetActorLocation()) > TouchRadius + 100.f)
+			{
+				continue;
+			}
+			if (Flag == Own && Flag->DroppedSeconds >= 0.f)
+			{
+				Flag->ReturnHome();
+				Announcement = FString::Printf(TEXT("%s FLAG RETURNED BY %s"), *TeamName(Team), *PlayerState->GetPlayerName().ToUpper());
+			}
+			else if (Flag != Own)
+			{
+				Flag->PickUp(Pawn);
+				Announcement = FString::Printf(TEXT("%s HAS THE %s FLAG"), *PlayerState->GetPlayerName().ToUpper(), *TeamName(Flag->TeamId));
+			}
+		}
+		// Capture: carrying the enemy flag into the own base while the own flag is home.
+		for (ADHFlag* Flag : Flags)
+		{
+			if (Flag && Flag->Carrier.Get() == Pawn && Own && Own->IsHome() && FVector::Dist2D(Pawn->GetActorLocation(), Own->Home) < ADHBombSite::Radius)
+			{
+				Flag->ReturnHome();
+				Teams->AddTeamTagStack(Team, EliminationsTag(), 1);
+				Announcement = FString::Printf(TEXT("%s CAPTURED THE FLAG FOR %s"), *PlayerState->GetPlayerName().ToUpper(), *TeamName(Team));
+				UE_LOG(LogDHRules, Log, TEXT("Capture the Flag: %s"), *Announcement);
+				if (GetTeamKills(this, Team) >= KillLimit)
+				{
+					EndMatch(Team);
+				}
+			}
+		}
+	}
+}
+
+void UDHFlagScoring::GuideBots()
+{
+	// Lyra's bot tree walks to MoveGoal (see Search & Destroy). Carriers run home; half of each team attacks the enemy
+	// flag (or hunts its carrier), the other half guards the own flag or chases whoever took it.
+	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)
+	{
+		AAIController* Bot = Cast<AAIController>(It->Get());
+		UBlackboardComponent* Blackboard = Bot ? Bot->GetBlackboardComponent() : nullptr;
+		APawn* Pawn = Bot ? Bot->GetPawn() : nullptr;
+		if (!Blackboard || !Pawn)
+		{
+			continue;
+		}
+		const int32 Team = Teams->FindTeamFromObject(Bot);
+		const ADHFlag* Own = FlagOf(Team);
+		const ADHFlag* Enemy = nullptr;
+		for (const ADHFlag* Flag : Flags)
+		{
+			Enemy = Flag && Flag != Own ? Flag : Enemy;
+		}
+		if (!Own || !Enemy)
+		{
+			continue;
+		}
+		const int32 Id = Bot->PlayerState ? Bot->PlayerState->GetPlayerId() : 0;
+		FVector Goal;
+		if (Enemy->Carrier.Get() == Pawn)
+		{
+			Goal = Own->Home;
+		}
+		else
+		{
+			const AActor* Target = Cast<AActor>(Blackboard->GetValueAsObject(TEXT("TargetEnemy")));
+			if (Target && FVector::Dist(Target->GetActorLocation(), Pawn->GetActorLocation()) < 1500.f)
+			{
+				continue;  // close fights stay with the tree
+			}
+			const bool bAttacker = Id % 2 == 0;
+			const ADHFlag* Objective = bAttacker ? Enemy : Own;
+			Goal = Objective->Carrier.IsValid() ? Objective->Carrier->GetActorLocation()
+				: Objective->GetActorLocation() + FRotator(0.f, Id * 137.f, 0.f).Vector() * (bAttacker ? 50.f : 500.f);
+		}
+		Blackboard->SetValueAsVector(TEXT("MoveGoal"), Goal);
+		if (Bot->GetMoveStatus() == EPathFollowingStatus::Idle && FVector::Dist2D(Pawn->GetActorLocation(), Goal) > 150.f)
+		{
+			Bot->MoveToLocation(Goal, 80.f);
 		}
 	}
 }

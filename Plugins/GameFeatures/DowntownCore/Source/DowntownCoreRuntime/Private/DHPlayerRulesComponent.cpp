@@ -21,6 +21,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerState.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "Inventory/LyraInventoryItemDefinition.h"
@@ -160,7 +161,7 @@ void UDHPlayerRulesComponent::BeginPlay()
 		}
 	}, RetryInterval, true);
 
-	// Killstreak hunter mode: faster while it runs; attachments on the equipped weapon. On the server and the owning
+	// Killstreak hunter mode and the infected: faster; attachments on the equipped weapon. On the server and the owning
 	// client alike (movement corrections, client-side spread).
 	GetWorld()->GetTimerManager().SetTimer(HunterTimer, [this]()
 	{
@@ -170,7 +171,9 @@ void UDHPlayerRulesComponent::BeginPlay()
 		if (Movement)
 		{
 			const float Base = CastChecked<UCharacterMovementComponent>(Movement->GetArchetype())->MaxWalkSpeed;
-			Movement->MaxWalkSpeed = Base * (DHKillstreaks::IsHunting(Character->GetPlayerState()) ? DHKillstreaks::HunterSpeed : 1.f);
+			const UDHInfectedScoring* Infected = Cast<UDHInfectedScoring>(UDHFreeForAllScoring::Find(this));
+			Movement->MaxWalkSpeed = Base * (DHKillstreaks::IsHunting(Character->GetPlayerState()) ? DHKillstreaks::HunterSpeed : 1.f)
+				* (Infected && Infected->IsInfected(Character->GetPlayerState()) ? UDHInfectedScoring::InfectedSpeed : 1.f);
 		}
 	}, 0.25f, true);
 }

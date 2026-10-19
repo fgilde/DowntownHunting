@@ -85,7 +85,9 @@ void UDHFreeForAllHud::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 	const APlayerState* Own = GetOwningPlayerState();
 	if (Scoring->IsTeamScoring())
 	{
-		OwnText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "TeamLimit", "TO {0}"), Scoring->GetKillLimit()));
+		// Infected ends by infection or time: no score limit to show.
+		OwnText->SetText(Scoring->IsA<UDHInfectedScoring>() ? FText::GetEmpty()
+			: FText::Format(NSLOCTEXT("DowntownHunting", "TeamLimit", "TO {0}"), Scoring->GetKillLimit()));
 		UpdateTeams();
 	}
 	else
