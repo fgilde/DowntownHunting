@@ -14,6 +14,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "DHCardButton.h"
 #include "DHLoadoutSettings.h"
+#include "DHProgression.h"
 #include "DHScreenStyle.h"
 #include "Engine/Texture2D.h"
 
@@ -105,8 +106,10 @@ void UDHLoadoutScreen::AddRow(UVerticalBox* Column, const FText& Title, int32 Sl
 		IconBox->AddChild(Icon);
 		Content->AddChildToVerticalBox(IconBox);
 
+		const bool bLocked = !FDHProgression::IsUnlocked(Weapon.Id);
 		UTextBlock* Name = WidgetTree->ConstructWidget<UTextBlock>();
-		Name->SetText(FText::FromString(Weapon.Id.ToUpper()));
+		Name->SetText(bLocked ? FText::Format(NSLOCTEXT("DowntownHunting", "LockedWeapon", "{0}  ·  LVL {1}"), FText::FromString(Weapon.Id.ToUpper()), FDHProgression::UnlockLevel(Weapon.Id))
+			: FText::FromString(Weapon.Id.ToUpper()));
 		Name->SetFont(DHScreenStyle::Font(TEXT("Orbitron"), 16));
 		UVerticalBoxSlot* NameSlot = Content->AddChildToVerticalBox(Name);
 		NameSlot->SetHorizontalAlignment(HAlign_Center);
@@ -114,7 +117,8 @@ void UDHLoadoutScreen::AddRow(UVerticalBox* Column, const FText& Title, int32 Sl
 		Button->AddChild(Content);
 
 		Row->AddChildToHorizontalBox(Button)->SetPadding(FMargin(8));
-		Cards.Add({ Button, SlotIndex, Weapon.Id });
+		Content->SetRenderOpacity(bLocked ? 0.35f : 1.f);
+		Cards.Add({ Button, SlotIndex, Weapon.Id, false, bLocked });
 		CardButtons.Add(Button);
 	}
 }
@@ -139,8 +143,10 @@ void UDHLoadoutScreen::AddAttachmentRow(UVerticalBox* Column, int32 SlotIndex)
 		Name->SetText(Attachment.Name);
 		Name->SetFont(DHScreenStyle::Font(TEXT("Orbitron"), 12));
 		Content->AddChildToVerticalBox(Name)->SetHorizontalAlignment(HAlign_Center);
+		const bool bLocked = !FDHProgression::IsUnlocked(Attachment.Id);
 		UTextBlock* Info = WidgetTree->ConstructWidget<UTextBlock>();
-		Info->SetText(Attachment.Description);
+		Info->SetText(bLocked ? FText::Format(NSLOCTEXT("DowntownHunting", "LockedAttachment", "Unlocks at level {0}"), FDHProgression::UnlockLevel(Attachment.Id))
+			: Attachment.Description);
 		Info->SetFont(DHScreenStyle::Font(TEXT("NotoSans"), 11));
 		Info->SetColorAndOpacity(DHScreenStyle::Text);
 		Content->AddChildToVerticalBox(Info)->SetHorizontalAlignment(HAlign_Center);
@@ -148,7 +154,8 @@ void UDHLoadoutScreen::AddAttachmentRow(UVerticalBox* Column, int32 SlotIndex)
 		Button->AddChild(Box);
 
 		Row->AddChildToHorizontalBox(Button)->SetPadding(FMargin(8, 0));
-		Cards.Add({ Button, SlotIndex, Attachment.Id, true });
+		Content->SetRenderOpacity(bLocked ? 0.35f : 1.f);
+		Cards.Add({ Button, SlotIndex, Attachment.Id, true, bLocked });
 		CardButtons.Add(Button);
 	}
 }
@@ -182,6 +189,10 @@ void UDHLoadoutScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 
 void UDHLoadoutScreen::HandleCardClicked(UDHCardButton* Card)
 {
+	if (!FDHProgression::IsUnlocked(Card->CardId))
+	{
+		return;
+	}
 	if (Card->bAttachment)
 	{
 		PickAttachment(Card->CardSlot, Card->CardId);

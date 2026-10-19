@@ -12,6 +12,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "DHFreeForAllScoring.h"
 #include "DHScreenStyle.h"
+#include "DHXP.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Teams/LyraTeamDisplayAsset.h"
@@ -56,7 +57,11 @@ void UDHMatchEndScreen::NativeOnInitialized()
 	WinnerText = MakeText(WidgetTree, TEXT("Orbitron"), 22, DHScreenStyle::Text);
 	UVerticalBoxSlot* WinnerSlot = Column->AddChildToVerticalBox(WinnerText);
 	WinnerSlot->SetHorizontalAlignment(HAlign_Center);
-	WinnerSlot->SetPadding(FMargin(0, 4, 0, 28));
+	WinnerSlot->SetPadding(FMargin(0, 4, 0, 10));
+	XPText = MakeText(WidgetTree, TEXT("Orbitron"), 18, DHScreenStyle::Accent);
+	UVerticalBoxSlot* XPSlot = Column->AddChildToVerticalBox(XPText);
+	XPSlot->SetHorizontalAlignment(HAlign_Center);
+	XPSlot->SetPadding(FMargin(0, 0, 0, 22));
 
 	UBorder* Panel = WidgetTree->ConstructWidget<UBorder>();
 	Panel->SetBrushColor(DHScreenStyle::Card);
@@ -91,6 +96,17 @@ void UDHMatchEndScreen::Fill()
 	ResultText->SetText(bWon ? NSLOCTEXT("DowntownHunting", "EndVictory", "VICTORY") : NSLOCTEXT("DowntownHunting", "EndDefeat", "DEFEAT"));
 	ResultText->SetColorAndOpacity(bWon ? DHScreenStyle::Accent : FLinearColor(0.85f, 0.15f, 0.1f));
 	WinnerText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "EndWinner", "WINNER: {0}"), FText::FromString(Scoring->GetWinnerName())));
+	DHXP::FResult XP;
+	if (DHXP::Award(GetWorld(), bWon, XP))
+	{
+		FText Line = FText::Format(NSLOCTEXT("DowntownHunting", "EndXP", "+{0} XP  ·  LEVEL {1}"), XP.Gained, XP.NewLevel);
+		if (XP.NewLevel > XP.OldLevel)
+		{
+			Line = FText::Format(NSLOCTEXT("DowntownHunting", "EndLevelUp", "{0}  ·  LEVEL UP!{1}"), Line,
+				XP.Unlocked.IsEmpty() ? FText::GetEmpty() : FText::FromString(TEXT("  Unlocked: ") + FString::Join(XP.Unlocked, TEXT(", "))));
+		}
+		XPText->SetText(Line);
+	}
 	FillTable();
 }
 

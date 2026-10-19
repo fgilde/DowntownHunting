@@ -3,6 +3,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "CommonUIExtensions.h"
 #include "Components/Border.h"
+#include "Components/ProgressBar.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/Image.h"
@@ -17,6 +18,7 @@
 #include "DHLoadoutScreen.h"
 #include "DHMenuBackground.h"
 #include "DHPlayScreen.h"
+#include "DHProgression.h"
 #include "DHScreenStyle.h"
 #include "Engine/Texture2D.h"
 #include "Sound/SoundBase.h"
@@ -89,6 +91,24 @@ void UDHMainMenu::NativeOnInitialized()
 		LogoSlot->SetPadding(FMargin(16, 0, 0, 40));
 	}
 
+	// Level badge, top left.
+	UVerticalBox* Badge = WidgetTree->ConstructWidget<UVerticalBox>();
+	UOverlaySlot* BadgeSlot = Root->AddChildToOverlay(Badge);
+	BadgeSlot->SetHorizontalAlignment(HAlign_Left);
+	BadgeSlot->SetVerticalAlignment(VAlign_Top);
+	BadgeSlot->SetPadding(FMargin(60, 50, 0, 0));
+	LevelText = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 28, DHScreenStyle::Accent);
+	Badge->AddChildToVerticalBox(LevelText);
+	USizeBox* BarBox = WidgetTree->ConstructWidget<USizeBox>();
+	BarBox->SetWidthOverride(260.f);
+	BarBox->SetHeightOverride(6.f);
+	XPBar = WidgetTree->ConstructWidget<UProgressBar>();
+	XPBar->SetFillColorAndOpacity(DHScreenStyle::Accent);
+	BarBox->AddChild(XPBar);
+	Badge->AddChildToVerticalBox(BarBox)->SetPadding(FMargin(0, 6, 0, 4));
+	XPText = DHScreenStyle::MakeText(WidgetTree, TEXT("NotoSans"), 14, DHScreenStyle::Text);
+	Badge->AddChildToVerticalBox(XPText);
+
 	AddEntry(Column, TEXT("Play"), NSLOCTEXT("DowntownHunting", "MenuPlay", "PLAY"),
 		NSLOCTEXT("DowntownHunting", "MenuPlaySub", "Host a match with bots, on LAN or online, or join one"));
 	AddEntry(Column, TEXT("Character"), NSLOCTEXT("DowntownHunting", "MenuCharacter", "CHARACTER"),
@@ -144,9 +164,20 @@ void UDHMainMenu::AddEntry(UVerticalBox* Column, const FString& Id, const FText&
 	Entries.Add(Entry);
 }
 
+void UDHMainMenu::RefreshLevel()
+{
+	const int32 XP = FDHProgression::GetXP();
+	const int32 Level = FDHProgression::LevelForXP(XP);
+	const int32 From = FDHProgression::LevelStartXP(Level), To = FDHProgression::LevelStartXP(Level + 1);
+	LevelText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "MenuLevel", "LEVEL {0}"), Level));
+	XPText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "MenuXP", "{0} / {1} XP"), XP, To));
+	XPBar->SetPercent(float(XP - From) / FMath::Max(1, To - From));
+}
+
 void UDHMainMenu::NativeOnActivated()
 {
 	Super::NativeOnActivated();
+	RefreshLevel();
 	if (!Entries.IsEmpty())
 	{
 		ShowBackground(Entries[0].Id);

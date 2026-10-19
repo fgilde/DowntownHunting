@@ -44,6 +44,7 @@ private:
 	void ShowBackground(const FString& Id);
 	void Open(const FString& Id);
 	void PlayUISound(const TCHAR* Path);
+	void RefreshLevel();
 
 	TArray<FEntry> Entries;
 	int32 LastFocused = INDEX_NONE;
@@ -52,4 +53,14 @@ private:
 	TArray<TObjectPtr<UObject>> KeepAlive;  // buttons, gradient texture
 
 	TWeakObjectPtr<UDHMenuBackground> Background;
+
+	// Player level badge, top left (FDHProgression).
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> LevelText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> XPText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UProgressBar> XPBar;
 };

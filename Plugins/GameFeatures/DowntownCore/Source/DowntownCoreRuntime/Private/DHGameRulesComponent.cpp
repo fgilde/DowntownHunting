@@ -6,6 +6,7 @@
 #include "Curves/CurveFloat.h"
 #include "DHPlayerRulesComponent.h"
 #include "DHWeaponAccess.h"
+#include "DHXP.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
 #include "Messages/LyraVerbMessage.h"
@@ -123,6 +124,9 @@ void UDHGameRulesComponent::BeginPlay()
 
 void UDHGameRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	// Modes without a match end screen: the local player's XP when the map is left.
+	DHXP::FResult Result;
+	DHXP::Award(GetWorld(), false, Result);
 	GetWorld()->GetTimerManager().ClearTimer(LimitsTimer);
 	if (EliminationListener.IsValid())
 	{

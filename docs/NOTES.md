@@ -302,3 +302,8 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 ## Waffen-Aufsätze (2026-10-19)
 - Pro Waffe im Loadout ein Aufsatz (Loadout-Bildschirm, Zeile unter jeder Waffe): Großes Magazin (+50 %, voll geladen), Lasermodul (Streuung enger: `SpreadExponent` ×2,5, beim Zielen ×0,75), Langer Lauf (Schadensabfall 60 % weiter: Zeitachse der `DistanceDamageFalloff`-Kurve ×1,6).
 - Gespeichert als `Waffe:Aufsatz` im Loadout (GameUserSettings), Server prüft die Namen (`UDHPlayerChoicesComponent::ServerSetLoadout`). Magazin über Item-Stats (`Lyra.ShooterGame.Weapon.MagazineSize`/`MagazineAmmo`), Markierung `DH.Attachment.*` am Inventar-Item; Streuung und Reichweite an jeder neuen Waffeninstanz (Lyra erzeugt sie bei jedem Ausrüsten) auf Server und eigenem Client (`UDHPlayerRulesComponent::ApplyAttachments`). Lyras Waffenklassen sind nicht exportiert: Zugriff per Reflection (`DHWeaponAccess.h`).
+
+## Fortschritt und Level (2026-10-19)
+- `FDHProgression` (DowntownUI): XP lokal in GameUserSettings.ini (wie die anderen Menü-Wahlen; online behält jeder seinen Stand). Level n beginnt bei 500·(n-1)·n XP (1000, 3000, 6000, 10000 …).
+- XP am Matchende (`DHXP`, DowntownCore): 200 fürs Spielen, 100 pro Kill, +50 pro Kopfschuss-Kill, 500 für den Sieg. Vom End-Screen der DH-Modi (Zeile „+XP · LEVEL n“, Level-up mit Freischaltungen) oder beim Verlassen der Map (`UDHGameRulesComponent::EndPlay`, Domination & Co.). Mindestens 60 s zwischen zwei Vergaben: bei Seamless Travel endet die Regel-Komponente ein zweites Mal in der Übergangswelt.
+- Freischaltungen: MP5 und Großes Magazin Level 2, M1911 und Laser Level 3, AK47 Level 4, Langer Lauf Level 5 (Loadout-Bildschirm zeigt gesperrte Karten gedimmt mit Level). Hauptmenü oben links: Level, XP-Balken.

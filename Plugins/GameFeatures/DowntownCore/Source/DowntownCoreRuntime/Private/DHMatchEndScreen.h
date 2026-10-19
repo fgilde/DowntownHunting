@@ -36,6 +36,9 @@ private:
 	TObjectPtr<UTextBlock> WinnerText;
 
 	UPROPERTY()
+	TObjectPtr<UTextBlock> XPText;
+
+	UPROPERTY()
 	TObjectPtr<UVerticalBox> Table;
 
 	// Table texts, 4 per row (name, kills, deaths, K/D), row 0 is the header.
