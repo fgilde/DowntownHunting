@@ -43,6 +43,11 @@ public:
 	EDHPerspectiveRule GetPerspectiveRule() const { return Perspective; }
 	bool AllowsWeaponSwitch() const { return bWeaponSwitch; }
 
+	/** Rule Hardcore=1: little health, no minimap. */
+	bool IsHardcore() const { return bHardcore; }
+
+	static constexpr float HardcoreHealth = 30.f;
+
 	// Rule values, 0 = not set (server only).
 	int32 GetScoreLimit() const { return ScoreLimit; }
 	int32 GetTimeLimit() const { return TimeLimit; }
@@ -70,6 +75,9 @@ protected:
 
 	UPROPERTY(Replicated)
 	bool bWeaponSwitch = true;
+
+	UPROPERTY(Replicated)
+	bool bHardcore = false;
 
 	TArray<FName> Loadout;
 	bool bPlayerLoadout = false;

@@ -21,6 +21,7 @@ for %%A in (%*) do (
   if /I "%%A"=="OVERPASS" set MAP=/Game/DH/Maps/DH_Freeway
   if /I "%%A"=="ROOFS" set MAP=/Game/DH/Maps/DH_Roofs
   if /I "%%A"=="GRIDLOCK" set MAP=/Game/DH/Maps/DH_Gridlock
+  if /I "%%A"=="HC" set RULES=?Perspective=Choice?Loadout=Player?Hardcore=1
   if /I "%%A"=="GG" set RULES=?Perspective=Choice?GunGame=MP5,AK47,Rifle,Shotgun,M1911,Pistol
 )
 start "" "C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe" "%~dp0DowntownHunting.uproject" "%MAP%?Experience=%EXP%%RULES%" -game -windowed -ResX=1600 -ResY=900 -ExecCmds="DisableAllScreenMessages" -log=Game.log

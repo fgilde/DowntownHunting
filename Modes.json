@@ -1,10 +1,10 @@
 {
   "_help": [
     "Game modes shown in the menu (Play). Edit, then run Sync-Modes.cmd (editor must be closed).",
-    "game: TDM | Domination | FFA (free-for-all) | TDM3 (three teams) | Elimination (rounds, no respawn) | SearchAndDestroy",
+    "game: TDM | Domination | FFA (free-for-all) | TDM3 (three teams) | Elimination (rounds, no respawn) | SearchAndDestroy | Hill (King of the Hill)",
     "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = Player (loadout builder) or a fixed comma list of Pistol, Rifle, Shotgun, AK47, MP5, M1911,",
     "       ScoreLimit = points (FFA: kills, Elimination: rounds) to win, TimeLimit = minutes (TDM, FFA; Elimination: per round), GunGame = weapon list: each kill gives the next weapon, a kill with the last one wins",
-    "       WeaponSwitch = 1 | 0, NumBots = number of bots",
+    "       WeaponSwitch = 1 | 0, NumBots = number of bots, Hardcore = 1 (30 health, no minimap)",
     "maps: /Game/DH/Maps/DH_Block (Downtown), /Game/DH/Maps/DH_Park (Waterfront), /Game/DH/Maps/DH_Freeway (Overpass), /Game/DH/Maps/DH_Roofs (Rooftops), /Game/DH/Maps/DH_Gridlock (Gridlock), /DowntownCore/Maps/DH_Depot (Depot), /ShooterMaps/Maps/L_Expanse, /ShooterMaps/Maps/L_Convolution_Blockout",
     "image: menu tile (1024x512 texture); empty = image of the template"
   ],
@@ -161,6 +161,34 @@
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Downtown_FP"
     },
     {
+      "id": "KOTH_Downtown",
+      "title": "King of the Hill",
+      "subtitle": "Downtown",
+      "description": "One hill, moving every minute. Hold it alone to score.",
+      "game": "Hill",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Downtown"
+    },
+    {
+      "id": "HC_Downtown",
+      "title": "Hardcore TDM",
+      "subtitle": "Downtown",
+      "description": "Team deathmatch with 30 health and no minimap. Every shot counts.",
+      "game": "TDM",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "Hardcore": "1"
+      },
+      "default": true,
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Downtown"
+    },
+    {
       "id": "TDM_Waterfront",
       "title": "Team Deathmatch",
       "subtitle": "Waterfront",
@@ -239,6 +267,19 @@
         "NumBots": "7"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_SND_Overpass"
+    },
+    {
+      "id": "KOTH_Overpass",
+      "title": "King of the Hill",
+      "subtitle": "Overpass",
+      "description": "Fight for the hill under the freeway. It moves every minute.",
+      "game": "Hill",
+      "map": "/Game/DH/Maps/DH_Freeway",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Overpass"
     },
     {
       "id": "TDM_Rooftops",
@@ -333,6 +374,33 @@
         "NumBots": "7"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_SND_Gridlock"
+    },
+    {
+      "id": "KOTH_Gridlock",
+      "title": "King of the Hill",
+      "subtitle": "Gridlock",
+      "description": "The hill wanders along the jammed freeway.",
+      "game": "Hill",
+      "map": "/Game/DH/Maps/DH_Gridlock",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Gridlock"
+    },
+    {
+      "id": "HC_Gridlock",
+      "title": "Hardcore TDM",
+      "subtitle": "Gridlock",
+      "description": "Hardcore between the stuck cars: 30 health, no minimap.",
+      "game": "TDM",
+      "map": "/Game/DH/Maps/DH_Gridlock",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "Hardcore": "1"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Gridlock"
     },
     {
       "id": "TDM_Depot",

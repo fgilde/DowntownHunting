@@ -202,3 +202,43 @@ private:
 	FTimerHandle ObjectiveTimer;
 	int32 ObjectiveTicks = 0;
 };
+
+/**
+ * King of the Hill: one hill (a ring like the bomb sites) stands at a control point of the map and moves to the next
+ * one every minute. A team alone on the hill scores a point per second, contested hills score nothing; kills do not
+ * score. First team to ScoreLimit points (default 120) wins, or the leader when the clock (TimeLimit) runs out.
+ */
+UCLASS(meta = (BlueprintSpawnableComponent))
+class UDHHillScoring : public UDHTeamScoring
+{
+	GENERATED_BODY()
+
+public:
+	UDHHillScoring(const FObjectInitializer& ObjectInitializer);
+
+	static constexpr float MoveSeconds = 60.f;
+
+	const ADHBombSite* GetHill() const { return Hill; }
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void StartClock() override;
+	virtual void OnClockExpired() override;
+	virtual void OnKill(ALyraPlayerState* Killer, ALyraPlayerState* Victim, int32 KillerTeam) override {}
+
+private:
+	void TickHill();
+	void MoveHill();
+	void GuideBots();
+
+	UPROPERTY(Replicated)
+	TObjectPtr<ADHBombSite> Hill;
+
+	TArray<FVector> Spots;
+	int32 SpotIndex = 0;
+	float HillSeconds = 0.f;
+	float PointSeconds = 0.f;
+	int32 Ticks = 0;
+	FTimerHandle HillTimer;
+};

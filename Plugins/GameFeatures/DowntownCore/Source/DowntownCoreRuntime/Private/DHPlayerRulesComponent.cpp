@@ -233,6 +233,17 @@ void UDHPlayerRulesComponent::GiveLoadout()
 			UE_LOG(LogDHRules, Log, TEXT("%s: gave %s (quick bar: %s)"), *GetNameSafe(Controller), *ItemClass->GetName(), bSlotted ? TEXT("yes") : TEXT("full"));
 		}
 	}
+	// Hardcore: little health (Lyra's health set is not exported: attributes by name).
+	if (Rules->IsHardcore())
+	{
+		UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPawn<APawn>());
+		const UClass* HealthSet = FindObject<UClass>(nullptr, TEXT("/Script/LyraGame.LyraHealthSet"));
+		if (ASC && HealthSet)
+		{
+			ASC->SetNumericAttributeBase(FGameplayAttribute(FindFProperty<FProperty>(HealthSet, TEXT("MaxHealth"))), UDHGameRulesComponent::HardcoreHealth);
+			ASC->SetNumericAttributeBase(FGameplayAttribute(FindFProperty<FProperty>(HealthSet, TEXT("Health"))), UDHGameRulesComponent::HardcoreHealth);
+		}
+	}
 	// Chosen attachments, once per item (items stay in the inventory across respawns).
 	if (const UDHPlayerChoicesComponent* Choices = Controller->FindComponentByClass<UDHPlayerChoicesComponent>())
 	{
@@ -308,7 +319,7 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 		BoundInputComponent = InputComponent;
 	}
 	const UDHGameRulesComponent* Rules = UDHGameRulesComponent::Find(this);
-	if (!Minimap && PC)
+	if (!Minimap && PC && !(Rules && Rules->IsHardcore()))
 	{
 		Minimap = CreateWidget<UDHMinimap>(const_cast<APlayerController*>(PC));
 		Minimap->AddToViewport(5);

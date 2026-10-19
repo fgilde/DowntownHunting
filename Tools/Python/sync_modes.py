@@ -15,6 +15,7 @@ GAMES = {
     "Elimination": ("B_DH_Elimination", "/ShooterMaps/System/Playlists/DA_Expanse_TDM"),
     "SearchAndDestroy": ("B_DH_SearchAndDestroy", "/ShooterMaps/System/Playlists/DA_Expanse_TDM"),
     "Domination": ("B_DH_Domination", "/ShooterMaps/System/Playlists/DA_Convolution_ControlPoint"),
+    "Hill": ("B_DH_Hill", "/ShooterMaps/System/Playlists/DA_Convolution_ControlPoint"),
 }
 LOADING = {
     "TDM": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Streets.W_DH_LoadingScreen_Streets_C",
@@ -23,6 +24,7 @@ LOADING = {
     "Elimination": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Streets.W_DH_LoadingScreen_Streets_C",
     "SearchAndDestroy": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Aerial.W_DH_LoadingScreen_Aerial_C",
     "Domination": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Aerial.W_DH_LoadingScreen_Aerial_C",
+    "Hill": "/Game/DH/UI/Loading/W_DH_LoadingScreen_Aerial.W_DH_LoadingScreen_Aerial_C",
 }
 
 with open(os.path.join(ROOT, "Modes.json"), encoding="utf-8") as f:

@@ -631,3 +631,153 @@ void UDHSearchAndDestroyScoring::GuideBots()
 		}
 	}
 }
+
+UDHHillScoring::UDHHillScoring(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	KillLimit = 120;
+}
+
+void UDHHillScoring::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UDHHillScoring, Hill);
+}
+
+void UDHHillScoring::BeginPlay()
+{
+	Super::BeginPlay();
+	if (!GetOwner()->HasAuthority())
+	{
+		return;
+	}
+	// Hill spots: the map's control points (placed for Domination, reachable by bots). The volumes go, so Lyra's bots
+	// do not roam to them and Domination's capture logic stays out.
+	TArray<AActor*> Points;
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		if (It->GetClass()->GetName().Contains(TEXT("ControlPoint")))
+		{
+			Points.Add(*It);
+		}
+	}
+	Points.Sort([](const AActor& A, const AActor& B) { return A.GetName() < B.GetName(); });
+	for (AActor* Point : Points)
+	{
+		Spots.Add(Point->GetActorLocation());
+		Point->Destroy();
+	}
+	UE_LOG(LogDHRules, Log, TEXT("King of the Hill: %d spots"), Spots.Num());
+}
+
+void UDHHillScoring::StartClock()
+{
+	Super::StartClock();
+	SpotIndex = FMath::RandHelper(FMath::Max(1, Spots.Num()));
+	MoveHill();
+	GetWorld()->GetTimerManager().SetTimer(HillTimer, this, &ThisClass::TickHill, 0.25f, true);
+}
+
+void UDHHillScoring::MoveHill()
+{
+	if (Spots.IsEmpty())
+	{
+		return;
+	}
+	if (Hill)
+	{
+		Hill->Destroy();
+	}
+	// A new actor rather than moving the old one: the site does not replicate movement.
+	Hill = GetWorld()->SpawnActor<ADHBombSite>(Spots[SpotIndex % Spots.Num()], FRotator::ZeroRotator);
+	Hill->SetState(TEXT("K"), false);
+	SpotIndex++;
+	HillSeconds = 0.f;
+	Announcement = TEXT("THE HILL HAS MOVED");
+}
+
+void UDHHillScoring::TickHill()
+{
+	if (IsMatchOver() || !Hill)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(HillTimer);
+		return;
+	}
+	constexpr float Step = 0.25f;
+	if (++Ticks % 2 == 0)
+	{
+		GuideBots();
+	}
+	HillSeconds += Step;
+	if (HillSeconds >= MoveSeconds)
+	{
+		MoveHill();
+		return;
+	}
+
+	// Who stands on the hill.
+	ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	TSet<int32> Present;
+	for (const APlayerState* PlayerState : GetGameStateChecked<AGameStateBase>()->PlayerArray)
+	{
+		const APawn* Pawn = PlayerState->GetPawn();
+		const ULyraHealthComponent* Health = ULyraHealthComponent::FindHealthComponent(Pawn);
+		if (Health && !Health->IsDeadOrDying() && Hill->Contains(Pawn->GetActorLocation()))
+		{
+			Present.Add(Teams->FindTeamFromObject(PlayerState));
+		}
+	}
+	const int32 Left = FMath::CeilToInt(MoveSeconds - HillSeconds);
+	if (Present.Num() == 1)
+	{
+		const int32 Holder = *Present.CreateConstIterator();
+		const ULyraTeamDisplayAsset* Display = Teams->GetTeamDisplayAsset(Holder, INDEX_NONE);
+		Announcement = FString::Printf(TEXT("%s HOLDS THE HILL  ·  moves in %d s"), Display ? *Display->TeamShortName.ToString().ToUpper() : TEXT("A TEAM"), Left);
+		PointSeconds += Step;
+		if (PointSeconds >= 1.f)
+		{
+			PointSeconds -= 1.f;
+			Teams->AddTeamTagStack(Holder, EliminationsTag(), 1);
+			if (GetTeamKills(this, Holder) >= KillLimit)
+			{
+				EndMatch();
+			}
+		}
+	}
+	else
+	{
+		PointSeconds = 0.f;
+		Announcement = Present.IsEmpty() ? FString::Printf(TEXT("TAKE THE HILL  ·  moves in %d s"), Left) : FString::Printf(TEXT("HILL CONTESTED  ·  moves in %d s"), Left);
+	}
+}
+
+void UDHHillScoring::OnClockExpired()
+{
+	EndMatch();
+}
+
+void UDHHillScoring::GuideBots()
+{
+	// As in Search & Destroy: Lyra's bot tree walks to MoveGoal; bots without a close fight head for the hill.
+	for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)
+	{
+		AAIController* Bot = Cast<AAIController>(It->Get());
+		UBlackboardComponent* Blackboard = Bot ? Bot->GetBlackboardComponent() : nullptr;
+		if (!Blackboard || !Bot->GetPawn())
+		{
+			continue;
+		}
+		const AActor* Enemy = Cast<AActor>(Blackboard->GetValueAsObject(TEXT("TargetEnemy")));
+		if (Enemy && FVector::Dist(Enemy->GetActorLocation(), Bot->GetPawn()->GetActorLocation()) < 1500.f)
+		{
+			continue;
+		}
+		const int32 Id = Bot->PlayerState ? Bot->PlayerState->GetPlayerId() : 0;
+		const FVector Goal = Hill->GetActorLocation() + FRotator(0.f, Id * 137.f, 0.f).Vector() * (100.f + 60.f * (Id % 5));
+		Blackboard->SetValueAsVector(TEXT("MoveGoal"), Goal);
+		if (Bot->GetMoveStatus() == EPathFollowingStatus::Idle && FVector::Dist2D(Bot->GetPawn()->GetActorLocation(), Goal) > 200.f)
+		{
+			Bot->MoveToLocation(Goal, 100.f);
+		}
+	}
+}

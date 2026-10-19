@@ -82,6 +82,7 @@ void UDHGameRulesComponent::BeginPlay()
 	}
 
 	bWeaponSwitch = UGameplayStatics::GetIntOption(Options, TEXT("WeaponSwitch"), 1) != 0;
+	bHardcore = UGameplayStatics::GetIntOption(Options, TEXT("Hardcore"), 0) != 0;
 
 	TArray<FString> Names;
 	UGameplayStatics::ParseOption(Options, TEXT("Loadout")).ParseIntoArray(Names, TEXT(","));
@@ -237,6 +238,7 @@ void UDHGameRulesComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UDHGameRulesComponent, Perspective);
 	DOREPLIFETIME(UDHGameRulesComponent, bWeaponSwitch);
+	DOREPLIFETIME(UDHGameRulesComponent, bHardcore);
 	DOREPLIFETIME(UDHGameRulesComponent, GunGame);
 }
 

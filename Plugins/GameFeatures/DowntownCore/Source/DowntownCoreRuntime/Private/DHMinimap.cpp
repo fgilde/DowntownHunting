@@ -300,11 +300,12 @@ void UDHMinimap::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		Dots[Index]->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
-	// Bomb sites.
-	if (const UDHSearchAndDestroyScoring* Bomb = Cast<UDHSearchAndDestroyScoring>(UDHFreeForAllScoring::Find(this)))
+	// Bomb sites (Search & Destroy), the hill (King of the Hill).
+	const UDHSearchAndDestroyScoring* Bomb = Cast<UDHSearchAndDestroyScoring>(UDHFreeForAllScoring::Find(this));
+	int32 Shown = 0;
+	for (TActorIterator<ADHBombSite> It(GetWorld()); It; ++It)
 	{
-		const TArray<TObjectPtr<ADHBombSite>>& Sites = Bomb->GetSites();
-		while (SiteLabels.Num() < Sites.Num())
+		if (SiteLabels.Num() <= Shown)
 		{
 			UTextBlock* Label = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 16, DHScreenStyle::Accent);
 			Label->SetShadowOffset(FVector2D(1, 1));
@@ -313,14 +314,14 @@ void UDHMinimap::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			LabelSlot->SetAlignment(FVector2D(0.5f, 0.5f));
 			SiteLabels.Add(Label);
 		}
-		for (int32 Index = 0; Index < Sites.Num(); ++Index)
-		{
-			if (Sites[Index])
-			{
-				SiteLabels[Index]->SetText(FText::FromString(Sites[Index]->Letter));
-				SiteLabels[Index]->SetColorAndOpacity(Sites[Index] == Bomb->GetPlantedSite() ? FLinearColor(1.f, 0.1f, 0.05f) : DHScreenStyle::Accent);
-				Place(SiteLabels[Index], ToWidget(Sites[Index]->GetActorLocation()));
-			}
-		}
+		UTextBlock* Label = SiteLabels[Shown++];
+		Label->SetText(FText::FromString(It->Letter));
+		Label->SetColorAndOpacity(Bomb && *It == Bomb->GetPlantedSite() ? FLinearColor(1.f, 0.1f, 0.05f) : DHScreenStyle::Accent);
+		const FVector2D Position = ToWidget(It->GetActorLocation());
+		Place(Label, FVector2D(FMath::Clamp(Position.X, 8.f, WidgetSize - 8.f), FMath::Clamp(Position.Y, 8.f, WidgetSize - 8.f)));
+	}
+	for (int32 Index = Shown; Index < SiteLabels.Num(); ++Index)
+	{
+		SiteLabels[Index]->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
