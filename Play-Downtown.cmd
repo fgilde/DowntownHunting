@@ -9,6 +9,8 @@ rem   Play-Downtown.cmd OVERPASS   Overpass (under the elevated freeway)
 rem   Play-Downtown.cmd ROOFS      Rooftops (on the roofs, falling kills)
 rem   Play-Downtown.cmd GRIDLOCK   Gridlock (traffic jam on the elevated freeway)
 rem   Play-Downtown.cmd GG         Gun Game (every kill the next weapon)
+rem   Play-Downtown.cmd KOTH       King of the Hill (a moving hill, hold it alone to score)
+rem   Play-Downtown.cmd HC         Hardcore (30 health, no minimap); combinable: HC GRIDLOCK
 rem Rules are URL options (see docs\PLAN.md, "Modi aus Konfiguration").
 set EXP=B_DH_TDM
 set MAP=/Game/DH/Maps/DH_Block
@@ -16,6 +18,7 @@ set RULES=?Perspective=Choice?Loadout=Player
 for %%A in (%*) do (
   if /I "%%A"=="FP" set RULES=?Perspective=FP?Loadout=Player
   if /I "%%A"=="DOM" set EXP=B_DH_Domination
+  if /I "%%A"=="KOTH" set EXP=B_DH_Hill
   if /I "%%A"=="PARK" set MAP=/Game/DH/Maps/DH_Park
   if /I "%%A"=="DEPOT" set MAP=/DowntownCore/Maps/DH_Depot
   if /I "%%A"=="OVERPASS" set MAP=/Game/DH/Maps/DH_Freeway
