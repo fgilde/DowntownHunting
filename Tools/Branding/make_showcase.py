@@ -6,16 +6,14 @@ Every clip runs the uncooked game with a fixed time step (-UseFixedTimeStep -FPS
 however long the PC needs for it, so the video is smooth on slow machines too (recording just takes longer).
 DH.Record films with the HUD (menus, the player's view), DH.Intro films bot fights with a director camera.
 Menu background videos follow the game time while recording (UDHMenuBackground). Needs ffmpeg on PATH."""
-import math
 import os
-import random
 import shutil
-import struct
 import subprocess
 import sys
 import time
 import wave
 
+import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -141,41 +139,31 @@ def encode(out, inputs, vf_extra=""):
 
 def music(path, seconds, rate=44100):
     """Driving backing track: kick on the beat, offbeat hats, a bass line, slow pad. Synthesized, no licences."""
-    random.seed(5)
+    rng = np.random.default_rng(5)
     n = int(seconds * rate)
-    out = [0.0] * n
+    out = np.zeros(n)
     beat = 60 / 112
     bass = [41.2, 41.2, 49.0, 36.7]  # E1 E1 G1 D1, one per bar
-    t = 0.0
-    i_beat = 0
-    while t < seconds:
-        start = int(t * rate)
-        for k in range(int(0.25 * rate)):  # kick
-            if start + k >= n:
-                break
-            x = k / rate
-            out[start + k] += 0.55 * math.sin(2 * math.pi * (50 + 90 * math.exp(-x * 30)) * x) * math.exp(-x * 9)
-        hat = int((t + beat / 2) * rate)
-        for k in range(int(0.05 * rate)):  # hi-hat
-            if hat + k >= n:
-                break
-            out[hat + k] += 0.06 * random.uniform(-1, 1) * math.exp(-k / rate * 70)
-        f = bass[(i_beat // 4) % len(bass)]
-        for k in range(int(beat * rate)):  # bass, pulsing
-            if start + k >= n:
-                break
-            x = k / rate
-            out[start + k] += 0.22 * math.sin(2 * math.pi * f * x) * min(1.0, x * 40) * math.exp(-x * 2.5)
-        t += beat
-        i_beat += 1
-    for k in range(n):  # pad
-        x = k / rate
-        out[k] += 0.05 * (math.sin(2 * math.pi * 164.8 * x) + math.sin(2 * math.pi * 196 * x)) * (0.6 + 0.4 * math.sin(2 * math.pi * 0.1 * x))
+    kick_t = np.arange(int(0.25 * rate)) / rate
+    kick = 0.55 * np.sin(2 * np.pi * (50 + 90 * np.exp(-kick_t * 30)) * kick_t) * np.exp(-kick_t * 9)
+    hat_t = np.arange(int(0.05 * rate)) / rate
+    beat_t = np.arange(int(beat * rate)) / rate
+    for index in range(int(seconds / beat) + 1):
+        start = int(index * beat * rate)
+        hat = int((index + 0.5) * beat * rate)
+        f = bass[(index // 4) % len(bass)]
+        for offset, sound in ((start, kick), (hat, 0.06 * rng.uniform(-1, 1, len(hat_t)) * np.exp(-hat_t * 70)),
+                              (start, 0.22 * np.sin(2 * np.pi * f * beat_t) * np.minimum(1.0, beat_t * 40) * np.exp(-beat_t * 2.5))):
+            end = min(n, offset + len(sound))
+            if offset < end:
+                out[offset:end] += sound[:end - offset]
+    t = np.arange(n) / rate
+    out += 0.05 * (np.sin(2 * np.pi * 164.8 * t) + np.sin(2 * np.pi * 196 * t)) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.1 * t))
     with wave.open(path, "wb") as w:
         w.setnchannels(1)
         w.setsampwidth(2)
         w.setframerate(rate)
-        w.writeframes(b"".join(struct.pack("<h", int(max(-1.0, min(1.0, v)) * 30000)) for v in out))
+        w.writeframes((np.clip(out, -1, 1) * 30000).astype("<i2").tobytes())
 
 
 def cut():
