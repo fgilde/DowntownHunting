@@ -1,7 +1,7 @@
 {
   "_help": [
     "Game modes shown in the menu (Play). Edit, then run Sync-Modes.cmd (editor must be closed).",
-    "game: TDM | Domination | FFA (free-for-all) | TDM3 (three teams) | Elimination (rounds, no respawn) | SearchAndDestroy | Hill (King of the Hill)",
+    "game: TDM | Domination | FFA (free-for-all) | TDM3 (three teams) | Elimination (rounds, no respawn) | SearchAndDestroy | Hill (King of the Hill) | Infected | CTF (Capture the Flag)",
     "rules: Perspective = TP | FP | Choice (V / D-pad up switches), Loadout = Player (loadout builder) or a fixed comma list of Pistol, Rifle, Shotgun, AK47, MP5, M1911,",
     "       ScoreLimit = points (FFA: kills, Elimination: rounds) to win, TimeLimit = minutes (TDM, FFA; Elimination: per round), GunGame = weapon list: each kill gives the next weapon, a kill with the last one wins",
     "       WeaponSwitch = 1 | 0, NumBots = number of bots, Hardcore = 1 (30 health, no minimap)",
@@ -189,6 +189,33 @@
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Downtown"
     },
     {
+      "id": "INF_Downtown",
+      "title": "Infected",
+      "subtitle": "Downtown",
+      "description": "One infected at the start. Whoever dies joins them. Survive five minutes.",
+      "game": "Infected",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "9"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Downtown"
+    },
+    {
+      "id": "CTF_Downtown",
+      "title": "Capture the Flag",
+      "subtitle": "Downtown",
+      "description": "Steal the enemy flag and bring it home while yours is still there. Three captures win.",
+      "game": "CTF",
+      "map": "/Game/DH/Maps/DH_Block",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Downtown"
+    },
+    {
       "id": "TDM_Waterfront",
       "title": "Team Deathmatch",
       "subtitle": "Waterfront",
@@ -274,6 +301,19 @@
       "subtitle": "Overpass",
       "description": "Fight for the hill under the freeway. It moves every minute.",
       "game": "Hill",
+      "map": "/Game/DH/Maps/DH_Freeway",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Overpass"
+    },
+    {
+      "id": "CTF_Overpass",
+      "title": "Capture the Flag",
+      "subtitle": "Overpass",
+      "description": "Flags at both ends of the freeway underpass.",
+      "game": "CTF",
       "map": "/Game/DH/Maps/DH_Freeway",
       "rules": {
         "Perspective": "Choice",
@@ -401,6 +441,33 @@
         "Hardcore": "1"
       },
       "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Gridlock"
+    },
+    {
+      "id": "INF_Gridlock",
+      "title": "Infected",
+      "subtitle": "Gridlock",
+      "description": "Survive the outbreak on the jammed freeway.",
+      "game": "Infected",
+      "map": "/Game/DH/Maps/DH_Gridlock",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player",
+        "NumBots": "9"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_TDM_Gridlock"
+    },
+    {
+      "id": "CTF_Gridlock",
+      "title": "Capture the Flag",
+      "subtitle": "Gridlock",
+      "description": "Carry the flag through the traffic jam.",
+      "game": "CTF",
+      "map": "/Game/DH/Maps/DH_Gridlock",
+      "rules": {
+        "Perspective": "Choice",
+        "Loadout": "Player"
+      },
+      "image": "/Game/DH/UI/Tiles/T_DH_Tile_DOM_Gridlock"
     },
     {
       "id": "TDM_Depot",

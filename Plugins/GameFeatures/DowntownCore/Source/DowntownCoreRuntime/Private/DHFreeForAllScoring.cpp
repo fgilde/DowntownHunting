@@ -932,7 +932,7 @@ void UDHFlagScoring::StartClock()
 		ADHFlag* Flag = GetWorld()->SpawnActor<ADHFlag>(Bases[Index]->GetActorLocation(), FRotator::ZeroRotator);
 		Flag->TeamId = TeamIds[Index];
 		Flag->Home = Bases[Index]->GetActorLocation();
-		Flag->Colour = Colour ? *Colour : FLinearColor::White;
+		Flag->SetColour(Colour ? *Colour : FLinearColor::White);
 		Flags.Add(Flag);
 		UE_LOG(LogDHRules, Log, TEXT("Capture the Flag: %s base at %s"), *TeamName(Flag->TeamId), *Flag->Home.ToString());
 	}

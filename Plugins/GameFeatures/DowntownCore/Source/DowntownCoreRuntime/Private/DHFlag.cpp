@@ -14,27 +14,31 @@ ADHFlag::ADHFlag()
 	bReplicates = true;
 	bAlwaysRelevant = true;
 	SetReplicatingMovement(true);  // position when dropped, attachment while carried
+	PrimaryActorTick.bCanEverTick = true;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	// Pole and cloth turn slowly (locally, Tick) so the flag is seen from every side.
+	Spin = CreateDefaultSubobject<USceneComponent>(TEXT("Spin"));
+	Spin->SetupAttachment(RootComponent);
 	auto MakePart = [this](const TCHAR* Name, const TCHAR* Mesh, const FVector& Location, const FVector& Scale)
 	{
 		UStaticMeshComponent* Part = CreateDefaultSubobject<UStaticMeshComponent>(Name);
-		Part->SetupAttachment(RootComponent);
+		Part->SetupAttachment(Spin);
 		Part->SetStaticMesh(LoadObject<UStaticMesh>(nullptr, Mesh));
 		Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Part->SetRelativeLocation(Location);
 		Part->SetRelativeScale3D(Scale);
 		return Part;
 	};
-	// Engine shapes are 100 units: a 2.2 m pole, a 70 x 45 cm cloth at its top.
-	Pole = MakePart(TEXT("Pole"), TEXT("/Engine/BasicShapes/Cylinder.Cylinder"), FVector(0, 0, 110), FVector(0.05f, 0.05f, 2.2f));
-	Cloth = MakePart(TEXT("Cloth"), TEXT("/Engine/BasicShapes/Cube.Cube"), FVector(37, 0, 195), FVector(0.7f, 0.03f, 0.45f));
+	// Engine shapes are 100 units: a 3 m pole, a 1.2 x 0.75 m cloth at its top.
+	Pole = MakePart(TEXT("Pole"), TEXT("/Engine/BasicShapes/Cylinder.Cylinder"), FVector(0, 0, 150), FVector(0.08f, 0.08f, 3.f));
+	Cloth = MakePart(TEXT("Cloth"), TEXT("/Engine/BasicShapes/Cube.Cube"), FVector(62, 0, 260), FVector(1.2f, 0.04f, 0.75f));
 
 	Light = CreateDefaultSubobject<UPointLightComponent>(TEXT("Light"));
 	Light->SetupAttachment(RootComponent);
-	Light->SetRelativeLocation(FVector(0, 0, 200));
+	Light->SetRelativeLocation(FVector(0, 0, 260));
 	Light->SetAttenuationRadius(700.f);
-	Light->SetIntensity(8000.f);
+	Light->SetIntensity(20000.f);
 	Light->SetCastShadows(false);
 }
 
@@ -47,6 +51,12 @@ void ADHFlag::BeginPlay()
 		Cloth->SetMaterial(0, ClothMaterial);
 	}
 	OnRep_Colour();
+}
+
+void ADHFlag::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	Spin->AddRelativeRotation(FRotator(0.f, 60.f * DeltaSeconds, 0.f));
 }
 
 void ADHFlag::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

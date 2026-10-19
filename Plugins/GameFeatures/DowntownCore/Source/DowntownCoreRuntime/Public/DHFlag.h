@@ -31,17 +31,24 @@ public:
 
 	bool IsHome() const { return !Carrier.IsValid() && DroppedSeconds < 0.f; }
 
+	/** Server: team colour (OnRep does not run on the listen host). */
+	void SetColour(const FLinearColor& InColour) { Colour = InColour; OnRep_Colour(); }
+
 	void PickUp(APawn* Pawn);
 	void Drop();
 	void ReturnHome();
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 private:
 	UFUNCTION()
 	void OnRep_Colour();
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USceneComponent> Spin;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> Pole;
