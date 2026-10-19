@@ -1,0 +1,27 @@
+DOWNTOWN HUNTING - Testversion
+================================
+
+Starten
+-------
+1. Zip entpacken (z. B. nach C:\Spiele\DowntownHunting).
+2. Steam starten und anmelden (fuer Online-Spiele noetig, offline geht es auch ohne).
+3. Windows\DowntownHunting.exe starten.
+   Fehlt eine DLL (VCRUNTIME/MSVCP), einmal Windows\Engine\Extras\Redist\en-us\UEPrereqSetup_x64.exe ausfuehren.
+
+Online zusammen spielen
+-----------------------
+- Einer hostet: PLAY -> NETWORK auf ONLINE -> Modus waehlen -> starten.
+  Mit BOTS lassen sich freie Plaetze mit Bots auffuellen.
+- Die anderen: PLAY -> JOIN A GAME -> NETWORK auf ONLINE -> REFRESH -> Spiel auswaehlen.
+- Jeder braucht ein eigenes Steam-Konto. Steam zeigt dabei "Spacewar" als laufendes Spiel
+  (Test-App von Steam, bis das Spiel eine eigene hat).
+- Findet die Suche nichts: Host neu starten, REFRESH wiederholen, Firewall-Abfrage zulassen.
+
+Steuerung (Tastatur/Maus, Gamepad geht auch)
+--------------------------------------------
+WASD laufen, Leertaste springen (in der Luft an einer Wand: Wandsprung),
+Strg ducken (aus vollem Lauf: rutschen), Maus links schiessen, rechts zielen,
+R nachladen, V Ich-/Schulterperspektive, Tab Punktestand, Esc Menue.
+
+Im Hauptmenue: CHARACTER (Figur), LOADOUT (Waffen und Aufsaetze), OPTIONS.
+Level und Freischaltungen werden lokal gespeichert.

@@ -34,3 +34,7 @@ Plugins/**/Intermediate/
 
 # Packaged game output (Package.cmd)
 /Build/Packaged/
+
+# Package.cmd output
+/Build/Packaged/
+/Build/DowntownHunting.zip
