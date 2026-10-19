@@ -2,6 +2,8 @@
 //   DH.OpenScreen Character|Loadout|Settings|<widget class path>   push a screen onto the menu layer
 //   DH.Key <Key>[:Seconds] ...  press (and hold) keys through Slate, e.g. Gamepad_DPad_Down Gamepad_Special_Left:3 Escape
 //   DH.Shot <Name> [noui]      screenshot (with UI unless "noui") to Saved/DHShots/<Name>.png
+//   DH.Record <Seconds> <Name> [noui]  Seconds * 30 frames to Saved/Record/<Name>/ (+ times.txt, real time per frame);
+//                              with -UseFixedTimeStep -FPS=30 every frame is 1/30 s of game time however slow the PC is
 //   DH.Run cmd; wait 2; cmd    run console commands one after another, "wait N" pauses N seconds
 //   DH.Teleport X Y Z [Yaw]    move the first player's pawn (listen server / standalone), e.g. onto a bomb site
 // Example: -ExecCmds="DH.Run wait 40; DH.OpenScreen Loadout; wait 2; DH.Shot loadout"
@@ -22,9 +24,11 @@
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "GameplayTagContainer.h"
+#include "HAL/FileManager.h"
 #include "HAL/IConsoleManager.h"
 #include "HighResScreenshot.h"
 #include "InputCoreTypes.h"
+#include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "UnrealClient.h"
 
@@ -105,6 +109,32 @@ namespace
 		FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("DHShots") / (Name + TEXT(".png")), bShowUI, false);
 	}
 
+	void Record(const TArray<FString>& Args)
+	{
+		const int32 Frames = FMath::RoundToInt((Args.Num() > 0 ? FCString::Atof(*Args[0]) : 5.f) * 30.f);
+		const FString Dir = FPaths::ProjectSavedDir() / TEXT("Record") / (Args.Num() > 1 ? Args[1] : TEXT("clip"));
+		const bool bShowUI = !(Args.Num() > 2 && Args[2].Equals(TEXT("noui"), ESearchCase::IgnoreCase));
+		IFileManager::Get().DeleteDirectory(*Dir, false, true);
+		IFileManager::Get().MakeDirectory(*Dir, true);
+		// Frames counted in game time; the real times go to times.txt, for clips recorded without a fixed time step
+		// (menus: their background videos run in real time) to be cut with the real frame durations.
+		int32 Frame = 0;
+		TArray<FString> Times;
+		const double Start = FPlatformTime::Seconds();
+		FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([Dir, Frames, bShowUI, Frame, Times, Start](float) mutable
+		{
+			FScreenshotRequest::RequestScreenshot(Dir / FString::Printf(TEXT("%04d.png"), Frame), bShowUI, false);
+			Times.Add(FString::Printf(TEXT("%.4f"), FPlatformTime::Seconds() - Start));
+			if (++Frame < Frames)
+			{
+				return true;
+			}
+			FFileHelper::SaveStringArrayToFile(Times, *(Dir / TEXT("times.txt")));
+			UE_LOG(LogTemp, Log, TEXT("DH.Record: %d frames in %s"), Frames, *Dir);
+			return false;
+		}));
+	}
+
 	void Teleport(const TArray<FString>& Args)
 	{
 		UWorld* World = GameWorld();
@@ -156,6 +186,8 @@ namespace
 		FConsoleCommandWithArgsDelegate::CreateStatic(&PressKeys));
 	FAutoConsoleCommand ShotCommand(TEXT("DH.Shot"), TEXT("Screenshot to Saved/DHShots/<Name>.png, 'noui' as second argument hides the UI"),
 		FConsoleCommandWithArgsDelegate::CreateStatic(&Shot));
+	FAutoConsoleCommand RecordCommand(TEXT("DH.Record"), TEXT("Every frame for N seconds to Saved/Record/<Name>/: DH.Record <Seconds> <Name> [noui]"),
+		FConsoleCommandWithArgsDelegate::CreateStatic(&Record));
 	FAutoConsoleCommand TeleportCommand(TEXT("DH.Teleport"), TEXT("Move the first player's pawn to X Y Z, optionally looking along Yaw"),
 		FConsoleCommandWithArgsDelegate::CreateStatic(&Teleport));
 	FAutoConsoleCommand RunCommand(TEXT("DH.Run"), TEXT("Run console commands separated by ';', 'wait N' pauses N seconds"),

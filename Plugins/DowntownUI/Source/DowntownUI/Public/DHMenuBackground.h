@@ -46,4 +46,8 @@ private:
 	TWeakObjectPtr<UWorld> FrontEndWorld;
 	int32 Front = 0;
 	float Fade = 1.f;
+
+	// Playback rate while recording with a fixed time step.
+	double LastRealTime = 0.0;
+	float RecordRate = 1.f;
 };

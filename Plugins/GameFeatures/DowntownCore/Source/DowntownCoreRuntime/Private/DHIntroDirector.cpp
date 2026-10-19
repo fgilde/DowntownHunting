@@ -20,10 +20,10 @@
 namespace DHIntroSettings
 {
 	constexpr float ShotLength = 3.f;
-	constexpr float CraneSeconds = 6.f;  // the last seconds rise over the street (logo fades in there)
 	constexpr float FieldOfView = 70.f;
 
-	FString FramesDir() { return FPaths::ProjectSavedDir() / TEXT("IntroFrames"); }
+	// Saved/IntroFrames, or Saved/Record/<Name> for other clips (Tools/Branding/make_showcase.py).
+	FString FramesDir(const FString& Name) { return Name.IsEmpty() ? FPaths::ProjectSavedDir() / TEXT("IntroFrames") : FPaths::ProjectSavedDir() / TEXT("Record") / Name; }
 
 	bool IsAlive(const AActor* Actor)
 	{
@@ -41,20 +41,25 @@ namespace DHIntroSettings
 	}
 
 	FAutoConsoleCommandWithWorldAndArgs IntroCommand(TEXT("DH.Intro"),
-		TEXT("Film the intro from the running bot match: DH.Intro [seconds]. Frames go to Saved/IntroFrames."),
+		TEXT("Film the running bot match: DH.Intro [seconds] [clip name] [nocrane]. Frames go to Saved/IntroFrames or Saved/Record/<clip name>."),
 		FConsoleCommandWithWorldAndArgsDelegate::CreateLambda([](const TArray<FString>& Args, UWorld* World)
 		{
 			if (!World)
 			{
 				return;
 			}
-			IFileManager::Get().DeleteDirectory(*FramesDir(), false, true);
-			IFileManager::Get().MakeDirectory(*FramesDir(), true);
 			ADHIntroDirector* Director = World->SpawnActor<ADHIntroDirector>();
 			if (Args.Num() > 0)
 			{
 				Director->Duration = FCString::Atof(*Args[0]);
 			}
+			Director->OutDir = FramesDir(Args.Num() > 1 ? Args[1] : FString());
+			if (Args.Num() > 2 && Args[2].Equals(TEXT("nocrane"), ESearchCase::IgnoreCase))
+			{
+				Director->CraneSeconds = 0.f;
+			}
+			IFileManager::Get().DeleteDirectory(*Director->OutDir, false, true);
+			IFileManager::Get().MakeDirectory(*Director->OutDir, true);
 		}));
 }
 
@@ -186,7 +191,7 @@ void ADHIntroDirector::Tick(float DeltaSeconds)
 
 	Time += DeltaSeconds;
 	ShotTime += DeltaSeconds;
-	const float CraneStart = Duration - DHIntroSettings::CraneSeconds;
+	const float CraneStart = Duration - CraneSeconds;
 	if (Time < CraneStart)
 	{
 		if (ShotTime > DHIntroSettings::ShotLength || !DHIntroSettings::IsAlive(Subject.Get()))
@@ -229,7 +234,7 @@ void ADHIntroDirector::Tick(float DeltaSeconds)
 			CraneLookAt = Fight + Along * 4500.f - FVector(0, 0, 300);
 		}
 		// Up over the middle of the street, looking down it.
-		const float Alpha = FMath::InterpEaseInOut(0.f, 1.f, FMath::Clamp((Time - CraneStart) / DHIntroSettings::CraneSeconds, 0.f, 1.f), 2.f);
+		const float Alpha = FMath::InterpEaseInOut(0.f, 1.f, FMath::Clamp((Time - CraneStart) / CraneSeconds, 0.f, 1.f), 2.f);
 		// First out to the middle of the street, then straight up.
 		const FVector Location = Alpha < 0.25f ? FMath::Lerp(CraneFrom, CraneMid, Alpha / 0.25f) : FMath::Lerp(CraneMid, CraneTo, (Alpha - 0.25f) / 0.75f);
 		Camera->SetActorLocationAndRotation(Location, (CraneLookAt - Location).Rotation());
@@ -238,12 +243,12 @@ void ADHIntroDirector::Tick(float DeltaSeconds)
 	CaptureFrame();
 	if (Time >= Duration)
 	{
-		UE_LOG(LogTemp, Log, TEXT("DH.Intro: %d frames in %s"), Frame, *DHIntroSettings::FramesDir());
+		UE_LOG(LogTemp, Log, TEXT("DH.Intro: %d frames in %s"), Frame, *OutDir);
 		SetActorTickEnabled(false);
 	}
 }
 
 void ADHIntroDirector::CaptureFrame()
 {
-	FScreenshotRequest::RequestScreenshot(DHIntroSettings::FramesDir() / FString::Printf(TEXT("%04d.png"), Frame++), false, false);
+	FScreenshotRequest::RequestScreenshot(OutDir / FString::Printf(TEXT("%04d.png"), Frame++), false, false);
 }

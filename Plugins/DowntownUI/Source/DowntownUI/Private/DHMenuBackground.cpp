@@ -7,6 +7,7 @@
 #include "FileMediaSource.h"
 #include "HAL/FileManager.h"
 #include "MediaPlayer.h"
+#include "Misc/App.h"
 #include "MediaTexture.h"
 #include "Misc/Paths.h"
 
@@ -82,6 +83,20 @@ void UDHMenuBackground::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		}
 		DeactivateWidget();  // a match was loaded: the front end is gone
 		return;
+	}
+
+	// Recording with a fixed time step (DH.Record): game time runs slower than real time, so the clip plays slower by
+	// the same factor and stays in step with the recorded frames.
+	if (FApp::UseFixedTimeStep() && Players[Front]->IsPlaying())
+	{
+		const double Now = FPlatformTime::Seconds();
+		if (LastRealTime > 0.0)
+		{
+			const float Wanted = FMath::Clamp(InDeltaTime / float(Now - LastRealTime), 0.02f, 1.f);
+			RecordRate = FMath::Lerp(RecordRate, Wanted, 0.3f);
+			Players[Front]->SetRate(RecordRate);
+		}
+		LastRealTime = Now;
 	}
 
 	// The newest clip fades in and settles from a slight zoom once its player delivers frames.

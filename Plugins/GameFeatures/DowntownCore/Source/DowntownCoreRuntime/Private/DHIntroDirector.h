@@ -7,7 +7,7 @@
 class ACameraActor;
 
 /**
- * Films the intro movie from a running bot match (console: DH.Intro [seconds]). The local player's pawn is removed and
+ * Films the intro movie (and showcase clips) from a running bot match (console: DH.Intro [seconds] [clip] [nocrane]). The local player's pawn is removed and
  * a camera cuts between bots that are fighting (over the shoulder, from the side, from the front), then cranes up over
  * the street. Every frame is saved to Saved/IntroFrames/<frame>.png without UI; start the game with
  * -UseFixedTimeStep -FPS=30 so the frames play back at real speed. Tools/Branding/make_intro_movie.py cuts the movie.
@@ -23,6 +23,8 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	float Duration = 20.f;
+	float CraneSeconds = 6.f;  // the last seconds rise over the street (the intro's logo fades in there); 0 = none
+	FString OutDir;
 
 private:
 	APawn* PickSubject() const;
