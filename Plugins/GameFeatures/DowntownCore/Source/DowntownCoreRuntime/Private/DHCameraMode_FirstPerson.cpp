@@ -7,6 +7,7 @@
 #include "Equipment/LyraEquipmentManagerComponent.h"
 #include "Weapons/LyraWeaponInstance.h"
 #include "Components/ChildActorComponent.h"
+#include "Components/PoseableMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/Character.h"
@@ -19,11 +20,11 @@ UDHCameraMode_FirstPerson::UDHCameraMode_FirstPerson()
 	{
 		return TSoftObjectPtr<UAnimSequenceBase>(FSoftObjectPath(FString::Printf(TEXT("/Game/Characters/Heroes/Mannequin/Animations/Locomotion/%s"), Path)));
 	};
-	// Long guns sit further away so the receiver does not fill the screen.
-	WeaponViews.Add(TEXT("Pistol"), { Pose(TEXT("Pistol/MM_Pistol_Idle_ADS.MM_Pistol_Idle_ADS")), FVector(30.0, 11.0, -13.0), FVector(32.0, 0.0, -10.0) });
-	WeaponViews.Add(TEXT("M1911"), { Pose(TEXT("Pistol/MM_Pistol_Idle_ADS.MM_Pistol_Idle_ADS")), FVector(30.0, 11.0, -13.0), FVector(32.0, 0.0, -10.0) });
-	WeaponViews.Add(TEXT("Shotgun"), { Pose(TEXT("Shotgun/MM_Shotgun_Idle_ADS.MM_Shotgun_Idle_ADS")), FVector(38.0, 13.0, -17.0), FVector(32.0, 0.0, -10.0) });
-	DefaultView = { Pose(TEXT("Rifle/MM_Rifle_Idle_ADS.MM_Rifle_Idle_ADS")), FVector(38.0, 13.0, -17.0), FVector(32.0, 0.0, -9.0) };
+	// Grips sit far enough forward and down that the shoulders of the borrowed body stay out of view; long guns further.
+	WeaponViews.Add(TEXT("Pistol"), { Pose(TEXT("Pistol/MM_Pistol_Idle_ADS.MM_Pistol_Idle_ADS")), FVector(58.0, 16.0, -24.0), FVector(58.0, 0.0, -15.0), /*bLeftArm=*/ false });
+	WeaponViews.Add(TEXT("M1911"), { Pose(TEXT("Pistol/MM_Pistol_Idle_ADS.MM_Pistol_Idle_ADS")), FVector(58.0, 16.0, -24.0), FVector(58.0, 0.0, -15.0), /*bLeftArm=*/ false });
+	WeaponViews.Add(TEXT("Shotgun"), { Pose(TEXT("Shotgun/MM_Shotgun_Idle_ADS.MM_Shotgun_Idle_ADS")), FVector(58.0, 18.0, -28.0), FVector(50.0, 0.0, -14.0) });
+	DefaultView = { Pose(TEXT("Rifle/MM_Rifle_Idle_ADS.MM_Rifle_Idle_ADS")), FVector(58.0, 18.0, -28.0), FVector(52.0, 0.0, -18.0) };
 }
 
 void UDHCameraMode_FirstPerson::OnDeactivation()
@@ -93,6 +94,36 @@ void UDHCameraMode_FirstPerson::UpdateView(float DeltaTime)
 	Offset.X -= RecoilBack * Recoil;
 	const FVector Target = View.Location + ViewQuat.RotateVector(Offset);
 	Body->SetWorldLocationAndRotation(Target - BodyQuat.RotateVector(Grip * Body->GetComponentScale()), BodyQuat);
+	ShowOnlyArms();
+}
+
+void UDHCameraMode_FirstPerson::ShowOnlyArms() const
+{
+	// The arms hang off the torso, which sits right at the camera in the aiming poses. Copy the pose, shrink the
+	// torso to (almost) nothing and put the upper arms back where they were: their children follow, arms and hands
+	// stay as posed, chest and shoulders vanish.
+	UPoseableMeshComponent* Arms = ArmsCopy.Get();
+	USkeletalMeshComponent* Body = BodyCopy.Get();
+	if (!Arms || !Body)
+	{
+		return;
+	}
+	Arms->CopyPoseFromSkeletalComponent(Body);
+	TArray<FTransform, TInlineAllocator<2>> ArmTransforms;
+	for (const FName& Bone : ArmBones)
+	{
+		ArmTransforms.Add(Arms->GetBoneTransformByName(Bone, EBoneSpaces::ComponentSpace));
+	}
+	FTransform Torso = Arms->GetBoneTransformByName(TorsoBone, EBoneSpaces::ComponentSpace);
+	Torso.SetScale3D(FVector(0.01f));
+	Arms->SetBoneTransformByName(TorsoBone, Torso, EBoneSpaces::ComponentSpace);
+	for (int32 Index = 0; Index < ArmBones.Num(); ++Index)
+	{
+		if (CurrentView.bLeftArm || !ArmBones[Index].ToString().EndsWith(TEXT("_l")))
+		{
+			Arms->SetBoneTransformByName(ArmBones[Index], ArmTransforms[Index], EBoneSpaces::ComponentSpace);
+		}
+	}
 }
 
 void UDHCameraMode_FirstPerson::UpdateWeaponState(const ACharacter& Character, float DeltaTime)
@@ -196,7 +227,7 @@ void UDHCameraMode_FirstPerson::BuildCopies(ACharacter& Character)
 	USkeletalMeshComponent* OwnBody = BodyParts[0];
 	const bool bOwnBodyDrives = OwnBody->DoesSocketExist(WeaponSocket);
 	USkeletalMesh* FirstPersonBody = OwnBody->GetSkeletalMeshAsset();
-	USkeletalMeshComponent* Arms = nullptr;
+	UPoseableMeshComponent* Arms = nullptr;
 	if (!bOwnBodyDrives)
 	{
 		// Crowd characters' clothes do not fit the poses' skeleton (jacket shoulders end up in the view):
@@ -211,8 +242,9 @@ void UDHCameraMode_FirstPerson::BuildCopies(ACharacter& Character)
 		}
 		BodyParts.Reset();
 
-		Arms = NewObject<USkeletalMeshComponent>(&Character, NAME_None, RF_Transient);
-		Arms->SetSkeletalMeshAsset(FirstPersonBody);
+		// Posed by hand every frame (UpdateView): only arms and hands, the torso shrunk away.
+		Arms = NewObject<UPoseableMeshComponent>(&Character, NAME_None, RF_Transient);
+		Arms->SetSkinnedAssetAndUpdate(FirstPersonBody);
 		for (const FName& Bone : HiddenBones)
 		{
 			Arms->HideBoneByName(Bone, PBO_None);
@@ -223,7 +255,8 @@ void UDHCameraMode_FirstPerson::BuildCopies(ACharacter& Character)
 		Arms->SetFirstPersonPrimitiveType(EFirstPersonPrimitiveType::FirstPerson);
 	}
 	USkeletalMeshComponent* Root = NewObject<USkeletalMeshComponent>(&Character, NAME_None, RF_Transient);
-	Root->SetSkeletalMeshAsset(FirstPersonBody);
+	// The poses are made for Lyra's mannequin: on another skeleton they would not play (arms in the rest pose).
+	Root->SetSkeletalMeshAsset(bOwnBodyDrives ? FirstPersonBody : Mesh->GetSkeletalMeshAsset());
 	Root->SetWorldScale3D(Mesh->GetComponentScale());
 	Root->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 	CurrentView = FindView(GetAttachedWeapons(Character));
@@ -237,10 +270,10 @@ void UDHCameraMode_FirstPerson::BuildCopies(ACharacter& Character)
 	Copies.Add(Root);
 	if (Arms)
 	{
-		Arms->SetLeaderPoseComponent(Root);
 		Arms->SetupAttachment(Root);
 		Arms->RegisterComponent();
 		Copies.Add(Arms);
+		ArmsCopy = Arms;
 	}
 
 	for (USkeletalMeshComponent* Part : BodyParts)
@@ -315,6 +348,7 @@ void UDHCameraMode_FirstPerson::DestroyCopies()
 	Copies.Reset();
 	CopiedWeapons.Reset();
 	BodyCopy.Reset();
+	ArmsCopy.Reset();
 	WeaponCopy.Reset();
 }
 

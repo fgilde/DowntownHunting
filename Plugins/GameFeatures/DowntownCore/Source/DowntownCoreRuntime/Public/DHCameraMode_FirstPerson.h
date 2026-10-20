@@ -33,6 +33,10 @@ struct FDHFirstPersonWeaponView
 
 	UPROPERTY(EditAnywhere, Category = "First Person")
 	FVector ADSOffset = FVector(30.0, 0.0, -10.0);
+
+	// Off for one-handed weapons: the left arm vanishes with the torso (it would hang right in front of the view).
+	UPROPERTY(EditAnywhere, Category = "First Person")
+	bool bLeftArm = true;
 };
 
 UCLASS(Blueprintable)
@@ -58,6 +62,13 @@ protected:
 	// Used when no entry in WeaponViews matches.
 	UPROPERTY(EditDefaultsOnly, Category = "First Person")
 	FDHFirstPersonWeaponView DefaultView;
+
+	// First-person arms: the torso bone is shrunk away, the arm bones are kept where the pose puts them.
+	UPROPERTY(EditDefaultsOnly, Category = "First Person")
+	FName TorsoBone = TEXT("spine_02");
+
+	UPROPERTY(EditDefaultsOnly, Category = "First Person")
+	TArray<FName> ArmBones = { TEXT("upperarm_l"), TEXT("upperarm_r") };
 
 	// Bones hidden on the body copy (children are hidden too).
 	UPROPERTY(EditDefaultsOnly, Category = "First Person")
@@ -89,6 +100,7 @@ private:
 	void SetFirstPersonRendering(bool bEnabled) const;
 	void BuildCopies(ACharacter& Character);
 	void DestroyCopies();
+	void ShowOnlyArms() const;
 	void SetOriginalsHidden(bool bHidden);
 	const FDHFirstPersonWeaponView& FindView(const TArray<AActor*>& Weapons) const;
 	TArray<AActor*> GetAttachedWeapons(const ACharacter& Character) const;
@@ -98,6 +110,7 @@ private:
 	TArray<TWeakObjectPtr<UMeshComponent>> HiddenInFirstPerson;
 	TArray<TWeakObjectPtr<UMeshComponent>> Copies;
 	TWeakObjectPtr<USkeletalMeshComponent> BodyCopy;
+	TWeakObjectPtr<class UPoseableMeshComponent> ArmsCopy;
 	TWeakObjectPtr<UMeshComponent> WeaponCopy;
 	TArray<TWeakObjectPtr<AActor>> CopiedWeapons;
 
