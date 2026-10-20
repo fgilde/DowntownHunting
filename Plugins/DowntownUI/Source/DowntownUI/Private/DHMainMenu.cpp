@@ -18,6 +18,7 @@
 #include "DHLoadoutScreen.h"
 #include "DHMenuBackground.h"
 #include "DHPlayScreen.h"
+#include "DHIntroScreen.h"
 #include "DHProgression.h"
 #include "DHScreenStyle.h"
 #include "Engine/Texture2D.h"
@@ -177,6 +178,7 @@ void UDHMainMenu::RefreshLevel()
 void UDHMainMenu::NativeOnActivated()
 {
 	Super::NativeOnActivated();
+	UDHIntroScreen::PlayOnce(GetOwningPlayer());
 	RefreshLevel();
 	if (!Entries.IsEmpty())
 	{

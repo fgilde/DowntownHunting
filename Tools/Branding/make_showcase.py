@@ -57,6 +57,8 @@ CINEMA = [  # director clips: name, map, experience, extra options, caption
     ("c_ffa", "/DowntownCore/Maps/DH_Depot", "B_DH_FFA", "?NumBots=7", "FREE-FOR-ALL  ·  DEPOT"),
     ("c_snd", "/Game/DH/Maps/DH_Freeway", "B_DH_SearchAndDestroy", "?NumBots=9", "SEARCH & DESTROY  ·  OVERPASS"),
 ]
+# The intro movie's footage (Tools/Branding/make_intro_movie.py): camera flight over Downtown with the bots fighting below.
+SESSIONS["intro"] = ("/Game/DH/Maps/DH_Block?Experience=B_DH_TDM?NumBots=12", "wait 40; DH.Intro 15 intro flight", 15, ["intro"])
 CINEMA_SECONDS = 6
 for name, map_, exp, opts, _ in CINEMA:
     SESSIONS[name] = (f"{map_}?Experience={exp}{opts}", f"wait 40; DH.Intro {CINEMA_SECONDS} {name} nocrane", CINEMA_SECONDS, [name])

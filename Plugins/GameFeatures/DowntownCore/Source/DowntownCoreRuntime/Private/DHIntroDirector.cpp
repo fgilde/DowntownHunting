@@ -23,6 +23,22 @@ namespace DHIntroSettings
 	constexpr float FieldOfView = 70.f;
 
 	// Saved/IntroFrames, or Saved/Record/<Name> for other clips (Tools/Branding/make_showcase.py).
+	// The flight over DH_Block (from the first intro): low along the street (which runs at ~120 degrees), into the
+	// crossing, then up over the block. Times in seconds, rotation as pitch/yaw.
+	struct FFlightKey
+	{
+		float Time;
+		FVector Location;
+		FRotator Rotation;
+	};
+	const FFlightKey Flight[] = {
+		{ 0.0f, FVector(-56300, 13500, 190), FRotator(1, 121, 0) },
+		{ 5.0f, FVector(-59300, 18600, 230), FRotator(0, 121, 0) },
+		{ 8.0f, FVector(-60300, 20300, 1100), FRotator(-8, 95, 0) },
+		{ 11.0f, FVector(-61200, 19500, 3600), FRotator(-18, 55, 0) },
+		{ 15.0f, FVector(-63500, 16500, 7000), FRotator(-27, 32, 0) },
+	};
+
 	FString FramesDir(const FString& Name) { return Name.IsEmpty() ? FPaths::ProjectSavedDir() / TEXT("IntroFrames") : FPaths::ProjectSavedDir() / TEXT("Record") / Name; }
 
 	bool IsAlive(const AActor* Actor)
@@ -58,6 +74,7 @@ namespace DHIntroSettings
 			{
 				Director->CraneSeconds = 0.f;
 			}
+			Director->bFlight = Args.Num() > 2 && Args[2].Equals(TEXT("flight"), ESearchCase::IgnoreCase);
 			IFileManager::Get().DeleteDirectory(*Director->OutDir, false, true);
 			IFileManager::Get().MakeDirectory(*Director->OutDir, true);
 		}));
@@ -182,11 +199,30 @@ void ADHIntroDirector::Tick(float DeltaSeconds)
 		Camera = GetWorld()->SpawnActor<ACameraActor>();
 		Camera->GetCameraComponent()->SetFieldOfView(DHIntroSettings::FieldOfView);
 		Camera->GetCameraComponent()->bConstrainAspectRatio = false;
-		Cut();
+		if (bFlight)
+		{
+			StartFlight();
+		}
+		else
+		{
+			Cut();
+		}
 	}
 	if (Player && Player->GetViewTarget() != Camera)
 	{
 		Player->SetViewTarget(Camera);
+	}
+	if (bFlight)
+	{
+		Time += DeltaSeconds;
+		UpdateFlight();
+		CaptureFrame();
+		if (Time >= Duration)
+		{
+			UE_LOG(LogTemp, Log, TEXT("DH.Intro: %d frames in %s"), Frame, *OutDir);
+			SetActorTickEnabled(false);
+		}
+		return;
 	}
 
 	Time += DeltaSeconds;
@@ -245,6 +281,65 @@ void ADHIntroDirector::Tick(float DeltaSeconds)
 	{
 		UE_LOG(LogTemp, Log, TEXT("DH.Intro: %d frames in %s"), Frame, *OutDir);
 		SetActorTickEnabled(false);
+	}
+}
+
+void ADHIntroDirector::StartFlight()
+{
+	using namespace DHIntroSettings;
+	Duration = Flight[UE_ARRAY_COUNT(Flight) - 1].Time;
+	// Bots along the first part of the flight, teams on opposite sides of the street, facing each other.
+	const FVector From = Flight[0].Location, To = Flight[2].Location;
+	const FVector Along = (To - From).GetSafeNormal2D();
+	const FVector Across = FVector::CrossProduct(FVector::UpVector, Along);
+	int32 Index = 0;
+	for (TActorIterator<AAIController> It(GetWorld()); It; ++It)
+	{
+		APawn* Pawn = It->GetPawn();
+		if (!IsAlive(Pawn))
+		{
+			continue;
+		}
+		const float Side = (Index % 2) ? 1.f : -1.f;
+		const FVector Spot = FMath::Lerp(From, To, 0.15f + 0.85f * float(Index / 2) / 6.f) * FVector(1, 1, 0) + Across * Side * 650.f
+			+ Along * FMath::FRandRange(-300.f, 300.f);
+		FHitResult Hit;
+		if (GetWorld()->LineTraceSingleByChannel(Hit, Spot + FVector(0, 0, 5000), Spot - FVector(0, 0, 5000), ECC_Visibility))
+		{
+			Pawn->TeleportTo(Hit.Location + FVector(0, 0, 100), FRotator(0.f, (-Across * Side).Rotation().Yaw, 0.f));
+		}
+		++Index;
+	}
+}
+
+void ADHIntroDirector::UpdateFlight()
+{
+	using namespace DHIntroSettings;
+	// Smooth through the keys (ease in and out per segment).
+	int32 Key = 0;
+	while (Key + 2 < UE_ARRAY_COUNT(Flight) && Time > Flight[Key + 1].Time)
+	{
+		++Key;
+	}
+	const FFlightKey& A = Flight[Key];
+	const FFlightKey& B = Flight[Key + 1];
+	const float Alpha = FMath::InterpEaseInOut(0.f, 1.f, FMath::Clamp((Time - A.Time) / (B.Time - A.Time), 0.f, 1.f), 1.6f);
+	Camera->SetActorLocationAndRotation(FMath::Lerp(A.Location, B.Location, Alpha),
+		FQuat::Slerp(A.Rotation.Quaternion(), B.Rotation.Quaternion(), Alpha));
+
+	// Keep the bots fighting in the street ahead of the camera.
+	if (FMath::Fmod(Time, 0.5f) < 1.f / 30.f)
+	{
+		const FVector Ahead = Camera->GetActorLocation() + Camera->GetActorForwardVector().GetSafeNormal2D() * 1500.f;
+		for (TActorIterator<AAIController> It(GetWorld()); It; ++It)
+		{
+			UBlackboardComponent* Blackboard = It->GetBlackboardComponent();
+			const APawn* Pawn = It->GetPawn();
+			if (Blackboard && Pawn && !EnemyOf(Pawn))
+			{
+				Blackboard->SetValueAsVector(TEXT("MoveGoal"), Ahead * FVector(1, 1, 0) + FVector(FMath::RandPointInCircle(900.f), Pawn->GetActorLocation().Z));
+			}
+		}
 	}
 }
 
