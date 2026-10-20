@@ -13,6 +13,7 @@
 #include "DHMovement.h"
 #include "DHPlayerChoicesComponent.h"
 #include "DHWeaponAccess.h"
+#include "Components/SkinnedMeshComponent.h"
 #include "Curves/CurveFloat.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -166,6 +167,7 @@ void UDHPlayerRulesComponent::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(HunterTimer, [this]()
 	{
 		ApplyAttachments();
+		EnableHairSkinning();
 		ACharacter* Character = GetPawn<ACharacter>();
 		UCharacterMovementComponent* Movement = Character ? Character->GetCharacterMovement() : nullptr;
 		if (Movement)
@@ -344,6 +346,36 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 	{
 		Input->AddMappingContext(Mapping, 1);
 		bMappingAdded = true;
+	}
+}
+
+void UDHPlayerRulesComponent::EnableHairSkinning()
+{
+	// Groom hair follows the head through its binding only if the head mesh runs through the GPU skin cache, which
+	// Lyra leaves off by default (r.SkinCache.DefaultBehavior=0): without it the hair stays in the rest pose and floats
+	// when the head moves. Turn the cache on for every mesh a groom hangs on (character parts can change any time).
+	const APawn* Pawn = GetPawn<APawn>();
+	if (!Pawn || GetNetMode() == NM_DedicatedServer)
+	{
+		return;
+	}
+	TArray<AActor*> Parts;
+	Pawn->GetAttachedActors(Parts, /*bResetArray=*/ true, /*bRecursivelyIncludeAttachedActors=*/ true);
+	for (const AActor* Part : Parts)
+	{
+		for (UActorComponent* Component : Part->GetComponents())
+		{
+			USceneComponent* Groom = Cast<USceneComponent>(Component);
+			USkinnedMeshComponent* Skin = Groom && Groom->GetClass()->GetFName() == TEXT("GroomComponent") ? Cast<USkinnedMeshComponent>(Groom->GetAttachParent()) : nullptr;
+			if (!Skin || HairSkins.Contains(Skin))
+			{
+				continue;
+			}
+			HairSkins.Add(Skin);
+			Skin->SkinCacheUsage.Init(ESkinCacheUsage::Enabled, FMath::Max(1, Skin->GetNumLODs()));
+			Skin->MarkRenderStateDirty();
+			Groom->MarkRenderStateDirty();
+		}
 	}
 }
 

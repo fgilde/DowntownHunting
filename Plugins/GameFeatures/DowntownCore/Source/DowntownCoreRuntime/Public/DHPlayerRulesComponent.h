@@ -65,12 +65,14 @@ private:
 	void TrySlide();
 	void TryWallJump();
 	void ApplyAttachments();
+	void EnableHairSkinning();
 	bool IsFirstPerson() const;
 	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
 
 	FTimerHandle RetryTimer;
 	FTimerHandle HunterTimer;
 	TWeakObjectPtr<UObject> ModifiedWeapon;
+	TSet<TWeakObjectPtr<class USkinnedMeshComponent>> HairSkins;
 	int32 Retries = 0;
 	double LastWallJump = -1.0;
 	bool bLoadoutGiven = false;
