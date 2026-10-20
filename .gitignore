@@ -38,3 +38,7 @@ Plugins/**/Intermediate/
 # Package.cmd output
 /Build/Packaged/
 /Build/DowntownHunting.zip
+/Build/Showcase/
+/Build/Windows/ChunkLayerInfo/
+/Build/Windows/FileOpenOrder/
+__pycache__/
