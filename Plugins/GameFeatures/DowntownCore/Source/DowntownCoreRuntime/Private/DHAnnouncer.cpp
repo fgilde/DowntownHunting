@@ -20,9 +20,10 @@ void UDHAnnouncer::Start(UWorld* InWorld)
 	{
 		for (TObjectIterator<UAudioComponent> It; It; ++It)
 		{
-			if (!It->IsTemplate() && It->Sound && It->Sound->GetName().StartsWith(TEXT("mx_")) && It->IsPlaying())
+			if (!It->IsTemplate() && It->Sound && It->Sound->GetName().StartsWith(TEXT("mx_")))
 			{
-				It->Stop();
+				It->SetVolumeMultiplier(0.f);  // Stop alone does not hold: its manager starts it again
+				It->SetPaused(true);
 			}
 		}
 	}), 1.f, true, 0.1f);

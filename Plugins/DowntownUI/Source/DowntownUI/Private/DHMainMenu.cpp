@@ -344,9 +344,11 @@ void UDHMainMenu::SilenceLyraMusic()
 	for (TObjectIterator<UAudioComponent> It; It; ++It)
 	{
 		// (its audio component belongs to the game instance, not to this world)
-		if (*It != Music && !It->IsTemplate() && It->Sound && It->Sound->GetName().StartsWith(TEXT("mx_")) && It->IsPlaying())
+		if (*It != Music && !It->IsTemplate() && It->Sound && It->Sound->GetName().StartsWith(TEXT("mx_")))
 		{
-			It->Stop();
+			// Stop alone does not hold (its manager starts it again): silent and paused for good.
+			It->SetVolumeMultiplier(0.f);
+			It->SetPaused(true);
 		}
 	}
 }
