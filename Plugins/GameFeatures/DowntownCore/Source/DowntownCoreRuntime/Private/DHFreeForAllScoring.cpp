@@ -311,6 +311,24 @@ void UDHRoundScoring::OnDeath(ALyraPlayerState* Victim)
 {
 	// The victim's health component switches to dying right after this message.
 	GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &ThisClass::CheckRoundOver));
+	GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateWeakLambda(this, [this, Victim]()
+	{
+		// The victim's team down to one: tell that one.
+		const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+		const int32 Team = Teams && Victim ? Teams->FindTeamFromObject(Victim) : INDEX_NONE;
+		if (bRoundOver || Team == INDEX_NONE || CountAlive().FindRef(Team) != 1)
+		{
+			return;
+		}
+		for (APlayerState* Player : GetGameStateChecked<AGameStateBase>()->PlayerArray)
+		{
+			const ULyraHealthComponent* Health = Player && Player->GetPawn() ? ULyraHealthComponent::FindHealthComponent(Player->GetPawn()) : nullptr;
+			if (Health && !Health->IsDeadOrDying() && Teams->FindTeamFromObject(Player) == Team)
+			{
+				UDHGameRulesComponent::Announce(this, TEXT("LastAlive"), Team, Player);
+			}
+		}
+	}));
 }
 
 void UDHRoundScoring::CheckRoundOver()
@@ -374,12 +392,21 @@ void UDHRoundScoring::EndRound(int32 RoundWinner, const FString& Reason)
 		Announcement = FString::Printf(TEXT("ROUND %d: DRAW"), Round);
 	}
 	UE_LOG(LogDHRules, Log, TEXT("%s"), *Announcement);
+	if (Reason == TEXT("BOMB DEFUSED"))
+	{
+		UDHGameRulesComponent::Announce(this, TEXT("BombDefused"));
+	}
+	else if (Reason == TEXT("BOMB EXPLODED"))
+	{
+		UDHGameRulesComponent::Announce(this, TEXT("BombExploded"));
+	}
 
 	if (RoundWinner != INDEX_NONE && GetTeamKills(this, RoundWinner) >= KillLimit)
 	{
 		EndMatch();
 		return;
 	}
+	UDHGameRulesComponent::Announce(this, TEXT("RoundEnd"), RoundWinner);
 	GetWorld()->GetTimerManager().SetTimer(RoundTimer, this, &ThisClass::StartNextRound, 5.f, false);
 }
 
@@ -395,6 +422,7 @@ void UDHRoundScoring::StartNextRound()
 		}
 	}
 	StartClock();
+	UDHGameRulesComponent::Announce(this, TEXT("NewRound"));
 }
 
 UDHSearchAndDestroyScoring::UDHSearchAndDestroyScoring(const FObjectInitializer& ObjectInitializer)
@@ -543,6 +571,7 @@ void UDHSearchAndDestroyScoring::TickObjective()
 			PlantedSite->SetState(PlantedSite->Letter, true);
 			Progress = 0.f;
 			Announcement = FString::Printf(TEXT("BOMB PLANTED AT %s"), *PlantedSite->Letter);
+			UDHGameRulesComponent::Announce(this, TEXT("BombPlanted"), AttackingTeam);
 			SetClock(BombSeconds);  // the round clock now counts down the bomb
 			UE_LOG(LogDHRules, Log, TEXT("%s"), *Announcement);
 		}
@@ -698,6 +727,8 @@ void UDHHillScoring::MoveHill()
 	SpotIndex++;
 	HillSeconds = 0.f;
 	Announcement = TEXT("THE HILL HAS MOVED");
+	UDHGameRulesComponent::Announce(this, TEXT("HillMoved"));
+	HillHolder = INDEX_NONE;
 }
 
 void UDHHillScoring::TickHill()
@@ -735,6 +766,11 @@ void UDHHillScoring::TickHill()
 	if (Present.Num() == 1)
 	{
 		const int32 Holder = *Present.CreateConstIterator();
+		if (Holder != HillHolder)
+		{
+			HillHolder = Holder;
+			UDHGameRulesComponent::Announce(this, TEXT("HillControl"), Holder);
+		}
 		const ULyraTeamDisplayAsset* Display = Teams->GetTeamDisplayAsset(Holder, INDEX_NONE);
 		Announcement = FString::Printf(TEXT("%s HOLDS THE HILL  ·  moves in %d s"), Display ? *Display->TeamShortName.ToString().ToUpper() : TEXT("A TEAM"), Left);
 		PointSeconds += Step;
@@ -848,10 +884,22 @@ void UDHInfectedScoring::OnDeath(ALyraPlayerState* Victim)
 	// Respawns as infected (Lyra's auto respawn; the new pawn gets the infected loadout).
 	Teams->ChangeTeamForActor(Victim, InfectedTeam);
 	UpdateAnnouncement();
+	UDHGameRulesComponent::Announce(this, TEXT("Infected"), InfectedTeam, Victim);
 	bool bSurvivorLeft = false;
-	for (const APlayerState* Player : GetGameStateChecked<AGameStateBase>()->PlayerArray)
+	APlayerState* LastSurvivor = nullptr;
+	int32 Survivors = 0;
+	for (APlayerState* Player : GetGameStateChecked<AGameStateBase>()->PlayerArray)
 	{
-		bSurvivorLeft |= Teams->FindTeamFromObject(Player) == SurvivorTeam;
+		if (Teams->FindTeamFromObject(Player) == SurvivorTeam)
+		{
+			bSurvivorLeft = true;
+			LastSurvivor = Player;
+			++Survivors;
+		}
+	}
+	if (Survivors == 1)
+	{
+		UDHGameRulesComponent::Announce(this, TEXT("LastSurvivor"), SurvivorTeam, LastSurvivor);
 	}
 	if (!bSurvivorLeft)
 	{
@@ -989,6 +1037,7 @@ void UDHFlagScoring::TickFlags()
 		{
 			Flag->ReturnHome();
 			Announcement = FString::Printf(TEXT("%s FLAG RETURNED"), *TeamName(Flag->TeamId));
+			UDHGameRulesComponent::Announce(this, TEXT("FlagReturned"));
 		}
 	}
 	for (const APlayerState* PlayerState : GetGameStateChecked<AGameStateBase>()->PlayerArray)
@@ -1011,11 +1060,13 @@ void UDHFlagScoring::TickFlags()
 			{
 				Flag->ReturnHome();
 				Announcement = FString::Printf(TEXT("%s FLAG RETURNED BY %s"), *TeamName(Team), *PlayerState->GetPlayerName().ToUpper());
+				UDHGameRulesComponent::Announce(this, TEXT("FlagReturned"));
 			}
 			else if (Flag != Own)
 			{
 				Flag->PickUp(Pawn);
 				Announcement = FString::Printf(TEXT("%s HAS THE %s FLAG"), *PlayerState->GetPlayerName().ToUpper(), *TeamName(Flag->TeamId));
+				UDHGameRulesComponent::Announce(this, TEXT("FlagTaken"), Flag->TeamId);
 			}
 		}
 		// Capture: carrying the enemy flag into the own base while the own flag is home.
@@ -1026,6 +1077,7 @@ void UDHFlagScoring::TickFlags()
 				Flag->ReturnHome();
 				Teams->AddTeamTagStack(Team, EliminationsTag(), 1);
 				Announcement = FString::Printf(TEXT("%s CAPTURED THE FLAG FOR %s"), *PlayerState->GetPlayerName().ToUpper(), *TeamName(Team));
+				UDHGameRulesComponent::Announce(this, TEXT("FlagCaptured"), Team);
 				UE_LOG(LogDHRules, Log, TEXT("Capture the Flag: %s"), *Announcement);
 				if (GetTeamKills(this, Team) >= KillLimit)
 				{

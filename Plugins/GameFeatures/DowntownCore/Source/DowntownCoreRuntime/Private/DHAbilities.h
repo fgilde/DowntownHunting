@@ -5,7 +5,18 @@
 class ACharacter;
 class APawn;
 class APlayerState;
+class UMaterialInterface;
+class UMeshComponent;
 class UPrimitiveComponent;
+
+/** What UpdateCloak changed on one pawn (on this machine), to undo it. */
+struct FDHCloakState
+{
+	TArray<TWeakObjectPtr<UPrimitiveComponent>> Hidden;
+	TMap<TWeakObjectPtr<UMeshComponent>, TArray<UMaterialInterface*>> Swapped;  // original materials (assets)
+	bool bHiddenFromBots = false;
+	bool bWasCloaked = false;
+};
 
 /**
  * The special abilities of the loadout (catalogue with cooldowns and durations: UDHLoadoutSettings::GetAbilities),
@@ -33,8 +44,9 @@ namespace DHAbilities
 	bool IsCloaked(const APlayerState* Player);
 
 	/**
-	 * Every machine, every pawn, a few times a second: hides a cloaked pawn (with its weapon and character parts) from
-	 * everyone but its owner and shows it again afterwards; on the server also from the bots.
+	 * Every machine, every pawn, a few times a second: a cloaked pawn (with its weapon and character parts) is hidden
+	 * from enemies; its owner (also the first-person arms) and team see it as a faint cyan shimmer (M_DH_Cloak), so they
+	 * know it is cloaked. A dissolve effect where it vanishes and reappears. On the server also hidden from the bots.
 	 */
-	void UpdateCloak(APawn* Pawn, TArray<TWeakObjectPtr<UPrimitiveComponent>>& Hidden, bool& bHiddenFromBots);
+	void UpdateCloak(APawn* Pawn, FDHCloakState& State);
 }

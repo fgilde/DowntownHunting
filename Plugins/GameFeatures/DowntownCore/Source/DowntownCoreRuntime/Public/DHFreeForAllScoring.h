@@ -241,6 +241,7 @@ private:
 
 	TArray<FVector> Spots;
 	int32 SpotIndex = 0;
+	int32 HillHolder = INDEX_NONE;  // team alone on the hill, for the announcer
 	float HillSeconds = 0.f;
 	float PointSeconds = 0.f;
 	int32 Ticks = 0;

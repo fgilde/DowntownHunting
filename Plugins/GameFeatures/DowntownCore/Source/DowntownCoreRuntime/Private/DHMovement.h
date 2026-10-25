@@ -14,7 +14,7 @@ class ACharacter;
 namespace DHMovement
 {
 	constexpr float SprintSpeed = 1.4f;  // walk speed factor
-	constexpr float SlideMinSpeed = 420.f;
+	constexpr float SlideMinSpeed = 560.f;  // faster than walking: from a sprint
 	constexpr float SlideSeconds = 0.9f;
 	constexpr float WallJumpCooldown = 0.35f;
 

@@ -126,6 +126,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category=Teams)
 	UE_API ULyraTeamDisplayAsset* GetTeamDisplayAsset(int32 TeamId, int32 ViewerTeamId);
 
+	// Downtown Hunting: lets a game feature pick the display asset from the local viewer's perspective (own team blue,
+	// everyone else red). Called with the team's own asset; returns the one to show.
+	static UE_API TFunction<ULyraTeamDisplayAsset*(const ULyraTeamSubsystem& Teams, int32 TeamId, ULyraTeamDisplayAsset* TeamAsset)> DisplayAssetPerspective;
+
 	// Gets the team display asset for the specified team, from the perspective of the specified team
 	// (You have to specify a viewer too, in case the game mode is in a 'local player is always blue team' sort of situation)
 	UFUNCTION(BlueprintCallable, Category = Teams)

@@ -1,4 +1,5 @@
 #include "DHKillstreaks.h"
+#include "DHGameRulesComponent.h"
 
 #include "DHSoundCue.h"
 #include "AbilitySystemComponent.h"
@@ -164,6 +165,10 @@ namespace DHKillstreaks
 			break;
 		default:
 			break;
+		}
+		if (Reward != EReward::None)
+		{
+			UDHGameRulesComponent::Announce(Killer, Reward == EReward::Radar ? TEXT("Radar") : Reward == EReward::Airstrike ? TEXT("Airstrike") : TEXT("HunterMode"), INDEX_NONE, Killer);
 		}
 		const AController* Controller = Killer->GetOwningController();
 		UDHPlayerChoicesComponent* Choices = Controller ? Controller->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;

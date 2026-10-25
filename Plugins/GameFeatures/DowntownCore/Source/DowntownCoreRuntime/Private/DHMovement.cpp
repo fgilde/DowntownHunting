@@ -37,9 +37,10 @@ namespace DHMovement
 	{
 		UCharacterMovementComponent* Movement = Character->GetCharacterMovement();
 		const UCharacterMovementComponent* Defaults = CastChecked<UCharacterMovementComponent>(Movement->GetArchetype());
-		// A push forward, then let it run out on almost no friction; crouching itself is Lyra's (same input).
+		// A push forward out of the run (like Call of Duty's slide), then let it run out on almost no friction; crouching
+		// itself is Lyra's (same input).
 		const FVector Direction = Character->GetVelocity().GetSafeNormal2D();
-		Character->LaunchCharacter(Direction * 1000.f, true, false);
+		Character->LaunchCharacter(Direction * FMath::Max(Character->GetVelocity().Size2D() * 1.25f, 950.f), true, false);
 		Movement->GroundFriction = 0.6f;
 		Movement->BrakingDecelerationWalking = 250.f;
 		Movement->MaxWalkSpeedCrouched = 1000.f;

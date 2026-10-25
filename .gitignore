@@ -31,6 +31,7 @@ Plugins/**/Intermediate/
 /Content/Vehicle/
 /Content/__ExternalActors__/Map/
 /Content/Character/
+/Content/Audio/SoundWaves/Ambient/
 
 # Packaged game output (Package.cmd)
 /Build/Packaged/
@@ -43,3 +44,4 @@ Plugins/**/Intermediate/
 /Build/Windows/FileOpenOrder/
 __pycache__/
 /fg.txt
+/Build/__*/

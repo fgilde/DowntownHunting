@@ -14,6 +14,7 @@
 void UDHGunGameHud::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+	SetVisibility(ESlateVisibility::HitTestInvisible);
 
 	UOverlay* Root = WidgetTree->ConstructWidget<UOverlay>();
 	WidgetTree->RootWidget = Root;

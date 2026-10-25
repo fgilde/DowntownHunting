@@ -116,7 +116,32 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "First Person|Switch")
 	float RaiseRoll = 25.0f;
 
+	// Sprint: weapon tipped down (deg) and rolled; wider view.
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Moves")
+	float SprintPitch = 18.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Moves")
+	float SprintRoll = 14.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Moves")
+	float SprintFieldOfView = 6.0f;
+
+	// Slide: the view leans and widens.
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Moves")
+	float SlideRoll = -6.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Moves")
+	float SlideFieldOfView = 8.0f;
+
+	// Reload: the weapon rolls over and tips up.
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Moves")
+	float ReloadRoll = 38.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Moves")
+	float ReloadPitch = 12.0f;
+
 private:
+	void UpdateMoveState(const ACharacter& Character, float DeltaTime);
 	void UpdateWeaponState(const ACharacter& Character, float DeltaTime);
 	void SetFirstPersonRendering(bool bEnabled) const;
 	void BuildCopies(ACharacter& Character);
@@ -139,5 +164,10 @@ private:
 	float ADSAlpha = 0.0f;
 	float Recoil = 0.0f;
 	float Raise = 1.0f;
+	float SprintAlpha = 0.0f;
+	float SlideAlpha = 0.0f;
+	float ReloadAlpha = 0.0f;
+	float ReloadTime = 0.0f;
+	float MoveTime = 0.0f;
 	float LastTimeSinceInteracted = 0.0f;
 };

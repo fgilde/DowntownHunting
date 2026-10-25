@@ -2,6 +2,7 @@
 
 #include "Components/PawnComponent.h"
 #include "Templates/SubclassOf.h"
+#include "DHAbilities.h"
 
 #include "DHPlayerRulesComponent.generated.h"
 
@@ -88,11 +89,12 @@ private:
 	void CheckSprint();
 	void UpdateMoveSpeed();
 	void ApplyDevCheats();
+	void UpdateMoveAnims();
 	bool IsGamepadInput() const;
 	void UseAbility1() { UseAbility(0); }
 	void UseAbility2() { UseAbility(1); }
 	void UseAbility(int32 Slot);
-	void RemoveLyraDash();
+	void PrepareLyraDash();
 	void HandleAbilityActivated(class UGameplayAbility* Ability);
 	void ApplyAttachments();
 	void EnableHairSkinning();
@@ -103,6 +105,11 @@ private:
 	FTimerHandle RetryTimer;
 	FTimerHandle HunterTimer;
 	FTimerHandle SprintTimer;
+	FTimerHandle MoveAnimTimer;
+	uint8 MoveAnim = 0;
+	float StepDistance = 0.f;  // 0 Lyra's locomotion, 1 sprint, 2 slide
+	TWeakObjectPtr<class UAnimMontage> MoveMontage;
+	double SlideStartedAt = -100.0;  // owning client
 	bool bSprinting = false;
 	bool bSprintWanted = false;  // owning client: key held, or the gamepad toggle waiting for the player to move
 	double SprintWantedAt = 0.0;
@@ -110,8 +117,7 @@ private:
 	TWeakObjectPtr<UObject> ModifiedWeapon;
 	TWeakObjectPtr<const UObject> LoggedWeapon;
 	TSet<TWeakObjectPtr<class USkinnedMeshComponent>> HairSkins;
-	TArray<TWeakObjectPtr<class UPrimitiveComponent>> CloakHidden;
-	bool bCloakHiddenFromBots = false;
+	FDHCloakState CloakState;
 	int32 Retries = 0;
 	double LastWallJump = -1.0;
 	bool bLoadoutGiven = false;

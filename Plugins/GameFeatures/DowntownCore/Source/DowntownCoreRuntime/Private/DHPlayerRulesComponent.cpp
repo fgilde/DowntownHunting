@@ -1,6 +1,12 @@
 #include "DHPlayerRulesComponent.h"
 
 #include "AbilitySystemComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundAttenuation.h"
+#include "Sound/SoundBase.h"
+#include "UIExtensionSystem.h"
+#include "Animation/AnimMontage.h"
+#include "Animation/AnimInstance.h"
 #include "AbilitySystemGlobals.h"
 #include "Camera/LyraCameraComponent.h"
 #include "Camera/LyraCameraMode.h"
@@ -202,11 +208,11 @@ void UDHPlayerRulesComponent::BeginPlay()
 	{
 		ApplyAttachments();
 		EnableHairSkinning();
-		DHAbilities::UpdateCloak(GetPawn<APawn>(), CloakHidden, bCloakHiddenFromBots);
+		DHAbilities::UpdateCloak(GetPawn<APawn>(), CloakState);
 		ACharacter* Character = GetPawn<ACharacter>();
 		if (Character && Character->HasAuthority())
 		{
-			RemoveLyraDash();
+			PrepareLyraDash();
 			ApplyDevCheats();
 			UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Character);
 			if (ASC && FireSource.Get() != ASC)
@@ -219,6 +225,10 @@ void UDHPlayerRulesComponent::BeginPlay()
 				FireHandle = ASC->AbilityActivatedCallbacks.AddUObject(this, &ThisClass::HandleAbilityActivated);
 			}
 		}
+		if (Character && !Character->HasAuthority() && Character->IsLocallyControlled())
+		{
+			PrepareLyraDash();  // its widget, on the owning client
+		}
 		UpdateMoveSpeed();
 		const UObject* Weapon = DHWeaponAccess::ActiveWeapon(Character);
 		if (Character && Character->IsLocallyControlled() && Character->IsPlayerControlled() && Weapon != LoggedWeapon.Get())
@@ -227,6 +237,99 @@ void UDHPlayerRulesComponent::BeginPlay()
 			UE_LOG(LogDHRules, Log, TEXT("%s: weapon in hand %s"), *GetNameSafe(Character), *GetNameSafe(Weapon ? Weapon->GetClass() : nullptr));
 		}
 	}, 0.25f, true);
+	GetWorld()->GetTimerManager().SetTimer(MoveAnimTimer, this, &ThisClass::UpdateMoveAnims, 0.05f, true);
+}
+
+void UDHPlayerRulesComponent::UpdateMoveAnims()
+{
+	// Every machine, every pawn: Lyra has no sprint or slide animations; ours (Tools/Python/make_moves.py) play as a
+	// full-body montage while the pawn runs at sprint speed or slides crouched. Read from the movement, so nothing has to
+	// be replicated for other players' pawns.
+	ACharacter* Character = GetPawn<ACharacter>();
+	const UCharacterMovementComponent* Movement = Character ? Character->GetCharacterMovement() : nullptr;
+	UAnimInstance* Anim = Movement && Character->GetMesh() ? Character->GetMesh()->GetAnimInstance() : nullptr;
+	if (!Anim)
+	{
+		return;
+	}
+	static const FGameplayTag DeathTag = FGameplayTag::RequestGameplayTag(TEXT("Status.Death"));
+	const UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Character);
+	const float Speed = Character->GetVelocity().Size2D();
+	const float Walk = CastChecked<UCharacterMovementComponent>(Movement->GetArchetype())->MaxWalkSpeed;
+	const bool bForward = FVector::DotProduct(Character->GetVelocity().GetSafeNormal2D(), Character->GetActorForwardVector()) > 0.7f;
+	uint8 Wanted = 0;
+	if (Movement->IsMovingOnGround() && !(ASC && ASC->HasMatchingGameplayTag(DeathTag)))
+	{
+		if (Movement->IsCrouching() && Speed > DHMovement::SlideMinSpeed * 0.8f)
+		{
+			Wanted = 2;
+		}
+		else if (!Movement->IsCrouching() && bForward && Speed > Walk * 1.18f)
+		{
+			Wanted = 1;
+		}
+	}
+	const UObject* Weapon = DHWeaponAccess::ActiveWeapon(Character);
+	const bool bPistol = Weapon && (Weapon->GetClass()->GetName().Contains(TEXT("Pistol")) || Weapon->GetClass()->GetName().Contains(TEXT("M1911")));
+	if (Wanted != MoveAnim)
+	{
+		if (MoveMontage.IsValid())
+		{
+			Anim->Montage_Stop(Wanted == 2 ? 0.12f : 0.25f, MoveMontage.Get());
+		}
+		MoveMontage = nullptr;
+		MoveAnim = Wanted;
+		if (Wanted != 0)
+		{
+			const FString Path = FString::Printf(TEXT("/DowntownCore/Animations/A_DH_%s_%s.A_DH_%s_%s"),
+				Wanted == 1 ? TEXT("Sprint") : TEXT("Slide"), bPistol ? TEXT("Pistol") : TEXT("Rifle"),
+				Wanted == 1 ? TEXT("Sprint") : TEXT("Slide"), bPistol ? TEXT("Pistol") : TEXT("Rifle"));
+			if (UAnimSequenceBase* Sequence = LoadObject<UAnimSequenceBase>(nullptr, *Path))
+			{
+				MoveMontage = Anim->PlaySlotAnimationAsDynamicMontage(Sequence, TEXT("FullBody"), Wanted == 2 ? 0.1f : 0.2f, 0.25f, 1.f, 1000);
+			}
+			UE_LOG(LogDHRules, Verbose, TEXT("%s: %s montage %s"), *GetNameSafe(Character), *Path, MoveMontage.IsValid() ? TEXT("playing") : TEXT("failed"));
+		}
+	}
+	if (MoveAnim == 1 && MoveMontage.IsValid())
+	{
+		// Feet in step with the speed.
+		Anim->Montage_SetPlayRate(MoveMontage.Get(), FMath::Clamp(Speed / Walk, 1.f, 1.7f));
+	}
+
+	// Other players' steps carry further than Lyra's own (which stay): you hear from where someone is coming, louder
+	// when they sprint, muffled behind walls; crouching is silent.
+	if (!Character->IsLocallyControlled() && GetNetMode() != NM_DedicatedServer && Movement->IsMovingOnGround() && !Movement->IsCrouching() && Speed > 150.f)
+	{
+		StepDistance += Speed * 0.05f;
+		const float Stride = MoveAnim == 1 ? 200.f : 155.f;
+		if (StepDistance >= Stride)
+		{
+			StepDistance = 0.f;
+			static USoundAttenuation* Steps = []()
+			{
+				USoundAttenuation* Attenuation = NewObject<USoundAttenuation>(GetTransientPackage(), TEXT("DHFootstepAttenuation"));
+				Attenuation->AddToRoot();
+				Attenuation->Attenuation.bAttenuate = true;
+				Attenuation->Attenuation.bSpatialize = true;
+				Attenuation->Attenuation.AttenuationShapeExtents = FVector(300.f);
+				Attenuation->Attenuation.FalloffDistance = 3200.f;
+				Attenuation->Attenuation.DistanceAlgorithm = EAttenuationDistanceModel::NaturalSound;
+				Attenuation->Attenuation.bAttenuateWithLPF = true;
+				Attenuation->Attenuation.LPFRadiusMin = 800.f;
+				Attenuation->Attenuation.LPFRadiusMax = 3200.f;
+				Attenuation->Attenuation.bEnableOcclusion = true;
+				Attenuation->Attenuation.OcclusionLowPassFilterFrequency = 900.f;
+				Attenuation->Attenuation.OcclusionVolumeAttenuation = 0.5f;
+				return Attenuation;
+			}();
+			if (USoundBase* Step = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/MetaSounds/sfx_Character_FS_Concrete_nl_meta.sfx_Character_FS_Concrete_nl_meta")))
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, Step, Character->GetActorLocation() - FVector(0.f, 0.f, 85.f), FRotator::ZeroRotator,
+					MoveAnim == 1 ? 1.4f : 1.f, FMath::FRandRange(0.95f, 1.05f), 0.f, Steps);
+			}
+		}
+	}
 }
 
 void UDHPlayerRulesComponent::UpdateMoveSpeed()
@@ -291,6 +394,7 @@ void UDHPlayerRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	GetWorld()->GetTimerManager().ClearTimer(RetryTimer);
 	GetWorld()->GetTimerManager().ClearTimer(HunterTimer);
 	GetWorld()->GetTimerManager().ClearTimer(SprintTimer);
+	GetWorld()->GetTimerManager().ClearTimer(MoveAnimTimer);
 	if (FireSource.IsValid())
 	{
 		FireSource->AbilityActivatedCallbacks.Remove(FireHandle);
@@ -588,6 +692,7 @@ void UDHPlayerRulesComponent::TrySlide()
 	if (Choices && DHMovement::CanSlide(Character))
 	{
 		SetSprintingLocal(false);
+		SlideStartedAt = GetWorld()->GetTimeSeconds();
 		DHMovement::Slide(Character);
 		Choices->ServerSlide();
 	}
@@ -682,6 +787,14 @@ void UDHPlayerRulesComponent::CheckSprint()
 void UDHPlayerRulesComponent::TryWallJump()
 {
 	ACharacter* Character = GetPawn<ACharacter>();
+	// Jump out of a slide (Lyra does not jump while crouched): stand up and jump with the slide's speed.
+	if (Character && Character->bIsCrouched && GetWorld()->GetTimeSeconds() - SlideStartedAt < DHMovement::SlideSeconds)
+	{
+		SlideStartedAt = -100.0;
+		Character->UnCrouch();
+		Character->Jump();
+		return;
+	}
 	UDHPlayerChoicesComponent* Choices = Character && Character->GetController() ? Character->GetController()->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
 	const double Now = GetWorld()->GetTimeSeconds();
 	const FVector WallNormal = Choices && Now - LastWallJump > DHMovement::WallJumpCooldown ? DHMovement::FindWall(Character) : FVector::ZeroVector;
@@ -711,25 +824,38 @@ void UDHPlayerRulesComponent::HandleAbilityActivated(UGameplayAbility* Ability)
 	}
 }
 
-void UDHPlayerRulesComponent::RemoveLyraDash()
+void UDHPlayerRulesComponent::PrepareLyraDash()
 {
-	// Lyra's hero ability set brings its dash with every pawn; the dash is a loadout ability here (DHAbilities).
+	// Lyra's dash (directional root-motion montage, trail effect, sound; predicted and replicated) is the loadout's
+	// Dash: UDHPlayerChoicesComponent::UseAbility activates it. Its own input tag goes, so Lyra's dash button (now the
+	// first ability, whatever it is) does not fire it, and its old cooldown widget goes, our HUD shows the abilities.
 	UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPawn<APawn>());
 	if (!ASC)
 	{
 		return;
 	}
-	TArray<FGameplayAbilitySpecHandle> Dashes;
-	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+	static const FGameplayTag InputTag = FGameplayTag::RequestGameplayTag(TEXT("InputTag.Ability.Dash"));
+	for (FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
 	{
-		if (Spec.Ability && Spec.Ability->GetClass()->GetName().Contains(TEXT("Dash")))
+		if (!Spec.Ability || !Spec.Ability->GetClass()->GetName().Contains(TEXT("Dash")))
 		{
-			Dashes.Add(Spec.Handle);
+			continue;
 		}
-	}
-	for (const FGameplayAbilitySpecHandle& Handle : Dashes)
-	{
-		ASC->ClearAbility(Handle);
+		if (ASC->IsOwnerActorAuthoritative() && Spec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
+		{
+			Spec.GetDynamicSpecSourceTags().RemoveTag(InputTag);
+			ASC->MarkAbilitySpecDirty(Spec);
+		}
+		UGameplayAbility* Instance = Spec.GetPrimaryInstance();
+		FArrayProperty* Handles = Instance && GetPawn<APawn>()->IsLocallyControlled() ? FindFProperty<FArrayProperty>(Instance->GetClass(), TEXT("WidgetExtensionHandles")) : nullptr;
+		if (Handles && Handles->Inner->IsA<FStructProperty>() && CastField<FStructProperty>(Handles->Inner)->Struct == FUIExtensionHandle::StaticStruct())
+		{
+			FScriptArrayHelper Array(Handles, Handles->ContainerPtrToValuePtr<void>(Instance));
+			for (int32 Index = 0; Index < Array.Num(); ++Index)
+			{
+				reinterpret_cast<FUIExtensionHandle*>(Array.GetRawPtr(Index))->Unregister();
+			}
+		}
 	}
 }
 

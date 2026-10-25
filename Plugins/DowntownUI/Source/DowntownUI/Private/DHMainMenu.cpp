@@ -343,7 +343,8 @@ void UDHMainMenu::SilenceLyraMusic()
 	// Lyra's front end plays its ambient MetaSound music (mx_*) from a music manager component; ours replaces it.
 	for (TObjectIterator<UAudioComponent> It; It; ++It)
 	{
-		if (It->GetWorld() == GetWorld() && *It != Music && It->Sound && It->Sound->GetName().StartsWith(TEXT("mx_")) && It->IsPlaying())
+		// (its audio component belongs to the game instance, not to this world)
+		if (*It != Music && !It->IsTemplate() && It->Sound && It->Sound->GetName().StartsWith(TEXT("mx_")) && It->IsPlaying())
 		{
 			It->Stop();
 		}

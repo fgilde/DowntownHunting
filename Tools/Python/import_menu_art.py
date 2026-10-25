@@ -1,8 +1,8 @@
 """Imports the menu art and sound (all cooked via DirectoriesToAlwaysCook /Game/DH/UI):
 - Tools/Branding/Splash/*.png -> /Game/DH/UI/Splash (character select splash art)
 - Tools/Branding/MenuArt/T_DH_Art_*.png -> /Game/DH/UI/MenuArt (main menu showcase), T_DH_Ability_*.png -> /Game/DH/UI/Abilities
-- Tools/Branding/Voices/*.wav -> /Game/DH/UI/Voices (character voice lines)
-- Tools/Branding/Music/*.wav -> /Game/DH/UI/Music (menu music: looping, sound class Music so the music volume applies)
+- Tools/Branding/Voices/*.wav -> /Game/DH/UI/Voices (character voice lines), Announcer/DH_Ann_*.wav -> /Game/DH/UI/Announcer
+- Tools/Branding/Music/*.wav -> /Game/DH/UI/Music (menu and match music, sound class Music so the music volume applies)
 Editor closed: UnrealEditor-Cmd.exe DowntownHunting.uproject -run=pythonscript -script="<repo>/Tools/Python/import_menu_art.py" -nullrhi"""
 from pathlib import Path
 import unreal as u
@@ -34,10 +34,12 @@ for texture in textures:
     texture.set_editor_property('lod_group', u.TextureGroup.TEXTUREGROUP_UI)
     texture.set_editor_property('mip_gen_settings', u.TextureMipGenSettings.TMGS_NO_MIPMAPS)
 sounds = import_files(sorted((branding / 'Voices').glob('*.wav')), '/Game/DH/UI/Voices')
+sounds += import_files(sorted((branding / 'Announcer').glob('DH_Ann_*.wav')), '/Game/DH/UI/Announcer')
 music = import_files(sorted((branding / 'Music').glob('*.wav')), '/Game/DH/UI/Music')
 music_class = u.load_asset('/Game/Audio/Classes/Music')
 for wave in music:
-    wave.set_editor_property('looping', True)
+    # menu tracks, warmup and last minute loop; the victory and defeat stings play once
+    wave.set_editor_property('looping', not any(s in wave.get_name() for s in ('Victory', 'Defeat')))
     wave.set_editor_property('sound_class_object', music_class)
 for asset in textures + sounds + music:
     u.EditorAssetLibrary.save_loaded_asset(asset, False)

@@ -5,6 +5,9 @@
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 #include "Sound/SoundAttenuation.h"
 #include "Sound/SoundBase.h"
 #include "TimerManager.h"
@@ -50,6 +53,28 @@ namespace
 	}
 }
 
+namespace
+{
+	struct FEffect
+	{
+		const TCHAR* System;
+		bool bAttach;    // follows the pawn
+		float Seconds;   // then switched off (some of Lyra's systems loop)
+		float Down;      // spawn this far below the pawn's centre (feet)
+	};
+
+	// Lyra's Niagara systems, reused for the abilities (seen by everyone).
+	const TMap<FName, FEffect>& Effects()
+	{
+		static const TMap<FName, FEffect> Map = {
+			{ TEXT("GameplayCue.DH.Ability.Leap"), { TEXT("/Game/Effects/Particles/Environmental/NS_JumpPad.NS_JumpPad"), false, 1.2f, 90.f } },
+			{ TEXT("GameplayCue.DH.Ability.Adrenaline"), { TEXT("/Game/Effects/Particles/Environmental/NS_ElectricMovement.NS_ElectricMovement"), true, 4.f, 0.f } },
+			{ TEXT("GameplayCue.DH.Ability.Recon"), { TEXT("/Game/Effects/Particles/Environmental/NS_CharacterSpawnIn.NS_CharacterSpawnIn"), true, 2.f, 90.f } },
+		};
+		return Map;
+	}
+}
+
 void UDHSoundCue::Play(APawn* Pawn, const TCHAR* Name)
 {
 	UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Pawn);
@@ -80,6 +105,18 @@ bool UDHSoundCue::OnExecute_Implementation(AActor* MyTarget, const FGameplayCueP
 		return false;
 	}
 	const FVector Location = Parameters.Location.IsZero() ? MyTarget->GetActorLocation() : FVector(Parameters.Location);
+	if (const FEffect* Effect = Effects().Find(Parameters.OriginalTag.GetTagName()))
+	{
+		UNiagaraSystem* System = LoadObject<UNiagaraSystem>(nullptr, Effect->System, nullptr, LOAD_NoWarn | LOAD_Quiet);
+		UNiagaraComponent* Spawned = !System ? nullptr : Effect->bAttach
+			? UNiagaraFunctionLibrary::SpawnSystemAttached(System, MyTarget->GetRootComponent(), NAME_None, FVector(0.f, 0.f, -Effect->Down), FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true)
+			: UNiagaraFunctionLibrary::SpawnSystemAtLocation(World, System, Location - FVector(0.f, 0.f, Effect->Down));
+		if (Spawned)
+		{
+			FTimerHandle Off;
+			World->GetTimerManager().SetTimer(Off, FTimerDelegate::CreateWeakLambda(Spawned, [Spawned]() { Spawned->DestroyComponent(); }), Effect->Seconds, false);
+		}
+	}
 	UE_LOG(LogTemp, Verbose, TEXT("DH sound cue %s at %s"), *Parameters.OriginalTag.ToString(), *Location.ToCompactString());
 	for (const FLayer& Layer : *Sounds)
 	{

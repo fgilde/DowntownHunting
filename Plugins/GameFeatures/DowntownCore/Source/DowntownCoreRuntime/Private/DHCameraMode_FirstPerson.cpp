@@ -11,6 +11,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Abilities/GameplayAbility.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DHCameraMode_FirstPerson)
 
@@ -75,7 +77,11 @@ void UDHCameraMode_FirstPerson::UpdateView(float DeltaTime)
 	}
 
 	UpdateWeaponState(*Character, DeltaTime);
-	View.FieldOfView = FMath::Lerp(FieldOfView, CurrentView.ADSFieldOfView > 0.f ? CurrentView.ADSFieldOfView : ADSFieldOfView, ADSAlpha);
+	UpdateMoveState(*Character, DeltaTime);
+	View.FieldOfView = FMath::Lerp(FieldOfView, CurrentView.ADSFieldOfView > 0.f ? CurrentView.ADSFieldOfView : ADSFieldOfView, ADSAlpha)
+		+ SlideFieldOfView * SlideAlpha + SprintFieldOfView * SprintAlpha;
+	// Sliding leans the whole view a little.
+	View.Rotation.Roll += SlideRoll * SlideAlpha;
 	SetFirstPersonRendering(true);
 
 	UMeshComponent* Weapon = WeaponCopy.Get();
@@ -100,13 +106,21 @@ void UDHCameraMode_FirstPerson::UpdateView(float DeltaTime)
 	// Weapon switch: tilted down and to the side below the view, swinging up with a little overshoot.
 	Raise = FMath::FInterpConstantTo(Raise, 1.f, DeltaTime, 1.f / RaiseTime);
 	const float Lowered = 1.f - FMath::InterpEaseOut(0.f, 1.f, Raise, 3.f) - 0.12f * FMath::Sin(Raise * PI);
-	const FQuat Tilt = FQuat(ViewQuat.GetRightVector(), FMath::DegreesToRadians(RaisePitch * Lowered))
-		* FQuat(ViewQuat.GetForwardVector(), FMath::DegreesToRadians(-RaiseRoll * Lowered));
+	// Sprint: weapon tipped down and to the side, bobbing with the stride. Reload: rolled over, a knock when the
+	// magazine goes in.
+	const float Bob = FMath::Sin(MoveTime * 11.f);
+	const float Knock = ReloadAlpha * FMath::Max(0.f, FMath::Sin(ReloadTime * 5.f)) * 0.4f;
+	const float Pitch = RaisePitch * Lowered + SprintPitch * SprintAlpha + 3.f * Bob * SprintAlpha - ReloadPitch * ReloadAlpha + 8.f * Knock;
+	const float Roll = RaiseRoll * Lowered + SprintRoll * SprintAlpha + ReloadRoll * ReloadAlpha;
+	const FQuat Tilt = FQuat(ViewQuat.GetRightVector(), FMath::DegreesToRadians(Pitch))
+		* FQuat(ViewQuat.GetForwardVector(), FMath::DegreesToRadians(-Roll));
 	const FQuat BodyQuat = Tilt * Kick * Correction * Facing;
 
 	FVector Offset = FMath::Lerp(CurrentView.HipOffset, CurrentView.ADSOffset, ADSAlpha);
 	Offset.X -= RecoilBack * Recoil;
-	Offset.Z -= RaiseDrop * Lowered;
+	Offset.Z -= RaiseDrop * Lowered + 7.f * SprintAlpha + 6.f * ReloadAlpha + 2.f * FMath::Abs(Bob) * SprintAlpha;
+	Offset.X -= 5.f * SprintAlpha;
+	Offset.Y += 3.f * FMath::Cos(MoveTime * 5.5f) * SprintAlpha;
 	const FVector Target = View.Location + ViewQuat.RotateVector(Offset);
 	Body->SetWorldLocationAndRotation(Target - BodyQuat.RotateVector(Grip * Body->GetComponentScale()), BodyQuat);
 	ShowOnlyArms();
@@ -162,6 +176,34 @@ void UDHCameraMode_FirstPerson::UpdateWeaponState(const ACharacter& Character, f
 		}
 		LastTimeSinceInteracted = TimeSince;
 	}
+}
+
+void UDHCameraMode_FirstPerson::UpdateMoveState(const ACharacter& Character, float DeltaTime)
+{
+	const UCharacterMovementComponent* Movement = Character.GetCharacterMovement();
+	const float Speed = Character.GetVelocity().Size2D();
+	const float Walk = Movement ? CastChecked<UCharacterMovementComponent>(Movement->GetArchetype())->MaxWalkSpeed : 600.f;
+	const bool bGround = Movement && Movement->IsMovingOnGround();
+	const bool bSprint = bGround && !Movement->IsCrouching() && Speed > Walk * 1.18f && ADSAlpha < 0.1f;
+	const bool bSlide = bGround && Movement->IsCrouching() && Speed > 450.f;
+	SprintAlpha = FMath::FInterpTo(SprintAlpha, bSprint ? 1.f : 0.f, DeltaTime, 9.f);
+	SlideAlpha = FMath::FInterpTo(SlideAlpha, bSlide ? 1.f : 0.f, DeltaTime, 10.f);
+	MoveTime += DeltaTime * FMath::Max(1.f, Speed / Walk);
+
+	// Lyra's reload abilities (GA_Weapon_Reload_*) run while the magazine is changed.
+	bool bReload = false;
+	const UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(&Character);
+	for (const FGameplayAbilitySpec& Spec : ASC ? ASC->GetActivatableAbilities() : TArray<FGameplayAbilitySpec>())
+	{
+		const FString Name = Spec.Ability ? Spec.Ability->GetClass()->GetName() : FString();
+		if (Spec.IsActive() && Name.Contains(TEXT("Reload")) && !Name.Contains(TEXT("AutoReload")))
+		{
+			bReload = true;
+			break;
+		}
+	}
+	ReloadTime = bReload ? ReloadTime + DeltaTime : 0.f;
+	ReloadAlpha = FMath::FInterpTo(ReloadAlpha, bReload ? 1.f : 0.f, DeltaTime, 8.f);
 }
 
 void UDHCameraMode_FirstPerson::SetFirstPersonRendering(bool bEnabled) const

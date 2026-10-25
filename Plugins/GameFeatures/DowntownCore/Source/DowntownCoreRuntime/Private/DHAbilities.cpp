@@ -1,6 +1,11 @@
 #include "DHAbilities.h"
 
 #include "AIController.h"
+#include "Components/MeshComponent.h"
+#include "Materials/MaterialInterface.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
+#include "Teams/LyraTeamSubsystem.h"
 #include "Components/PrimitiveComponent.h"
 #include "DHKillstreaks.h"
 #include "Engine/World.h"
@@ -78,48 +83,109 @@ namespace DHAbilities
 		return DHKillstreaks::IsActive(Player, CloakTag());
 	}
 
-	void UpdateCloak(APawn* Pawn, TArray<TWeakObjectPtr<UPrimitiveComponent>>& Hidden, bool& bHiddenFromBots)
+	void UpdateCloak(APawn* Pawn, FDHCloakState& State)
 	{
 		const bool bCloaked = Pawn && IsCloaked(Pawn->GetPlayerState());
-		const bool bHide = bCloaked && !Pawn->IsLocallyControlled();
-		if (bHide)
+		UWorld* World = Pawn ? Pawn->GetWorld() : nullptr;
+		if (World && bCloaked != State.bWasCloaked && World->GetNetMode() != NM_DedicatedServer)
 		{
-			// Again each time: weapons equipped meanwhile are new actors.
-			TArray<AActor*> Actors;
+			// Where it vanishes or shows up again: Lyra's portal dissolve.
+			if (UNiagaraSystem* Dissolve = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/Effects/Particles/Environmental/NS_CharacterPortalDissolve.NS_CharacterPortalDissolve"), nullptr, LOAD_NoWarn | LOAD_Quiet))
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(World, Dissolve, Pawn->GetActorLocation());
+			}
+		}
+		State.bWasCloaked = bCloaked;
+
+		// The local viewer's relation decides: enemies see nothing, the owner and the team a shimmer.
+		const APlayerController* Viewer = World ? World->GetFirstPlayerController() : nullptr;
+		const ULyraTeamSubsystem* Teams = World ? World->GetSubsystem<ULyraTeamSubsystem>() : nullptr;
+		const bool bFriendly = Pawn && (Pawn->IsLocallyControlled()
+			|| (Viewer && Teams && Teams->CompareTeams(Pawn, Viewer) == ELyraTeamComparison::OnSameTeam));
+		const bool bHide = bCloaked && !bFriendly;
+		const bool bShimmer = bCloaked && bFriendly;
+
+		TArray<AActor*> Actors;
+		if (bCloaked && Pawn)
+		{
+			// Again each time: weapons and first-person copies made meanwhile are new.
 			Pawn->GetAttachedActors(Actors, /*bResetArray=*/ true, /*bRecursivelyIncludeAttachedActors=*/ true);
 			Actors.Add(Pawn);
+		}
+		if (bHide)
+		{
 			for (AActor* Actor : Actors)
 			{
-				Actor->ForEachComponent<UPrimitiveComponent>(false, [&Hidden](UPrimitiveComponent* Primitive)
+				Actor->ForEachComponent<UPrimitiveComponent>(false, [&State](UPrimitiveComponent* Primitive)
 				{
 					if (Primitive->IsVisible() && !Primitive->bHiddenInGame)
 					{
 						Primitive->SetHiddenInGame(true);
-						Hidden.Add(Primitive);
+						State.Hidden.Add(Primitive);
 					}
 				});
 			}
 		}
-		else if (!bHide && !Hidden.IsEmpty())
+		else if (!State.Hidden.IsEmpty())
 		{
-			for (const TWeakObjectPtr<UPrimitiveComponent>& Primitive : Hidden)
+			for (const TWeakObjectPtr<UPrimitiveComponent>& Primitive : State.Hidden)
 			{
 				if (Primitive.IsValid())
 				{
 					Primitive->SetHiddenInGame(false);
 				}
 			}
-			Hidden.Reset();
+			State.Hidden.Reset();
+		}
+
+		UMaterialInterface* Shimmer = bShimmer ? LoadObject<UMaterialInterface>(nullptr, TEXT("/DowntownCore/Effects/M_DH_Cloak.M_DH_Cloak")) : nullptr;
+		if (Shimmer)
+		{
+			for (AActor* Actor : Actors)
+			{
+				Actor->ForEachComponent<UMeshComponent>(false, [&State, Shimmer](UMeshComponent* Mesh)
+				{
+					if (State.Swapped.Contains(Mesh) || Mesh->GetNumMaterials() == 0)
+					{
+						return;
+					}
+					// Hair (grooms) has no material slots to swap: it goes for the time being.
+					TArray<UMaterialInterface*>& Originals = State.Swapped.Add(Mesh);
+					for (int32 Index = 0; Index < Mesh->GetNumMaterials(); ++Index)
+					{
+						Originals.Add(Mesh->GetMaterial(Index));
+						Mesh->SetMaterial(Index, Shimmer);
+					}
+				});
+				Actor->ForEachComponent<UPrimitiveComponent>(false, [&State](UPrimitiveComponent* Primitive)
+				{
+					if (Primitive->GetClass()->GetFName() == TEXT("GroomComponent") && Primitive->IsVisible() && !Primitive->bHiddenInGame)
+					{
+						Primitive->SetHiddenInGame(true);
+						State.Hidden.Add(Primitive);
+					}
+				});
+			}
+		}
+		else if (!State.Swapped.IsEmpty())
+		{
+			for (const TPair<TWeakObjectPtr<UMeshComponent>, TArray<UMaterialInterface*>>& Entry : State.Swapped)
+			{
+				for (int32 Index = 0; Entry.Key.IsValid() && Index < Entry.Value.Num(); ++Index)
+				{
+					Entry.Key->SetMaterial(Index, Entry.Value[Index]);
+				}
+			}
+			State.Swapped.Reset();
 		}
 
 		// Bots: out of their sight and memory while cloaked (they see through AI perception).
-		UWorld* World = Pawn ? Pawn->GetWorld() : nullptr;
 		UAIPerceptionSystem* Perception = World && Pawn->HasAuthority() ? UAIPerceptionSystem::GetCurrent(World) : nullptr;
-		if (!Perception || bCloaked == bHiddenFromBots)
+		if (!Perception || bCloaked == State.bHiddenFromBots)
 		{
 			return;
 		}
-		bHiddenFromBots = bCloaked;
+		State.bHiddenFromBots = bCloaked;
 		if (bCloaked)
 		{
 			Perception->UnregisterSource(*Pawn, UAISense_Sight::StaticClass());

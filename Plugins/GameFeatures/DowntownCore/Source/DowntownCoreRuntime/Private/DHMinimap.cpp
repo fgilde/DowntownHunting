@@ -11,6 +11,7 @@
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "DHBombSite.h"
+#include "Engine/BlockingVolume.h"
 #include "DHFlag.h"
 #include "DHFreeForAllScoring.h"
 #include "DHKillstreaks.h"
@@ -190,13 +191,42 @@ void UDHMinimap::Capture()
 	{
 		return;
 	}
+	// The edge of the play area: invisible walls are blocking volumes. Their outline orange; what lies behind them (seen
+	// from the middle of the map) dark and reddish, so the map shows where you can go.
+	TArray<FBox> Walls;
+	for (TActorIterator<ABlockingVolume> It(World); It; ++It)
+	{
+		Walls.Add(It->GetComponentsBoundingBox(true));
+	}
+	auto ToWorld = [this](int32 X, int32 Y)
+	{
+		const float U = (X + 0.5f) / Resolution, V = (Y + 0.5f) / Resolution;
+		return FVector(Centre.X - (V - 0.5f) * Extent, Centre.Y + (U - 0.5f) * Extent, 0.f);
+	};
 	MapTexture = UTexture2D::CreateTransient(Resolution, Resolution, PF_B8G8R8A8);
 	FColor* Destination = static_cast<FColor*>(MapTexture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
 	for (int32 Index = 0; Index < Pixels.Num(); ++Index)
 	{
 		// base colours are dark: brighten for the small map
 		const FColor& Pixel = Pixels[Index];
-		Destination[Index] = FColor(uint8(FMath::Min(255, Pixel.R * 2 + 12)), uint8(FMath::Min(255, Pixel.G * 2 + 12)), uint8(FMath::Min(255, Pixel.B * 2 + 12)), 255);
+		FLinearColor Colour(FMath::Min(255, Pixel.R * 2 + 12) / 255.f, FMath::Min(255, Pixel.G * 2 + 12) / 255.f, FMath::Min(255, Pixel.B * 2 + 12) / 255.f);
+		const FVector Point = ToWorld(Index % Resolution, Index / Resolution);
+		bool bWall = false, bOutside = false;
+		for (const FBox& Wall : Walls)
+		{
+			const FBox Flat(FVector(Wall.Min.X, Wall.Min.Y, -1.f), FVector(Wall.Max.X, Wall.Max.Y, 1.f));
+			bWall |= Flat.ExpandBy(FVector(Extent / Resolution * 1.5f, Extent / Resolution * 1.5f, 0.f)).IsInside(Point);
+			bOutside |= FMath::LineBoxIntersection(Flat, FVector(Centre, 0.f), Point, Point - FVector(Centre, 0.f));
+		}
+		if (bWall)
+		{
+			Colour = FLinearColor(1.f, 0.45f, 0.05f);
+		}
+		else if (bOutside)
+		{
+			Colour = FLinearColor(0.18f + Colour.R * 0.25f, Colour.G * 0.15f, Colour.B * 0.15f);
+		}
+		Destination[Index] = Colour.ToFColor(false);
 	}
 	MapTexture->GetPlatformData()->Mips[0].BulkData.Unlock();
 	MapTexture->UpdateResource();

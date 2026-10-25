@@ -369,13 +369,16 @@ bool ULyraTeamSubsystem::CanCauseDamage(const UObject* Instigator, const UObject
 	return false;
 }
 
+TFunction<ULyraTeamDisplayAsset*(const ULyraTeamSubsystem&, int32, ULyraTeamDisplayAsset*)> ULyraTeamSubsystem::DisplayAssetPerspective;
+
 ULyraTeamDisplayAsset* ULyraTeamSubsystem::GetTeamDisplayAsset(int32 TeamId, int32 ViewerTeamId)
 {
 	// Currently ignoring ViewerTeamId
 
 	if (FLyraTeamTrackingInfo* Entry = TeamMap.Find(TeamId))
 	{
-		return Entry->DisplayAsset;
+		ULyraTeamDisplayAsset* Asset = Entry->DisplayAsset;
+		return DisplayAssetPerspective ? DisplayAssetPerspective(*this, TeamId, Asset) : Asset;
 	}
 
 	return nullptr;
@@ -394,7 +397,7 @@ void ULyraTeamSubsystem::NotifyTeamDisplayAssetModified(ULyraTeamDisplayAsset* /
 		const int32 TeamId = KVP.Key;
 		const FLyraTeamTrackingInfo& TrackingInfo = KVP.Value;
 
-		TrackingInfo.OnTeamDisplayAssetChanged.Broadcast(TrackingInfo.DisplayAsset);
+		TrackingInfo.OnTeamDisplayAssetChanged.Broadcast(GetTeamDisplayAsset(TeamId, INDEX_NONE));
 	}
 }
 

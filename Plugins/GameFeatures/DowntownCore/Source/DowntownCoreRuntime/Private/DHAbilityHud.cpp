@@ -11,7 +11,12 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "DHAbilities.h"
 #include "DHControllerScreen.h"
+#include "DHKillstreaks.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerState.h"
 #include "DHLoadoutSettings.h"
 #include "DHPlayerChoicesComponent.h"
 #include "DHProgression.h"
@@ -37,6 +42,25 @@ namespace
 		return LoadObject<UTexture2D>(nullptr, *FString::Printf(TEXT("/Game/DH/UI/Abilities/T_DH_Ability_%s.T_DH_Ability_%s"), *Id, *Id));
 	}
 
+	/** White texture with an alpha mask from a function of the pixel's position (-1..1, centre 0). */
+	template <typename TAlpha>
+	UTexture2D* MakeMask(int32 Size, TAlpha Alpha)
+	{
+		UTexture2D* Texture = UTexture2D::CreateTransient(Size, Size, PF_B8G8R8A8);
+		FColor* Pixels = static_cast<FColor*>(Texture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
+		for (int32 Y = 0; Y < Size; ++Y)
+		{
+			for (int32 X = 0; X < Size; ++X)
+			{
+				const float A = FMath::Clamp(Alpha(2.f * (X + 0.5f) / Size - 1.f, 2.f * (Y + 0.5f) / Size - 1.f), 0.f, 1.f);
+				Pixels[Y * Size + X] = FColor(255, 255, 255, uint8(255.f * A));
+			}
+		}
+		Texture->GetPlatformData()->Mips[0].BulkData.Unlock();
+		Texture->UpdateResource();
+		return Texture;
+	}
+
 	UTextBlock* OutlinedText(UWidgetTree* Tree, const TCHAR* Font, int32 Size, const FLinearColor& Colour)
 	{
 		UTextBlock* Text = DHScreenStyle::MakeText(Tree, Font, Size, Colour);
@@ -51,9 +75,37 @@ namespace
 void UDHAbilityHud::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+	// Covers the whole screen (effects): it must never take clicks or focus from the menus above the HUD.
+	SetVisibility(ESlateVisibility::HitTestInvisible);
 
 	UOverlay* Root = WidgetTree->ConstructWidget<UOverlay>();
 	WidgetTree->RootWidget = Root;
+
+	// Screen effects under the tiles.
+	auto FullScreen = [this, Root](UTexture2D* Texture)
+	{
+		KeepAlive.Add(Texture);
+		UImage* Image = WidgetTree->ConstructWidget<UImage>();
+		Image->SetBrushFromTexture(Texture);
+		Image->SetRenderOpacity(0.f);
+		Image->SetRenderTransformPivot(FVector2D(0.5f, 0.5f));
+		UOverlaySlot* ImageSlot = Root->AddChildToOverlay(Image);
+		ImageSlot->SetHorizontalAlignment(HAlign_Fill);
+		ImageSlot->SetVerticalAlignment(VAlign_Fill);
+		return Image;
+	};
+	Vignette = FullScreen(MakeMask(256, [](float X, float Y) { return FMath::SmoothStep(0.55f, 1.25f, FVector2f(X, Y).Size()); }));
+	SpeedLines = FullScreen(MakeMask(512, [](float X, float Y)
+	{
+		// thin streaks pointing at the centre, only near the edges, at uneven angles
+		const float Angle = FMath::Atan2(Y, X) / (2.f * PI) + 0.5f;
+		const int32 Ray = FMath::FloorToInt(Angle * 90.f);
+		const float Within = FMath::Frac(Angle * 90.f);
+		const float Width = 0.12f + 0.25f * FMath::Frac(FMath::Sin(Ray * 12.9898f) * 43758.5453f);
+		const bool bLine = FMath::Frac(FMath::Sin(Ray * 78.233f) * 12345.678f) > 0.45f && Within < Width;
+		return bLine ? FMath::SmoothStep(0.62f, 1.1f, FVector2f(X, Y).Size()) : 0.f;
+	}));
+	Sonar = FullScreen(MakeMask(256, [](float X, float Y) { return FMath::Max(0.f, 1.f - FMath::Abs(FVector2f(X, Y).Size() - 0.9f) * 18.f); }));
 	UHorizontalBox* Row = WidgetTree->ConstructWidget<UHorizontalBox>();
 	UOverlaySlot* RowSlot = Root->AddChildToOverlay(Row);
 	RowSlot->SetHorizontalAlignment(HAlign_Center);
@@ -139,6 +191,7 @@ void UDHAbilityHud::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	const APlayerController* PC = GetOwningPlayer();
+	UpdateScreenEffects(InDeltaTime);
 	const UDHPlayerChoicesComponent* Choices = PC ? PC->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
 	// The button names follow the device in use; looked up twice a second.
 	KeyRefresh -= InDeltaTime;
@@ -210,4 +263,55 @@ void UDHAbilityHud::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		Transform.Angle = -3.f * Item.Pop;
 		Item.Tile->SetRenderTransform(Transform);
 	}
+}
+
+void UDHAbilityHud::UpdateScreenEffects(float DeltaTime)
+{
+	EffectTime += DeltaTime;
+	const APawn* Pawn = GetOwningPlayerPawn();
+	const ACharacter* Character = Cast<ACharacter>(Pawn);
+	const APlayerState* Player = Pawn ? Pawn->GetPlayerState() : nullptr;
+	const bool bCloak = DHAbilities::IsCloaked(Player);
+	const bool bAdrenaline = DHAbilities::HasAdrenaline(Player);
+	const bool bRecon = DHKillstreaks::IsActive(Player, DHKillstreaks::RadarTag());
+
+	// Cloak: shimmering cyan frame. Adrenaline: red frame beating like a heart (about 140 bpm).
+	const float Beat = FMath::Pow(FMath::Max(0.f, FMath::Sin(EffectTime * 14.6f)), 6.f);
+	const float Shimmer = 0.5f + 0.5f * FMath::Sin(EffectTime * 6.f);
+	if (bCloak)
+	{
+		Vignette->SetColorAndOpacity(FLinearColor(0.1f, 0.85f, 1.f));
+		Vignette->SetRenderOpacity(0.45f + 0.2f * Shimmer);
+	}
+	else if (bAdrenaline)
+	{
+		Vignette->SetColorAndOpacity(FLinearColor(1.f, 0.08f, 0.05f));
+		Vignette->SetRenderOpacity(0.22f + 0.4f * Beat);
+	}
+	else
+	{
+		Vignette->SetRenderOpacity(FMath::FInterpTo(Vignette->GetRenderOpacity(), 0.f, DeltaTime, 6.f));
+	}
+
+	// Speed lines while sprinting (more with adrenaline), turning a little so they flicker.
+	const UCharacterMovementComponent* Movement = Character ? Character->GetCharacterMovement() : nullptr;
+	const float Walk = Movement ? CastChecked<UCharacterMovementComponent>(Movement->GetArchetype())->MaxWalkSpeed : 600.f;
+	const float Fast = Movement && Movement->IsMovingOnGround() ? FMath::GetMappedRangeValueClamped(FVector2f(Walk * 1.1f, Walk * 1.7f), FVector2f(0.f, 1.f), Character->GetVelocity().Size2D()) : 0.f;
+	Speed = FMath::FInterpTo(Speed, Fast, DeltaTime, 6.f);
+	SpeedLines->SetColorAndOpacity(bAdrenaline ? FLinearColor(1.f, 0.6f, 0.5f) : FLinearColor(1.f, 1.f, 1.f));
+	SpeedLines->SetRenderOpacity(0.5f * Speed);
+	SpeedLines->SetRenderTransformAngle(FMath::FRandRange(-1.5f, 1.5f));
+	SpeedLines->SetRenderScale(FVector2D(1.f + 0.04f * FMath::Sin(EffectTime * 30.f)));
+
+	// Recon: a ring rushes out from the middle, again every second while it runs.
+	if (bRecon && (!bWasRecon || SonarTime > 1.f))
+	{
+		SonarTime = 0.f;
+	}
+	bWasRecon = bRecon;
+	SonarTime += DeltaTime;
+	const float Ring = FMath::Clamp(SonarTime / 0.9f, 0.f, 1.f);
+	Sonar->SetColorAndOpacity(FLinearColor(0.2f, 1.f, 0.6f));
+	Sonar->SetRenderOpacity(SonarTime < 0.9f ? 0.8f * (1.f - Ring) : 0.f);
+	Sonar->SetRenderScale(FVector2D(0.1f + 1.4f * FMath::InterpEaseOut(0.f, 1.f, Ring, 2.f)));
 }

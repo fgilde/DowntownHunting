@@ -192,7 +192,23 @@ void UDHPlayerChoicesComponent::UseAbility(int32 Slot)
 	{
 		Direction = Character->GetVelocity();
 	}
-	DHAbilities::Push(Character, Abilities[Slot], Direction);
+	if (Abilities[Slot] == TEXT("Dash"))
+	{
+		// Lyra's dash ability (montage, trail, sound), predicted here and run on the server (UDHPlayerRulesComponent::PrepareLyraDash).
+		UAbilitySystemComponent* OwnASC = const_cast<UAbilitySystemComponent*>(ASC);
+		for (const FGameplayAbilitySpec& Spec : OwnASC ? OwnASC->GetActivatableAbilities() : TArray<FGameplayAbilitySpec>())
+		{
+			if (Spec.Ability && Spec.Ability->GetClass()->GetName().Contains(TEXT("Dash")))
+			{
+				OwnASC->TryActivateAbility(Spec.Handle);
+				break;
+			}
+		}
+	}
+	else
+	{
+		DHAbilities::Push(Character, Abilities[Slot], Direction);
+	}
 	if (Abilities[Slot] == TEXT("Adrenaline"))
 	{
 		LocalAdrenalineUntil = GetWorld()->GetTimeSeconds() + GetDuration(Slot);
@@ -212,12 +228,15 @@ void UDHPlayerChoicesComponent::ServerUseAbility_Implementation(uint8 Slot, FVec
 		return;
 	}
 	ServerReadyAt[Slot] = Now + GetCooldown(Slot);
-	if (!Character->IsLocallyControlled())
+	if (!Character->IsLocallyControlled() && Abilities[Slot] != TEXT("Dash"))
 	{
 		DHAbilities::Push(Character, Abilities[Slot], Direction);
 	}
 	DHAbilities::Start(Character, Abilities[Slot], GetDuration(Slot));
-	UDHSoundCue::Play(Character, *(TEXT("Ability.") + Abilities[Slot]));
+	if (Abilities[Slot] != TEXT("Dash"))  // Lyra's dash brings its own cue
+	{
+		UDHSoundCue::Play(Character, *(TEXT("Ability.") + Abilities[Slot]));
+	}
 	if (Abilities[Slot] == TEXT("Cloak") && ASC && AttackSource.Get() != ASC)
 	{
 		if (AttackSource.IsValid())

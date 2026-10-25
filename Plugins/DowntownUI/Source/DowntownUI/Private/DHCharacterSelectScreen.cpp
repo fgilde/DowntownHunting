@@ -255,7 +255,7 @@ void UDHCharacterSelectScreen::NativeTick(const FGeometry& MyGeometry, float InD
 		const FString Path = FString::Printf(TEXT("/Game/DH/UI/Voices/DH_Voice_%s.DH_Voice_%s"), *Name, *Name);
 		if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, *Path, nullptr, LOAD_NoWarn | LOAD_Quiet))
 		{
-			Voice = UGameplayStatics::SpawnSound2D(this, Sound);
+			Voice = UGameplayStatics::SpawnSound2D(this, Sound, 2.5f);  // well above the menu music
 		}
 	}
 }

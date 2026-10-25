@@ -10,6 +10,11 @@
 #include "DHPlayerRulesComponent.h"
 #include "DHWeaponAccess.h"
 #include "DHXP.h"
+#include "DHAmbience.h"
+#include "DHBoundaries.h"
+#include "DHAnnouncer.h"
+#include "EngineUtils.h"
+#include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
 #include "Messages/LyraVerbMessage.h"
@@ -78,11 +83,33 @@ void UDHGameRulesComponent::BeginPlay()
 		}
 	}
 
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		Announcer = NewObject<UDHAnnouncer>(this);
+		Announcer->Start(GetWorld());
+		Ambience = NewObject<UDHAmbience>(this);
+		Ambience->Start(GetWorld());
+		DHBoundaries::Show(GetWorld());
+		// Team colours depend on the local player's team (DowntownCoreRuntimeModule): repaint when it changes.
+		GetWorld()->GetTimerManager().SetTimer(ViewerTeamTimer, FTimerDelegate::CreateWeakLambda(this, [this]()
+		{
+			ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+			const APlayerController* Viewer = GetWorld()->GetFirstPlayerController();
+			const int32 Team = Teams && Viewer ? Teams->FindTeamFromObject(Viewer) : INDEX_NONE;
+			if (Teams && Team != ViewerTeam)
+			{
+				ViewerTeam = Team;
+				Teams->NotifyTeamDisplayAssetModified(nullptr);
+			}
+		}), 0.5f, true);
+	}
+
 	const AGameModeBase* GameMode = GetWorld()->GetAuthGameMode();
 	if (!GameMode)
 	{
 		return;
 	}
+	GetWorld()->GetTimerManager().SetTimer(WatchTimer, this, &ThisClass::WatchMatch, 0.5f, true);
 	const FString& Options = GameMode->OptionsString;
 
 	const FString PerspectiveOption = UGameplayStatics::ParseOption(Options, TEXT("Perspective"));
@@ -143,6 +170,16 @@ void UDHGameRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	DHXP::FResult Result;
 	DHXP::Award(GetWorld(), false, Result);
 	GetWorld()->GetTimerManager().ClearTimer(LimitsTimer);
+	GetWorld()->GetTimerManager().ClearTimer(WatchTimer);
+	GetWorld()->GetTimerManager().ClearTimer(ViewerTeamTimer);
+	if (Announcer)
+	{
+		Announcer->Stop();
+	}
+	if (Ambience)
+	{
+		Ambience->Stop();
+	}
 	if (EliminationListener.IsValid())
 	{
 		EliminationListener.Unregister();
@@ -193,6 +230,123 @@ void UDHGameRulesComponent::ApplyLimits()
 				Component->ProcessEvent(OnRep, nullptr);
 			}
 			bTimeLimitApplied = true;
+		}
+	}
+}
+
+void UDHGameRulesComponent::Announce(const UObject* WorldContextObject, FName Event, int32 Team, APlayerState* Subject)
+{
+	UDHGameRulesComponent* Rules = const_cast<UDHGameRulesComponent*>(Find(WorldContextObject));
+	if (Rules && Rules->GetOwner()->HasAuthority())
+	{
+		UE_LOG(LogDHRules, Log, TEXT("Announce %s (team %d, %s)"), *Event.ToString(), Team, *GetNameSafe(Subject));
+		Rules->MulticastAnnounce(Event, Team, Subject);
+	}
+}
+
+void UDHGameRulesComponent::MulticastAnnounce_Implementation(FName Event, int32 Team, APlayerState* Subject)
+{
+	if (Announcer)
+	{
+		Announcer->Hear(GetWorld(), Event, Team, Subject);
+	}
+}
+
+void UDHGameRulesComponent::WatchMatch()
+{
+	// The match as Lyra's scoring blueprints and DowntownCore's scorings run it, read twice a second: the clock (start of
+	// play, last minute, time up), the leading team, the owners of Lyra's control points.
+	double Clock = -1.0;
+	int32 TargetScore = 0;
+	for (UActorComponent* Component : GetOwner()->GetComponents())
+	{
+		if (const FNumericProperty* Property = FindFProperty<FNumericProperty>(Component->GetClass(), TEXT("CountDownTime")))
+		{
+			const void* Value = Property->ContainerPtrToValuePtr<void>(Component);
+			Clock = Property->IsFloatingPoint() ? Property->GetFloatingPointPropertyValue(Value) : Property->GetSignedIntPropertyValue(Value);
+		}
+		if (const FIntProperty* Property = FindFProperty<FIntProperty>(Component->GetClass(), TEXT("TargetScore")))
+		{
+			TargetScore = Property->GetPropertyValue_InContainer(Component);
+		}
+	}
+	const UDHFreeForAllScoring* Scoring = UDHFreeForAllScoring::Find(this);
+	if (Scoring)
+	{
+		Clock = Scoring->GetSecondsLeft();
+	}
+	// The clock jumps up when warmup gives way to the match.
+	if (!bMatchStarted && LastClock >= 0.0 && Clock > LastClock + 30.0)
+	{
+		bMatchStarted = true;
+		Announce(this, TEXT("MatchStart"));
+	}
+	if (bMatchStarted && !bOneMinuteSaid && LastClock > 60.0 && Clock <= 60.0 && Clock > 0.0)
+	{
+		bOneMinuteSaid = true;
+		Announce(this, TEXT("OneMinute"));
+	}
+
+	// Team scores (eliminations; DowntownCore's modes count their points there too).
+	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	static const FGameplayTag ScoreTag = FGameplayTag::RequestGameplayTag(TEXT("ShooterGame.Score.Eliminations"));
+	int32 Best = INDEX_NONE, BestScore = 0;
+	bool bTie = false;
+	for (const int32 Team : Teams ? Teams->GetTeamIDs() : TArray<int32>())
+	{
+		const int32 Score = Teams->GetTeamTagStackCount(Team, ScoreTag);
+		if (Score > BestScore)
+		{
+			Best = Team;
+			BestScore = Score;
+			bTie = false;
+		}
+		else if (Score == BestScore && Score > 0)
+		{
+			bTie = true;
+		}
+	}
+	if (bMatchStarted && !bTie && Best != INDEX_NONE && Best != Leader && !bMatchEndSaid)
+	{
+		Leader = Best;
+		Announce(this, TEXT("Lead"), Best);
+	}
+	// Match over: DowntownCore's scorings know the winner; Lyra's modes end at the target score or when time is up.
+	if (!bMatchEndSaid)
+	{
+		const bool bOver = Scoring ? Scoring->IsMatchOver()
+			: bMatchStarted && ((TargetScore > 0 && BestScore >= TargetScore) || (LastClock > 0.0 && Clock <= 0.0));
+		if (bOver)
+		{
+			bMatchEndSaid = true;
+			Announce(this, TEXT("MatchEnd"), Scoring ? Scoring->GetWinnerTeam() : bTie ? INDEX_NONE : Best);
+		}
+	}
+	LastClock = Clock;
+
+	// Lyra's control points (Domination): A, B, C in the order of their names.
+	TArray<AActor*> Points;
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		if (It->GetClass()->GetName().Contains(TEXT("ControlPointVolume")))
+		{
+			Points.Add(*It);
+		}
+	}
+	Points.Sort([](const AActor& A, const AActor& B) { return A.GetFName().LexicalLess(B.GetFName()); });
+	for (int32 Index = 0; Index < Points.Num() && Index < 3; ++Index)
+	{
+		const FIntProperty* Property = FindFProperty<FIntProperty>(Points[Index]->GetClass(), TEXT("OwnerTeamID"));
+		const int32 Owner = Property ? Property->GetPropertyValue_InContainer(Points[Index]) : INDEX_NONE;
+		int32& Known = PointOwners.FindOrAdd(Points[Index], Owner);
+		if (Owner != Known)
+		{
+			Known = Owner;
+			if (Owner >= 0)
+			{
+				const TCHAR* Letters[] = { TEXT("Capture_A"), TEXT("Capture_B"), TEXT("Capture_C") };
+				Announce(this, Letters[Index], Owner);
+			}
 		}
 	}
 }
@@ -300,6 +454,23 @@ void UDHGameRulesComponent::OnElimination(FGameplayTag Channel, const FLyraVerbM
 			{
 				Choices->ClientHitFeedback(true, bHeadshot);
 			}
+			// Announcer: first blood, kills in quick succession (within 4 s of each other), headshots.
+			const double Now = GetWorld()->GetTimeSeconds();
+			TPair<double, int32>& Recent = RecentKills.FindOrAdd(Killer, TPair<double, int32>(-100.0, 0));
+			Recent.Value = Now - Recent.Key < 4.0 ? Recent.Value + 1 : 1;
+			Recent.Key = Now;
+			if (++KillsInMatch == 1)
+			{
+				Announce(this, TEXT("FirstBlood"), INDEX_NONE, Killer);
+			}
+			else if (Recent.Value >= 2)
+			{
+				Announce(this, Recent.Value == 2 ? TEXT("DoubleKill") : Recent.Value == 3 ? TEXT("TripleKill") : TEXT("MultiKill"), INDEX_NONE, Killer);
+			}
+			else if (bHeadshot)
+			{
+				Announce(this, TEXT("Headshot"), INDEX_NONE, Killer);
+			}
 		}
 	}
 	if (GunGame.IsEmpty())
@@ -325,6 +496,10 @@ void UDHGameRulesComponent::OnElimination(FGameplayTag Channel, const FLyraVerbM
 		// After Lyra's scoring has counted this kill.
 		GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateWeakLambda(this, [this, Message]() { WinGunGame(Message); }));
 		return;
+	}
+	if (Level == GunGame.Num() - 1)
+	{
+		Announce(this, TEXT("FinalWeapon"), INDEX_NONE, Killer);
 	}
 	// Next tick: the kill shot's fire ability is still running on the old weapon.
 	TWeakObjectPtr<APlayerState> WeakKiller = Killer;

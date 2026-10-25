@@ -61,6 +61,12 @@ public:
 	/** Name (WeaponItems key) of a weapon item definition class, None if it is not one of them. */
 	FName GetWeaponName(const UClass* ItemClass) const;
 
+	/**
+	 * Server: the announcer says something on every client (UDHAnnouncer: events, and how each client words them from
+	 * its side). Team: the team the event is about; Subject: the player it is about (personal lines only they hear).
+	 */
+	static void Announce(const UObject* WorldContextObject, FName Event, int32 Team = INDEX_NONE, APlayerState* Subject = nullptr);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -82,8 +88,12 @@ protected:
 	TArray<FName> Loadout;
 	bool bPlayerLoadout = false;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastAnnounce(FName Event, int32 Team, APlayerState* Subject);
+
 private:
 	void ApplyLimits();
+	void WatchMatch();
 	void OnElimination(FGameplayTag Channel, const FLyraVerbMessage& Message);
 	void OnDamage(FGameplayTag Channel, const FLyraVerbMessage& Message);
 	void ShowKiller(APlayerState* Killer, APlayerState* Victim) const;
@@ -93,6 +103,26 @@ private:
 	int32 TimeLimit = 0;
 	bool bTimeLimitApplied = false;
 	FTimerHandle LimitsTimer;
+	FTimerHandle WatchTimer;
+	FTimerHandle ViewerTeamTimer;
+	int32 ViewerTeam = INDEX_NONE;
+
+	// Server: what WatchMatch saw last (clock, leading team, owners of Lyra's control points, match over).
+	double LastClock = -1.0;
+	bool bMatchStarted = false;
+	bool bOneMinuteSaid = false;
+	bool bMatchEndSaid = false;
+	int32 Leader = INDEX_NONE;
+	TMap<TWeakObjectPtr<AActor>, int32> PointOwners;
+	int32 KillsInMatch = 0;
+	TMap<TWeakObjectPtr<APlayerState>, TPair<double, int32>> RecentKills;  // last kill time, kills in quick succession
+
+	// Client: announcer and the city around (not on a dedicated server).
+	UPROPERTY(Transient)
+	TObjectPtr<class UDHAnnouncer> Announcer;
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UDHAmbience> Ambience;
 
 	UPROPERTY(Replicated)
 	TArray<FName> GunGame;
