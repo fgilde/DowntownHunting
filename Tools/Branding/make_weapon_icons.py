@@ -1,5 +1,6 @@
 """Weapon icons for the HUD/loadout (white silhouettes like Lyra's T_UI_Icon_RangedWeapons_*), from side-view captures
-in front of the sky (shot_i_<Name>.png): python make_weapon_icons.py <capture dir> <out dir>"""
+in front of the sky (shot_i_<Name>.png): python make_weapon_icons.py <capture dir> <out dir> [names]
+The sniper (wooden M700) was captured with the editor's actor label over it: only its warm colours count."""
 import sys
 
 from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageOps
@@ -34,7 +35,8 @@ def largest_component(mask):
 
 
 src, out = sys.argv[1], sys.argv[2]
-for name in ["AK47", "MP5", "M1911"]:
+WARM = {"Sniper"}
+for name in sys.argv[3:] or ["AK47", "MP5", "M1911"]:
     im = Image.open("%s/shot_i_%s.png" % (src, name)).convert("RGB")
     W, H = im.size
     im = im.crop((0, int(H * 0.08), W, int(H * 0.66)))
@@ -42,6 +44,11 @@ for name in ["AK47", "MP5", "M1911"]:
     # background = wide median of the sky (vertical and horizontal gradient); the weapon fills less than half of the window
     bg = im.resize((W // 8, H // 8)).filter(ImageFilter.MedianFilter(41)).resize((W, H), Image.BILINEAR)
     mask = ImageChops.difference(im, bg).convert("L").point(lambda v: 255 if v > 26 else 0)
+    if name in WARM:
+        # wood and blued steel: clearly more red than blue, and green well below red (the horizon glow is greyish)
+        warm = Image.new("L", im.size, 0)
+        warm.putdata([255 if r - b > 25 and g < r * 0.85 else 0 for r, g, b in im.getdata()])
+        mask = ImageChops.multiply(mask, warm)
     mask = mask.filter(ImageFilter.MaxFilter(11)).filter(ImageFilter.MinFilter(11)).filter(ImageFilter.MedianFilter(5))
     mask = largest_component(mask)
     # fill holes (shiny or sky-coloured spots inside the weapon): everything the outside flood fill does not reach

@@ -15,7 +15,22 @@ WEAPONS = {
     'AK47': ('/Game/Weapons/Classic/AK47/SKM_AK47', 'WPN_AK47_CLASSIC', (0, 71, 3.5), 15.0, 0.10, 30, 90, 'AK-47'),
     'MP5': ('/Game/Weapons/Classic/MP5/SKM_MP5', 'WPN_MP5', (0, 41, 6.5), 9.0, 0.075, 30, 120, 'MP5'),
     'M1911': ('/Game/Weapons/Classic/1911/SKM_1911', 'WPN_1911_CLASSIC', (0, 17.5, 4.5), None, None, 7, 35, 'M1911'),
+    # bolt action: one heavy shot (a headshot kills, two body hits), slow follow-up
+    'Sniper': ('/Game/Weapons/Classic/M700/SKM_M700', 'WPN_308SNIPER', (0, 73.7, 3.06), 80.0, 1.25, 5, 20, 'M700'),
 }
+def curve(*points):
+    return {'editorCurveData': {'keys': [{'interpMode': 'RCIM_Linear', 'time': t, 'value': v} for t, v in points]}, 'externalCurve': 'None'}
+
+
+# Weapon instance overrides (spread, range): the sniper hits the same at any distance, is wild from the hip and
+# nearly exact when aiming.
+INSTANCE = {
+    # Same key counts as the rifle's curves (MCP cannot resize and edit an array in one call).
+    'Sniper': {'DistanceDamageFalloff': curve((0, 1.0), (30000, 1.0), (60000, 1.0)), 'MaxDamageRange': 60000.0, 'SpreadExponent': 2.0,
+               'HeatToSpreadCurve': curve((0, 2.0), (4, 3.5), (8, 5.0), (12, 6.0)), 'SpreadAngleMultiplier_Aiming': 0.03},
+}
+# Only these (damage None scales the current value: running a weapon twice would scale it twice). Run e.g. with
+# Tools/Python/roof_map.Editor().script(text, ONLY=['Sniper']); without ONLY all weapons.
 
 
 def get(path, prop):
@@ -44,7 +59,12 @@ def cls(path):
 
 def run():
     out = {}
-    for name, (mesh, bone, muzzle, damage, delay, magazine, spare, display) in WEAPONS.items():
+    try:
+        names = ONLY
+    except NameError:
+        names = list(WEAPONS)
+    for name in names:
+        mesh, bone, muzzle, damage, delay, magazine, spare, display = WEAPONS[name]
         r = {}
 
         ge, ga = asset(name, 'GE_Damage_'), asset(name, 'GA_Weapon_Fire_')
@@ -66,6 +86,8 @@ def run():
         r['abilities'] = put('%s.%s' % (abilities, abilities.split('/')[-1]), {'GrantedGameplayAbilities': granted})
 
         wid, instance, actor = asset(name, 'WID_'), asset(name, 'B_WeaponInstance_'), ROOT + name + '/B_' + name
+        if name in INSTANCE:
+            r['instance'] = put(cdo(instance), INSTANCE[name])
         spawns = get(cdo(wid), 'ActorsToSpawn')
         for s in spawns:
             s['actorToSpawn'] = cls(actor)

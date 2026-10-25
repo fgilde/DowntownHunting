@@ -66,6 +66,7 @@ private:
 	void TryWallJump();
 	void ApplyAttachments();
 	void EnableHairSkinning();
+	bool HasScope() const;
 	bool IsFirstPerson() const;
 	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
 
@@ -88,6 +89,9 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UUserWidget> Minimap;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> ScopeOverlay;
 
 	// Last choice of the local player, kept across respawns in "Choice" modes.
 	static bool bPreferFirstPerson;

@@ -1,7 +1,7 @@
 """Extra Lyra weapons from Blacksite's CC0 meshes (/Game/Weapons/Classic, Classic Weapons Pack by Stein Games), step 1 of 2.
 Duplicates Lyra's rifle/pistol chain (ID, WID, weapon instance, ability set, fire ability, damage effect, weapon actor)
 into /DowntownCore/Weapons/<Name>, puts the new mesh into the weapon actor and adds a Muzzle socket to the mesh
-("refresh" argument: only mesh and socket, keeps the copies and step 2's wiring).
+("refresh" argument: only mesh and socket, keeps the copies and step 2's wiring; weapon names as arguments: only those).
 Step 2, Tools/Python/mcp_weapon_values.py, wires the copies and sets stats in the running editor: Python cannot edit
 most of these properties (EditDefaultsOnly, socket names), the editor's MCP tools can.
 Editor closed: UnrealEditor-Cmd.exe DowntownHunting.uproject -run=pythonscript -script="<repo>/Tools/Python/make_weapons.py" -nullrhi"""
@@ -13,7 +13,8 @@ ROOT = "/DowntownCore/Weapons"
 # name: base weapon, mesh, muzzle socket location (mesh space, barrel along +Y)
 WEAPONS = {"AK47": ("Rifle", "/Game/Weapons/Classic/AK47/SKM_AK47", (0, 71, 3.5)),
            "MP5": ("Rifle", "/Game/Weapons/Classic/MP5/SKM_MP5", (0, 41, 6.5)),
-           "M1911": ("Pistol", "/Game/Weapons/Classic/1911/SKM_1911", (0, 17.5, 4.5))}
+           "M1911": ("Pistol", "/Game/Weapons/Classic/1911/SKM_1911", (0, 17.5, 4.5)),
+           "Sniper": ("Rifle", "/Game/Weapons/Classic/M700/SKM_M700", (0, 73.7, 3.06))}  # M700 (import_classic_weapons.py)
 CHAIN = {"Rifle": ["B_Rifle", "GA_Weapon_Fire_Rifle_Auto", "AbilitySet_ShooterRifle", "B_WeaponInstance_Rifle", "WID_Rifle", "ID_Rifle"],
          "Pistol": ["B_Pistol", "GA_Weapon_Fire_Pistol", "AbilitySet_ShooterPistol", "B_WeaponInstance_Pistol", "WID_Pistol", "ID_Pistol"]}
 
@@ -34,8 +35,10 @@ def target_name(asset, base, name):
 
 
 REFRESH = "refresh" in sys.argv[1:]
+# Weapon names as arguments: only those (default all).
+ONLY = [a for a in sys.argv[1:] if a in WEAPONS] or list(WEAPONS)
 
-for name, (base, mesh_path, muzzle) in WEAPONS.items():
+for name, (base, mesh_path, muzzle) in ((n, WEAPONS[n]) for n in ONLY):
     src, dst = "/ShooterCore/Weapons/%s/" % base, "%s/%s/" % (ROOT, name)
     mesh = unreal.load_asset(mesh_path)
     # root bone of the pack's meshes is the parent of 'frame' (WPN_* -> frame, ANCHOR -> slide, magazine)

@@ -37,6 +37,14 @@ struct FDHFirstPersonWeaponView
 	// Off for one-handed weapons: the left arm vanishes with the torso (it would hang right in front of the view).
 	UPROPERTY(EditAnywhere, Category = "First Person")
 	bool bLeftArm = true;
+
+	// Field of view while aiming, 0 = the mode's ADSFieldOfView.
+	UPROPERTY(EditAnywhere, Category = "First Person")
+	float ADSFieldOfView = 0.f;
+
+	// Aiming looks through a scope (UDHScopeOverlay): arms and weapon are hidden once the view has zoomed in.
+	UPROPERTY(EditAnywhere, Category = "First Person")
+	bool bScope = false;
 };
 
 UCLASS(Blueprintable)

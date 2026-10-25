@@ -48,7 +48,7 @@ UDHGameRulesComponent::UDHGameRulesComponent(const FObjectInitializer& ObjectIni
 	WeaponItems.Add(TEXT("Pistol"), TSoftClassPtr<UObject>(FSoftObjectPath(TEXT("/ShooterCore/Weapons/Pistol/ID_Pistol.ID_Pistol_C"))));
 	WeaponItems.Add(TEXT("Rifle"), TSoftClassPtr<UObject>(FSoftObjectPath(TEXT("/ShooterCore/Weapons/Rifle/ID_Rifle.ID_Rifle_C"))));
 	WeaponItems.Add(TEXT("Shotgun"), TSoftClassPtr<UObject>(FSoftObjectPath(TEXT("/ShooterCore/Weapons/Shotgun/ID_Shotgun.ID_Shotgun_C"))));
-	for (const TCHAR* Name : { TEXT("AK47"), TEXT("MP5"), TEXT("M1911") })  // Tools/Python/make_weapons.py
+	for (const TCHAR* Name : { TEXT("AK47"), TEXT("MP5"), TEXT("M1911"), TEXT("Sniper") })  // Tools/Python/make_weapons.py
 	{
 		WeaponItems.Add(Name, TSoftClassPtr<UObject>(FSoftObjectPath(FString::Printf(TEXT("/DowntownCore/Weapons/%s/ID_%s.ID_%s_C"), Name, Name, Name))));
 	}
@@ -202,7 +202,7 @@ TArray<UClass*> UDHGameRulesComponent::GetLoadoutItems(const AController* Contro
 		Names = Choices ? Choices->GetLoadout() : TArray<FName>();
 		if (Names.IsEmpty())
 		{
-			static const FName Primaries[] = { TEXT("Rifle"), TEXT("Shotgun"), TEXT("AK47"), TEXT("MP5") };
+			static const FName Primaries[] = { TEXT("Rifle"), TEXT("Shotgun"), TEXT("AK47"), TEXT("MP5"), TEXT("Sniper") };
 			static const FName Secondaries[] = { TEXT("Pistol"), TEXT("M1911") };
 			Names = { Primaries[FMath::RandHelper(UE_ARRAY_COUNT(Primaries))], Secondaries[FMath::RandHelper(UE_ARRAY_COUNT(Secondaries))] };
 		}

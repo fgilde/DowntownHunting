@@ -24,6 +24,10 @@ UDHCameraMode_FirstPerson::UDHCameraMode_FirstPerson()
 	WeaponViews.Add(TEXT("Pistol"), { Pose(TEXT("Pistol/MM_Pistol_Idle_ADS.MM_Pistol_Idle_ADS")), FVector(58.0, 16.0, -24.0), FVector(58.0, 0.0, -15.0), /*bLeftArm=*/ false });
 	WeaponViews.Add(TEXT("M1911"), { Pose(TEXT("Pistol/MM_Pistol_Idle_ADS.MM_Pistol_Idle_ADS")), FVector(58.0, 16.0, -24.0), FVector(58.0, 0.0, -15.0), /*bLeftArm=*/ false });
 	WeaponViews.Add(TEXT("Shotgun"), { Pose(TEXT("Shotgun/MM_Shotgun_Idle_ADS.MM_Shotgun_Idle_ADS")), FVector(58.0, 18.0, -28.0), FVector(50.0, 0.0, -14.0) });
+	FDHFirstPersonWeaponView Sniper{ Pose(TEXT("Rifle/MM_Rifle_Idle_ADS.MM_Rifle_Idle_ADS")), FVector(58.0, 18.0, -28.0), FVector(52.0, 0.0, -18.0) };
+	Sniper.ADSFieldOfView = 14.f;
+	Sniper.bScope = true;
+	WeaponViews.Add(TEXT("Sniper"), Sniper);
 	DefaultView = { Pose(TEXT("Rifle/MM_Rifle_Idle_ADS.MM_Rifle_Idle_ADS")), FVector(58.0, 18.0, -28.0), FVector(52.0, 0.0, -18.0) };
 }
 
@@ -66,11 +70,11 @@ void UDHCameraMode_FirstPerson::UpdateView(float DeltaTime)
 	}
 
 	UpdateWeaponState(*Character, DeltaTime);
-	View.FieldOfView = FMath::Lerp(FieldOfView, ADSFieldOfView, ADSAlpha);
+	View.FieldOfView = FMath::Lerp(FieldOfView, CurrentView.ADSFieldOfView > 0.f ? CurrentView.ADSFieldOfView : ADSFieldOfView, ADSAlpha);
 	SetFirstPersonRendering(true);
 
 	UMeshComponent* Weapon = WeaponCopy.Get();
-	Body->SetVisibility(Weapon != nullptr, /*bPropagateToChildren=*/ true);
+	Body->SetVisibility(Weapon != nullptr && !(CurrentView.bScope && ADSAlpha > 0.8f), /*bPropagateToChildren=*/ true);
 	if (!Weapon)
 	{
 		return;

@@ -12,6 +12,7 @@
 #include "DHMinimap.h"
 #include "DHMovement.h"
 #include "DHPlayerChoicesComponent.h"
+#include "DHScopeOverlay.h"
 #include "DHWeaponAccess.h"
 #include "Components/SkinnedMeshComponent.h"
 #include "Curves/CurveFloat.h"
@@ -115,6 +116,27 @@ namespace
 		}
 	}
 
+	/** Quick bar slot holding an item of this definition, INDEX_NONE if none. */
+	int32 FindQuickBarSlot(UActorComponent* QuickBar, const UClass* ItemDef)
+	{
+		FArrayProperty* SlotsProperty = FindFProperty<FArrayProperty>(QuickBar->GetClass(), TEXT("Slots"));
+		const FObjectPropertyBase* SlotProperty = SlotsProperty ? CastField<FObjectPropertyBase>(SlotsProperty->Inner) : nullptr;
+		if (!SlotProperty)
+		{
+			return INDEX_NONE;
+		}
+		FScriptArrayHelper Slots(SlotsProperty, SlotsProperty->ContainerPtrToValuePtr<void>(QuickBar));
+		for (int32 Index = 0; Index < Slots.Num(); ++Index)
+		{
+			const ULyraInventoryItemInstance* Item = Cast<ULyraInventoryItemInstance>(SlotProperty->GetObjectPropertyValue(Slots.GetRawPtr(Index)));
+			if (Item && Item->GetItemDef().Get() == ItemDef)
+			{
+				return Index;
+			}
+		}
+		return INDEX_NONE;
+	}
+
 	void SetActiveQuickBarSlot(UActorComponent* QuickBar, int32 Index)
 	{
 		if (UFunction* SetActiveSlotIndex = QuickBar->FindFunction(TEXT("SetActiveSlotIndex")))
@@ -195,6 +217,11 @@ void UDHPlayerRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		Minimap->RemoveFromParent();
 		Minimap = nullptr;
 	}
+	if (ScopeOverlay)
+	{
+		ScopeOverlay->RemoveFromParent();
+		ScopeOverlay = nullptr;
+	}
 
 	const APawn* Pawn = GetPawn<APawn>();
 	const APlayerController* PC = Pawn ? Pawn->GetController<APlayerController>() : nullptr;
@@ -272,16 +299,18 @@ void UDHPlayerRulesComponent::GiveLoadout()
 			}
 		}
 	}
-	// The quick bar lives on the controller and may still count slot 0 as active from the previous pawn (Lyra's
-	// auto respawn resets it, round modes have none): switching away and back equips the weapon on this pawn.
+	// Start with the primary weapon (Lyra's starting pistol may sit in slot 0 before it). The quick bar lives on the
+	// controller and may still count that slot as active from the previous pawn (Lyra's auto respawn resets it, round
+	// modes have none): switching away and back equips the weapon on this pawn.
+	const int32 Primary = Items.IsEmpty() ? 0 : FMath::Max(0, FindQuickBarSlot(QuickBar, Items[0]));
 	if (const FIntProperty* Active = FindFProperty<FIntProperty>(QuickBar->GetClass(), TEXT("ActiveSlotIndex")))
 	{
-		if (Active->GetPropertyValue_InContainer(QuickBar) == 0)
+		if (Active->GetPropertyValue_InContainer(QuickBar) == Primary)
 		{
-			SetActiveQuickBarSlot(QuickBar, 1);
+			SetActiveQuickBarSlot(QuickBar, Primary == 0 ? 1 : 0);
 		}
 	}
-	SetActiveQuickBarSlot(QuickBar, 0);
+	SetActiveQuickBarSlot(QuickBar, Primary);
 	bLoadoutGiven = true;
 }
 
@@ -324,6 +353,11 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 		BoundInputComponent = InputComponent;
 	}
 	const UDHGameRulesComponent* Rules = UDHGameRulesComponent::Find(this);
+	if (!ScopeOverlay && PC)
+	{
+		ScopeOverlay = CreateWidget<UDHScopeOverlay>(const_cast<APlayerController*>(PC));
+		ScopeOverlay->AddToViewport(4);
+	}
 	if (!Minimap && PC && !(Rules && Rules->IsHardcore()))
 	{
 		Minimap = CreateWidget<UDHMinimap>(const_cast<APlayerController*>(PC));
@@ -344,9 +378,16 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 	UInputMappingContext* Mapping = InputMapping.LoadSynchronous();
 	if (Input && Mapping && !Input->HasMappingContext(Mapping))
 	{
-		Input->AddMappingContext(Mapping, 1);
+		// Above ShooterCore's contexts: our gamepad keys (melee on the right stick, RB for the second ability) win.
+		Input->AddMappingContext(Mapping, 10);
 		bMappingAdded = true;
 	}
+}
+
+bool UDHPlayerRulesComponent::HasScope() const
+{
+	const UObject* Weapon = DHWeaponAccess::ActiveWeapon(GetPawn<APawn>());
+	return Weapon && Weapon->GetClass()->GetName().Contains(TEXT("Sniper"));
 }
 
 void UDHPlayerRulesComponent::EnableHairSkinning()
@@ -496,7 +537,7 @@ TSubclassOf<ULyraCameraMode> UDHPlayerRulesComponent::DetermineCameraMode() cons
 		return DeathMode.LoadSynchronous();
 	}
 
-	if (IsFirstPerson())
+	if (IsFirstPerson() || (ASC && ASC->HasMatchingGameplayTag(AimTag) && HasScope()))
 	{
 		// Aiming in first person is handled inside the first-person mode (zoom, weapon to the center).
 		return FirstPersonMode.LoadSynchronous();

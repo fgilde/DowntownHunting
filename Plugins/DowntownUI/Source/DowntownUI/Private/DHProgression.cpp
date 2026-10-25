@@ -13,7 +13,7 @@ namespace DHProgressionSettings
 		int32 Level;
 	};
 	constexpr FUnlock Unlocks[] = {
-		{ TEXT("MP5"), 2 }, { TEXT("ExtMag"), 2 }, { TEXT("M1911"), 3 }, { TEXT("Laser"), 3 }, { TEXT("AK47"), 4 }, { TEXT("Barrel"), 5 },
+		{ TEXT("MP5"), 2 }, { TEXT("ExtMag"), 2 }, { TEXT("M1911"), 3 }, { TEXT("Sniper"), 3 }, { TEXT("Laser"), 3 }, { TEXT("AK47"), 4 }, { TEXT("Barrel"), 5 },
 	};
 }
 
