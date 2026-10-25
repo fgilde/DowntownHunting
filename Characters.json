@@ -4,20 +4,21 @@
     "gender: A (male) | B (female); body: NormalWeight | OverWeight | UnderWeight",
     "head 0-5, outfit: index into the outfit list of gender+body (see Tools/Crowd_catalog.txt), hair: hair style index",
     "skin 0-5 (skin texture set), skinTone 0-n (variation), hairColor 0-n, patternColor/patternOption: outfit color and pattern variation",
-    "The two City Sample player characters (Hunter, Huntress) stay available in addition to this list."
-  ],
+    "The two City Sample player characters (Hunter, Huntress) stay available in addition to this list.",
+    "colors: optional outfit colours per part (Top, Bottom, Shoes) as sRGB 0-1 (colour picker values), matching the splash art; replaces the crowd colour variation"
+ ],
   "characters": [
-    {"id": "Marcus", "gender": "A", "body": "NormalWeight", "head": 0, "outfit": 5, "hair": 0, "skin": 0, "skinTone": 0, "hairColor": 0, "patternColor": 0, "patternOption": 0},
-    {"id": "Dex", "gender": "A", "body": "NormalWeight", "head": 1, "outfit": 9, "hair": 1, "skin": 1, "skinTone": 1, "hairColor": 1, "patternColor": 1, "patternOption": 2},
-    {"id": "Viktor", "gender": "A", "body": "OverWeight", "head": 2, "outfit": 4, "hair": 2, "skin": 2, "skinTone": 0, "hairColor": 2, "patternColor": 2, "patternOption": 1},
-    {"id": "Ray", "gender": "A", "body": "UnderWeight", "head": 3, "outfit": 3, "hair": 3, "skin": 3, "skinTone": 1, "hairColor": 3, "patternColor": 0, "patternOption": 3},
-    {"id": "Sal", "gender": "A", "body": "NormalWeight", "head": 4, "outfit": 0, "hair": 4, "skin": 4, "skinTone": 0, "hairColor": 0, "patternColor": 1, "patternOption": 0},
-    {"id": "Jonah", "gender": "A", "body": "NormalWeight", "head": 5, "outfit": 7, "hair": 5, "skin": 5, "skinTone": 1, "hairColor": 4, "patternColor": 2, "patternOption": 4},
-    {"id": "Kim", "gender": "B", "body": "NormalWeight", "head": 0, "outfit": 7, "hair": 0, "skin": 0, "skinTone": 0, "hairColor": 0, "patternColor": 0, "patternOption": 1},
-    {"id": "Nina", "gender": "B", "body": "NormalWeight", "head": 1, "outfit": 4, "hair": 1, "skin": 1, "skinTone": 1, "hairColor": 1, "patternColor": 1, "patternOption": 0},
-    {"id": "Rosa", "gender": "B", "body": "OverWeight", "head": 2, "outfit": 1, "hair": 2, "skin": 2, "skinTone": 0, "hairColor": 2, "patternColor": 2, "patternOption": 2},
-    {"id": "Jade", "gender": "B", "body": "UnderWeight", "head": 3, "outfit": 3, "hair": 3, "skin": 3, "skinTone": 1, "hairColor": 3, "patternColor": 0, "patternOption": 3},
-    {"id": "Mara", "gender": "B", "body": "NormalWeight", "head": 4, "outfit": 5, "hair": 4, "skin": 4, "skinTone": 0, "hairColor": 4, "patternColor": 1, "patternOption": 1},
-    {"id": "Lou", "gender": "B", "body": "NormalWeight", "head": 1, "outfit": 1, "hair": 2, "skin": 5, "skinTone": 1, "hairColor": 0, "patternColor": 2, "patternOption": 0}
-  ]
+    {"id": "Marcus", "gender": "A", "body": "NormalWeight", "head": 0, "outfit": 5, "hair": 0, "skin": 0, "skinTone": 0, "hairColor": 0, "patternColor": 0, "patternOption": 0, "colors": {"Top": [0.96, 0.96, 0.96], "Bottom": [0.1, 0.12, 0.22]}},
+    {"id": "Dex", "gender": "A", "body": "NormalWeight", "head": 1, "outfit": 9, "hair": 1, "skin": 1, "skinTone": 1, "hairColor": 1, "patternColor": 1, "patternOption": 2, "colors": {"Top": [0.92, 0.86, 0.74], "Bottom": [0.14, 0.17, 0.3]}},
+    {"id": "Viktor", "gender": "A", "body": "OverWeight", "head": 2, "outfit": 4, "hair": 2, "skin": 2, "skinTone": 0, "hairColor": 2, "patternColor": 2, "patternOption": 1, "colors": {"Top": [0.88, 0.82, 0.68], "Bottom": [0.12, 0.12, 0.14]}},
+    {"id": "Ray", "gender": "A", "body": "UnderWeight", "head": 3, "outfit": 3, "hair": 3, "skin": 3, "skinTone": 1, "hairColor": 3, "patternColor": 0, "patternOption": 3, "colors": {"Top": [0.46, 0.34, 0.18], "Bottom": [0.18, 0.17, 0.15]}},
+    {"id": "Sal", "gender": "A", "body": "NormalWeight", "head": 4, "outfit": 0, "hair": 4, "skin": 4, "skinTone": 0, "hairColor": 0, "patternColor": 1, "patternOption": 0, "colors": {"Top": [0.42, 0.16, 0.62], "Bottom": [0.36, 0.13, 0.54]}},
+    {"id": "Jonah", "gender": "A", "body": "NormalWeight", "head": 5, "outfit": 7, "hair": 5, "skin": 5, "skinTone": 1, "hairColor": 4, "patternColor": 2, "patternOption": 4, "colors": {"Top": [0.32, 0.36, 0.16], "Bottom": [0.22, 0.2, 0.14]}},
+    {"id": "Kim", "gender": "B", "body": "NormalWeight", "head": 0, "outfit": 7, "hair": 0, "skin": 0, "skinTone": 0, "hairColor": 0, "patternColor": 0, "patternOption": 1, "colors": {"Top": [0.38, 0.42, 0.2], "Bottom": [0.3, 0.32, 0.18]}},
+    {"id": "Nina", "gender": "B", "body": "NormalWeight", "head": 1, "outfit": 4, "hair": 1, "skin": 1, "skinTone": 1, "hairColor": 1, "patternColor": 1, "patternOption": 0, "colors": {"Top": [0.42, 0.12, 0.62], "Bottom": [0.05, 0.05, 0.08]}},
+    {"id": "Rosa", "gender": "B", "body": "OverWeight", "head": 2, "outfit": 1, "hair": 2, "skin": 2, "skinTone": 0, "hairColor": 2, "patternColor": 2, "patternOption": 2, "colors": {"Top": [0.06, 0.06, 0.07], "Bottom": [0.07, 0.07, 0.08]}},
+    {"id": "Jade", "gender": "B", "body": "UnderWeight", "head": 3, "outfit": 3, "hair": 3, "skin": 3, "skinTone": 1, "hairColor": 3, "patternColor": 0, "patternOption": 3, "colors": {"Top": [0.55, 0.36, 0.5], "Bottom": [0.04, 0.04, 0.05]}},
+    {"id": "Mara", "gender": "B", "body": "NormalWeight", "head": 4, "outfit": 5, "hair": 4, "skin": 4, "skinTone": 0, "hairColor": 4, "patternColor": 1, "patternOption": 1, "colors": {"Top": [0.95, 0.95, 0.93], "Bottom": [0.12, 0.16, 0.32]}},
+    {"id": "Lou", "gender": "B", "body": "NormalWeight", "head": 1, "outfit": 1, "hair": 2, "skin": 5, "skinTone": 1, "hairColor": 0, "patternColor": 2, "patternOption": 0, "colors": {"Top": [0.05, 0.05, 0.06], "Bottom": [0.06, 0.06, 0.07]}}
+ ]
 }

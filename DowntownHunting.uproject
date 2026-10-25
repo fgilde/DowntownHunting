@@ -21,6 +21,10 @@
 	],
 	"Plugins": [
 		{
+			"Name": "AnimToTexture",
+			"Enabled": true
+		},
+		{
 			"Name": "ActorPalette",
 			"Enabled": true
 		},

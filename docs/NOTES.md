@@ -386,3 +386,9 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Teamfarben aus Sicht des Spielers: eigenes Team blau, alle anderen rot, auf jedem Rechner. Kleiner Hook im Lyra-Kern (`ULyraTeamSubsystem::DisplayAssetPerspective`, Lyra ignorierte den Viewer-Parameter), gesetzt in `DowntownCoreRuntimeModule`; `UDHGameRulesComponent` färbt neu, wenn sich das eigene Team ändert. Server-Texte wie „RED TEAM WINS ROUND“ kommen weiter aus Sicht des Hosts.
 - Kartengrenzen: die unsichtbaren Wände (`BlockingVolume`) bekommen ein orangefarbenes Warnstreifen-Feld, das erst in ~20 m Nähe auftaucht (`/DowntownCore/Effects/M_DH_Boundary`, Pixel-Tiefe statt Weltdistanz; Emissive hoch wegen Lyras Tageslicht-Belichtung). Minimap: Wände orange, dahinter dunkelrot.
 - Menümusik: Lyras eigene Musik (`mx_System`) hängt an der GameInstance und lief weiter; wird jetzt im Menü und im Match gestoppt. Drei neue K-Pop-artige Menütracks. Stimmen in der Charakterauswahl 2,5-fach lauter.
+
+## Character outfits and hair
+
+- `colors` in Characters.json (sRGB, per part Top/Bottom/Shoes) overrides the crowd colour variation so each hunter wears what the splash art shows. sync_characters.py converts to linear (^2.2) and sets `A_CrowdColor_main`, pattern colour = 55 % of it. Linear values straight in looked washed out (purple came out pink).
+- Flying hair: City Sample's crowd hair materials (M_Crowd_Hair_Cards/Helmet, the card LODs at distance) need the AnimToTexture plugin, which was off: they loaded with missing functions. The plugin is now enabled in the .uproject, and `r.HairStrands.Simulation=0` turns the strand physics off (crowd grooms are not set up for it).
+- Check: `Tools/Test-Game.ps1` with `Character=<Id>` in Saved/Config/WindowsEditor/GameUserSettings.ini, third-person shot after ~30 s.

@@ -72,6 +72,8 @@ def setup_skeletal(comp, mesh, materials):
 
 
 cfg = json.load(open(os.path.join(REPO, "Tools", "Characters.resolved.json"), encoding="utf-8"))
+# outfit colours from Characters.json (the splash art look), they replace the crowd colour variation
+colors = {c["id"]: c.get("colors", {}) for c in json.load(open(os.path.join(REPO, "Characters.json"), encoding="utf-8"))["characters"]}
 entries = list(FIXED)
 for c in cfg["characters"]:
     cid, folder = c["id"], ROOT + "/" + c["id"]
@@ -95,6 +97,11 @@ for c in cfg["characters"]:
             if comp["name"] == "Bottom" and m["slot"] == "M_Body" and body_mi:
                 mats.append(body_mi)  # exposed legs share the upper body's skin
                 continue
+            color = colors.get(cid, {}).get(comp["name"])
+            if color and "A_CrowdColor_main" in spec.get("vectors", {}):
+                color = [x ** 2.2 for x in color]  # Characters.json has sRGB like a colour picker
+                spec = dict(spec, vectors=dict(spec["vectors"], A_CrowdColor_main=color + [1.0],
+                                               A_CrowdColor_pattern=[x * 0.55 for x in color] + [1.0]))
             mi = instance(folder, "MI_%s_%s_%s" % (cid, comp["name"], re.sub(r"\W", "", m["slot"])), spec)
             if comp["name"] == "Body":
                 body_mi = mi
