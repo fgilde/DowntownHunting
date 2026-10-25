@@ -68,6 +68,4 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<class UNiagaraSystem> ExplosionEffect;
 
-	UPROPERTY(Transient)
-	TObjectPtr<class USoundBase> ExplosionSound;
 };

@@ -1,5 +1,6 @@
 #include "DHBombSite.h"
 
+#include "DHSoundCue.h"
 #include "Character/LyraHealthComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/PointLightComponent.h"
@@ -72,7 +73,6 @@ void ADHBombSite::BeginPlay()
 		Ring->SetMaterial(0, RingMaterial);
 	}
 	ExplosionEffect = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/Effects/Particles/Explosion/NS_Grenade_Explosion.NS_Grenade_Explosion"));
-	ExplosionSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/MetaSounds/sfx_Weapon_GrenadeExplosion_nl_meta.sfx_Weapon_GrenadeExplosion_nl_meta"));
 	OnRep_State();
 }
 
@@ -145,8 +145,5 @@ void ADHBombSite::MulticastExplosion_Implementation()
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ExplosionEffect, GetActorLocation() + FVector(0, 0, 50), FRotator::ZeroRotator, FVector(4.f));
 	}
-	if (ExplosionSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, GetActorLocation(), 2.f);
-	}
+	UDHSoundCue::PlayExplosion(this, GetActorLocation(), 2.f);
 }

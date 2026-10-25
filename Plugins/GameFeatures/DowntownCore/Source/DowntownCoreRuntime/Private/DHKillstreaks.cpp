@@ -1,5 +1,6 @@
 #include "DHKillstreaks.h"
 
+#include "DHSoundCue.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "Components/PointLightComponent.h"
@@ -234,7 +235,6 @@ void ADHAirstrike::BeginPlay()
 {
 	Super::BeginPlay();
 	ExplosionEffect = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/Effects/Particles/Explosion/NS_Grenade_Explosion.NS_Grenade_Explosion"));
-	ExplosionSound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/MetaSounds/sfx_Weapon_GrenadeExplosion_nl_meta.sfx_Weapon_GrenadeExplosion_nl_meta"));
 	SetActorLocation(GetActorLocation() + FVector(0, 0, 120));
 }
 
@@ -312,8 +312,5 @@ void ADHAirstrike::MulticastImpact_Implementation(FVector_NetQuantize Location)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ExplosionEffect, Location, FRotator::ZeroRotator, FVector(2.5f));
 	}
-	if (ExplosionSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, Location, 1.5f);
-	}
+	UDHSoundCue::PlayExplosion(this, Location, 1.5f);
 }

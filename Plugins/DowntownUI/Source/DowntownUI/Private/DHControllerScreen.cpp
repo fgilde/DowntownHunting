@@ -300,7 +300,7 @@ void UDHControllerScreen::ApplyBindings(const ULocalPlayer* Player)
 	}
 	UEnhancedInputLocalPlayerSubsystem* Input = Player ? Player->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>() : nullptr;
 	UEnhancedInputUserSettings* Settings = Input ? Input->GetUserSettings() : nullptr;
-	UEnhancedPlayerMappableKeyProfile* Profile = Settings ? Settings->GetCurrentKeyProfile() : nullptr;
+	UEnhancedPlayerMappableKeyProfile* Profile = Settings ? Settings->GetActiveKeyProfile() : nullptr;
 	for (const TPair<FName, FKey>& Entry : Profile ? ProfileKeys : TMap<FName, FKey>())
 	{
 		if (FKeyMappingRow* Row = Profile->FindKeyMappingRowMutable(Entry.Key))

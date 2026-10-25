@@ -77,6 +77,7 @@ private:
 	void UseAbility2() { UseAbility(1); }
 	void UseAbility(int32 Slot);
 	void RemoveLyraDash();
+	void HandleAbilityActivated(class UGameplayAbility* Ability);
 	void ApplyAttachments();
 	void EnableHairSkinning();
 	bool HasScope() const;
@@ -94,6 +95,8 @@ private:
 	bool bLoadoutGiven = false;
 	bool bMappingAdded = false;
 	TWeakObjectPtr<UInputComponent> BoundInputComponent;
+	TWeakObjectPtr<class UAbilitySystemComponent> FireSource;  // server: sniper shots get their heavy report
+	FDelegateHandle FireHandle;
 
 	// Mode overlay (Gun Game, Search & Destroy), local player only.
 	UPROPERTY(Transient)

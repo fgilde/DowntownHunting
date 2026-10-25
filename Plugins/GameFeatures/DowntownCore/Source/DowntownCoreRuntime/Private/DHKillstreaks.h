@@ -75,8 +75,6 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UNiagaraSystem> ExplosionEffect;
 
-	UPROPERTY(Transient)
-	TObjectPtr<USoundBase> ExplosionSound;
 
 	float Age = 0.f;
 	int32 Impacts = 0;

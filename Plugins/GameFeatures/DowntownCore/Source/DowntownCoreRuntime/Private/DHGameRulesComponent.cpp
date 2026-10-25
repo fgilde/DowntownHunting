@@ -1,5 +1,7 @@
 #include "DHGameRulesComponent.h"
 
+#include "AbilitySystemGlobals.h"
+#include "GameplayCueManager.h"
 #include "DHFreeForAllScoring.h"
 #include "DHKillstreaks.h"
 #include "DHPlayerChoicesComponent.h"
@@ -64,6 +66,17 @@ const UDHGameRulesComponent* UDHGameRulesComponent::Find(const UObject* WorldCon
 void UDHGameRulesComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// DowntownCore's gameplay cue notifies (weapon fire, UDHSoundCue), on every machine. Like Lyra's AddGameplayCuePath
+	// action, which this plugin's feature data does not have; once per run (the path is then known).
+	if (UGameplayCueManager* Cues = UAbilitySystemGlobals::Get().GetGameplayCueManager())
+	{
+		const FString CuePath = TEXT("/DowntownCore/GameplayCues");
+		if (!UAbilitySystemGlobals::Get().GetGameplayCueNotifyPaths().Contains(CuePath))
+		{
+			Cues->AddGameplayCueNotifyPath(CuePath);
+		}
+	}
 
 	const AGameModeBase* GameMode = GetWorld()->GetAuthGameMode();
 	if (!GameMode)

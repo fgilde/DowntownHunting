@@ -12,6 +12,7 @@
 #include "DHKillstreaks.h"
 #include "DHStreakBanner.h"
 #include "DHMovement.h"
+#include "DHSoundCue.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
@@ -210,6 +211,7 @@ void UDHPlayerChoicesComponent::ServerUseAbility_Implementation(uint8 Slot, FVec
 		DHAbilities::Push(Character, Abilities[Slot], Direction);
 	}
 	DHAbilities::Start(Character, Abilities[Slot], GetDuration(Slot));
+	UDHSoundCue::Play(Character, *(TEXT("Ability.") + Abilities[Slot]));
 	if (Abilities[Slot] == TEXT("Cloak") && ASC && AttackSource.Get() != ASC)
 	{
 		if (AttackSource.IsValid())

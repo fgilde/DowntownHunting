@@ -16,6 +16,7 @@
 #include "DHMovement.h"
 #include "DHPlayerChoicesComponent.h"
 #include "DHScopeOverlay.h"
+#include "DHSoundCue.h"
 #include "DHWeaponAccess.h"
 #include "Components/SkinnedMeshComponent.h"
 #include "Curves/CurveFloat.h"
@@ -203,6 +204,16 @@ void UDHPlayerRulesComponent::BeginPlay()
 			if (Character->HasAuthority())
 			{
 				RemoveLyraDash();
+				UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Character);
+				if (ASC && FireSource.Get() != ASC)
+				{
+					if (FireSource.IsValid())
+					{
+						FireSource->AbilityActivatedCallbacks.Remove(FireHandle);
+					}
+					FireSource = ASC;
+					FireHandle = ASC->AbilityActivatedCallbacks.AddUObject(this, &ThisClass::HandleAbilityActivated);
+				}
 			}
 			const float Base = CastChecked<UCharacterMovementComponent>(Movement->GetArchetype())->MaxWalkSpeed;
 			const UDHInfectedScoring* Infected = Cast<UDHInfectedScoring>(UDHFreeForAllScoring::Find(this));
@@ -220,6 +231,10 @@ void UDHPlayerRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	GetWorld()->GetTimerManager().ClearTimer(RetryTimer);
 	GetWorld()->GetTimerManager().ClearTimer(HunterTimer);
+	if (FireSource.IsValid())
+	{
+		FireSource->AbilityActivatedCallbacks.Remove(FireHandle);
+	}
 	if (GunGameHud)
 	{
 		GunGameHud->RemoveFromParent();
@@ -525,6 +540,15 @@ void UDHPlayerRulesComponent::UseAbility(int32 Slot)
 	if (UDHPlayerChoicesComponent* Choices = Pawn && Pawn->GetController() ? Pawn->GetController()->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr)
 	{
 		Choices->UseAbility(Slot);
+	}
+}
+
+void UDHPlayerRulesComponent::HandleAbilityActivated(UGameplayAbility* Ability)
+{
+	static const FGameplayTag FireTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Type.Action.WeaponFire"));
+	if (Ability && Ability->GetAssetTags().HasTag(FireTag) && HasScope())
+	{
+		UDHSoundCue::Play(GetPawn<APawn>(), TEXT("Sniper"));
 	}
 }
 
