@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "GameplayTagContainer.h"
 
 #include "DHKillstreaks.generated.h"
 
@@ -37,6 +38,12 @@ namespace DHKillstreaks
 	bool HasRadar(const APlayerState* Viewer);
 
 	bool IsHunting(const APlayerState* Player);
+
+	/** Server: a timed effect (stat tag holding the server time it ends at) runs for Seconds from now; 0 ends it. */
+	void SetUntil(APlayerState* Player, FGameplayTag Tag, float Seconds);
+	bool IsActive(const APlayerState* Player, FGameplayTag Tag);
+
+	FGameplayTag RadarTag();
 
 	FText RewardText(int32 Streak, EReward Reward);
 }

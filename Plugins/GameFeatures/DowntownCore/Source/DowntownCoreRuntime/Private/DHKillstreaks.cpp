@@ -32,7 +32,6 @@ namespace DHKillstreaks
 		constexpr int32 StrikeImpacts = 6;
 
 		FGameplayTag StreakTag() { return FGameplayTag::RequestGameplayTag(TEXT("DH.Streak")); }
-		FGameplayTag RadarTag() { return FGameplayTag::RequestGameplayTag(TEXT("DH.Streak.RadarUntil")); }
 		FGameplayTag HunterTag() { return FGameplayTag::RequestGameplayTag(TEXT("DH.Streak.HunterUntil")); }
 
 		double ServerTime(const UObject* Context)
@@ -116,6 +115,21 @@ namespace DHKillstreaks
 				ASC->SetNumericAttributeBase(Health, ASC->GetNumericAttribute(MaxHealth));
 			}
 		}
+	}
+
+	FGameplayTag RadarTag() { return FGameplayTag::RequestGameplayTag(TEXT("DH.Streak.RadarUntil")); }
+
+	void SetUntil(APlayerState* Player, FGameplayTag Tag, float Seconds)
+	{
+		if (ALyraPlayerState* LyraPlayer = Cast<ALyraPlayerState>(Player))
+		{
+			SetStat(LyraPlayer, Tag, Seconds > 0.f ? FMath::CeilToInt(ServerTime(Player) + Seconds) : 0);
+		}
+	}
+
+	bool IsActive(const APlayerState* Player, FGameplayTag Tag)
+	{
+		return Active(Player, Tag);
 	}
 
 	void OnElimination(APlayerState* Killer, APlayerState* Victim, bool bCountsAsKill)

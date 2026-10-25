@@ -14,6 +14,8 @@ namespace DHProgressionSettings
 	};
 	constexpr FUnlock Unlocks[] = {
 		{ TEXT("MP5"), 2 }, { TEXT("ExtMag"), 2 }, { TEXT("M1911"), 3 }, { TEXT("Sniper"), 3 }, { TEXT("Laser"), 3 }, { TEXT("AK47"), 4 }, { TEXT("Barrel"), 5 },
+		{ TEXT("Leap"), 2 }, { TEXT("Adrenaline"), 3 }, { TEXT("Recon"), 4 }, { TEXT("QuickRecharge"), 5 }, { TEXT("Cloak"), 6 }, { TEXT("LongLasting"), 7 },
+		{ TEXT("SecondAbility"), 8 },
 	};
 }
 

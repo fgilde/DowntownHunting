@@ -1,5 +1,6 @@
 #include "DHXP.h"
 
+#include "DHLoadoutSettings.h"
 #include "DHProgression.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -31,7 +32,10 @@ namespace DHXP
 		OutResult.NewLevel = FDHProgression::LevelForXP(OutResult.XP);
 		for (int32 Level = OutResult.OldLevel + 1; Level <= OutResult.NewLevel; ++Level)
 		{
-			OutResult.Unlocked.Append(FDHProgression::UnlocksAt(Level));
+			for (const FString& Id : FDHProgression::UnlocksAt(Level))
+			{
+				OutResult.Unlocked.Add(UDHLoadoutSettings::DisplayName(Id));
+			}
 		}
 		UE_LOG(LogTemp, Log, TEXT("DH XP: +%d (%d kills, %d headshots, won %d) -> %d, level %d"), OutResult.Gained, Kills, Headshots, bWon, OutResult.XP, OutResult.NewLevel);
 		return true;

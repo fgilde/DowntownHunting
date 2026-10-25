@@ -57,6 +57,25 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerSetLoadout(const TArray<FString>& NewLoadout);
 
+	/** Owning client: uses the ability in slot 0 or 1 if it has recharged, here and on the server (DHAbilities). */
+	void UseAbility(int32 Slot);
+
+	/** Ability id in a slot (empty if none); on the owning client from the settings, on the server as sent. */
+	const FString& GetAbility(int32 Slot) const { return Abilities[Slot]; }
+
+	/** Cooldown and effect duration of a slot's ability, with the perk. */
+	float GetCooldown(int32 Slot) const;
+	float GetDuration(int32 Slot) const;
+
+	/** Seconds until the slot has recharged (on this machine's clock), 0 when ready. */
+	float GetRemaining(int32 Slot) const;
+
+	/** Owning client: Adrenaline started here runs until this world time (before the server's state arrives). */
+	double GetLocalAdrenalineUntil() const { return LocalAdrenalineUntil; }
+
+	UFUNCTION(Server, Reliable)
+	void ServerUseAbility(uint8 Slot, FVector_NetQuantizeNormal Direction);
+
 	/** Server: the player's loadout, empty for bots and before the client sent it. */
 	const TArray<FName>& GetLoadout() const { return Loadout; }
 
@@ -71,6 +90,8 @@ private:
 	void HandleCharacterChosen(APlayerController* Player, const FString& Id);
 	void HandleLoadoutChosen(APlayerController* Player, const TArray<FString>& NewLoadout);
 	void ApplyCharacter(const FString& Id);
+	void SetAbilities(const TArray<FString>& NewLoadout);
+	void HandleAbilityActivated(class UGameplayAbility* Ability);
 
 	double LastWallJump = -1.0;
 
@@ -81,4 +102,12 @@ private:
 	TMap<FName, FName> Attachments;
 	FDelegateHandle ChosenHandle;
 	FDelegateHandle LoadoutHandle;
+
+	FString Abilities[2];
+	FString PerkId;
+	double ReadyAt[2] = { 0.0, 0.0 };        // owning client
+	double ServerReadyAt[2] = { 0.0, 0.0 };  // server (the same object on a listen server's own player)
+	double LocalAdrenalineUntil = 0.0;
+	FDelegateHandle AttackHandle;            // server: an attack ends the cloak
+	TWeakObjectPtr<class UAbilitySystemComponent> AttackSource;
 };

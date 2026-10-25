@@ -15,7 +15,9 @@ class UUserWidget;
  * Applies the match rules (UDHGameRulesComponent) to a pawn:
  * - server: gives the mode's loadout and puts it into the quick bar,
  * - locally controlled player: picks the camera mode (first or third person) and, if the mode allows it,
- *   lets the player switch with ToggleAction (V / D-pad up by default).
+ *   lets the player switch with ToggleAction (V / D-pad up by default); the loadout's abilities on Lyra's dash input
+ *   and on Ability2Action (DHAbilities), with their HUD,
+ * - every machine: speed (killstreak hunter, infected, adrenaline) and cloak.
  * Added to every Lyra character by the DH experiences.
  */
 UCLASS(meta = (BlueprintSpawnableComponent))
@@ -56,6 +58,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TSoftObjectPtr<UInputAction> ScoreboardAction;
 
+	// First ability: Lyra's dash input (its own dash ability is taken away); second ability (RB by default).
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TSoftObjectPtr<UInputAction> AbilityAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TSoftObjectPtr<UInputAction> Ability2Action;
+
 private:
 	void GiveLoadout();
 	void SetUpLocalPlayer();
@@ -64,6 +73,10 @@ private:
 	void HideScoreboard();
 	void TrySlide();
 	void TryWallJump();
+	void UseAbility1() { UseAbility(0); }
+	void UseAbility2() { UseAbility(1); }
+	void UseAbility(int32 Slot);
+	void RemoveLyraDash();
 	void ApplyAttachments();
 	void EnableHairSkinning();
 	bool HasScope() const;
@@ -74,6 +87,8 @@ private:
 	FTimerHandle HunterTimer;
 	TWeakObjectPtr<UObject> ModifiedWeapon;
 	TSet<TWeakObjectPtr<class USkinnedMeshComponent>> HairSkins;
+	TArray<TWeakObjectPtr<class UPrimitiveComponent>> CloakHidden;
+	bool bCloakHiddenFromBots = false;
 	int32 Retries = 0;
 	double LastWallJump = -1.0;
 	bool bLoadoutGiven = false;
@@ -92,6 +107,9 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UUserWidget> ScopeOverlay;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> AbilityHud;
 
 	// Last choice of the local player, kept across respawns in "Choice" modes.
 	static bool bPreferFirstPerson;

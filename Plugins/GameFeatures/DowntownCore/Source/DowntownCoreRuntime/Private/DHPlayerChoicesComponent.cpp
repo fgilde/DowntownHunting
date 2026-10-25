@@ -1,5 +1,9 @@
 #include "DHPlayerChoicesComponent.h"
 
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemGlobals.h"
+#include "Abilities/GameplayAbility.h"
+#include "DHAbilities.h"
 #include "DHCharacterSettings.h"
 #include "DHLoadoutSettings.h"
 #include "DHGameRulesComponent.h"
@@ -79,6 +83,7 @@ void UDHPlayerChoicesComponent::BeginPlay()
 		ServerSetCharacter(UDHCharacterSettings::GetPreferredCharacter());
 		ChosenHandle = UDHCharacterSettings::OnCharacterChosen.AddUObject(this, &ThisClass::HandleCharacterChosen);
 		ServerSetLoadout(UDHLoadoutSettings::GetLoadout());
+		SetAbilities(UDHLoadoutSettings::GetLoadout());
 		ServerSetPlayerName(UDHCharacterSettings::GetPlayerName(), FPlatformProcess::ComputerName());
 		LoadoutHandle = UDHLoadoutSettings::OnLoadoutChosen.AddUObject(this, &ThisClass::HandleLoadoutChosen);
 	}
@@ -92,6 +97,10 @@ void UDHPlayerChoicesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason
 {
 	UDHCharacterSettings::OnCharacterChosen.Remove(ChosenHandle);
 	UDHLoadoutSettings::OnLoadoutChosen.Remove(LoadoutHandle);
+	if (AttackSource.IsValid())
+	{
+		AttackSource->AbilityActivatedCallbacks.Remove(AttackHandle);
+	}
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -108,6 +117,7 @@ void UDHPlayerChoicesComponent::HandleLoadoutChosen(APlayerController* Player, c
 	if (Player == GetOwner())
 	{
 		ServerSetLoadout(NewLoadout);
+		SetAbilities(NewLoadout);
 	}
 }
 
@@ -115,12 +125,13 @@ void UDHPlayerChoicesComponent::ServerSetLoadout_Implementation(const TArray<FSt
 {
 	Loadout.Reset();
 	Attachments.Reset();
-	for (const FString& Entry : NewLoadout)
+	for (int32 Index = UDHLoadoutSettings::Primary; Index <= UDHLoadoutSettings::Secondary && Index < NewLoadout.Num(); ++Index)
 	{
 		// "Weapon" or "Weapon:Attachment"
+		const FString& Entry = NewLoadout[Index];
 		FString Weapon = Entry, Attachment;
 		Entry.Split(TEXT(":"), &Weapon, &Attachment);
-		if (Loadout.Num() < 2)  // primary and secondary
+		if (!Weapon.IsEmpty())
 		{
 			Loadout.Add(FName(*Weapon));
 			if (Attachment == TEXT("ExtMag") || Attachment == TEXT("Laser") || Attachment == TEXT("Barrel"))
@@ -129,7 +140,100 @@ void UDHPlayerChoicesComponent::ServerSetLoadout_Implementation(const TArray<FSt
 			}
 		}
 	}
+	SetAbilities(NewLoadout);
 	UE_LOG(LogDHRules, Log, TEXT("%s: loadout %s"), *GetNameSafe(GetOwner()), *FString::Join(NewLoadout, TEXT(",")));
+}
+
+void UDHPlayerChoicesComponent::SetAbilities(const TArray<FString>& NewLoadout)
+{
+	auto Entry = [&NewLoadout](int32 Index) { return NewLoadout.IsValidIndex(Index) ? NewLoadout[Index] : FString(); };
+	Abilities[0] = UDHLoadoutSettings::FindAbility(Entry(UDHLoadoutSettings::Ability)) ? Entry(UDHLoadoutSettings::Ability) : FString();
+	Abilities[1] = UDHLoadoutSettings::FindAbility(Entry(UDHLoadoutSettings::Ability2)) && Entry(UDHLoadoutSettings::Ability2) != Abilities[0]
+		? Entry(UDHLoadoutSettings::Ability2) : FString();
+	PerkId = Entry(UDHLoadoutSettings::Perk);
+}
+
+float UDHPlayerChoicesComponent::GetCooldown(int32 Slot) const
+{
+	const FDHAbilityEntry* Ability = UDHLoadoutSettings::FindAbility(Abilities[Slot]);
+	return Ability ? Ability->Cooldown * (PerkId == TEXT("QuickRecharge") ? UDHLoadoutSettings::QuickRechargeFactor : 1.f) : 0.f;
+}
+
+float UDHPlayerChoicesComponent::GetDuration(int32 Slot) const
+{
+	const FDHAbilityEntry* Ability = UDHLoadoutSettings::FindAbility(Abilities[Slot]);
+	return Ability ? Ability->Duration * (PerkId == TEXT("LongLasting") ? UDHLoadoutSettings::LongLastingFactor : 1.f) : 0.f;
+}
+
+float UDHPlayerChoicesComponent::GetRemaining(int32 Slot) const
+{
+	return FMath::Max(0.f, float(ReadyAt[Slot] - GetWorld()->GetTimeSeconds()));
+}
+
+void UDHPlayerChoicesComponent::UseAbility(int32 Slot)
+{
+	static const FGameplayTag DeathTag = FGameplayTag::RequestGameplayTag(TEXT("Status.Death"));
+	ACharacter* Character = Cast<ACharacter>(GetPawn<APawn>());
+	const UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Character);
+	if (!Character || Abilities[Slot].IsEmpty() || GetRemaining(Slot) > 0.f || (ASC && ASC->HasMatchingGameplayTag(DeathTag)))
+	{
+		return;
+	}
+	ReadyAt[Slot] = GetWorld()->GetTimeSeconds() + GetCooldown(Slot);
+	FVector Direction = Character->GetLastMovementInputVector();
+	if (Direction.IsNearlyZero())
+	{
+		Direction = Character->GetVelocity();
+	}
+	DHAbilities::Push(Character, Abilities[Slot], Direction);
+	if (Abilities[Slot] == TEXT("Adrenaline"))
+	{
+		LocalAdrenalineUntil = GetWorld()->GetTimeSeconds() + GetDuration(Slot);
+	}
+	ServerUseAbility(Slot, Direction.GetSafeNormal2D());
+}
+
+void UDHPlayerChoicesComponent::ServerUseAbility_Implementation(uint8 Slot, FVector_NetQuantizeNormal Direction)
+{
+	static const FGameplayTag DeathTag = FGameplayTag::RequestGameplayTag(TEXT("Status.Death"));
+	ACharacter* Character = Cast<ACharacter>(GetPawn<APawn>());
+	UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Character);
+	const double Now = GetWorld()->GetTimeSeconds();
+	// A little slack for the client's clock and the time the call travels.
+	if (Slot > 1 || !Character || Abilities[Slot].IsEmpty() || Now < ServerReadyAt[Slot] - 0.3 || (ASC && ASC->HasMatchingGameplayTag(DeathTag)))
+	{
+		return;
+	}
+	ServerReadyAt[Slot] = Now + GetCooldown(Slot);
+	if (!Character->IsLocallyControlled())
+	{
+		DHAbilities::Push(Character, Abilities[Slot], Direction);
+	}
+	DHAbilities::Start(Character, Abilities[Slot], GetDuration(Slot));
+	if (Abilities[Slot] == TEXT("Cloak") && ASC && AttackSource.Get() != ASC)
+	{
+		if (AttackSource.IsValid())
+		{
+			AttackSource->AbilityActivatedCallbacks.Remove(AttackHandle);
+		}
+		AttackSource = ASC;
+		AttackHandle = ASC->AbilityActivatedCallbacks.AddUObject(this, &ThisClass::HandleAbilityActivated);
+	}
+	UE_LOG(LogDHRules, Log, TEXT("%s: ability %s"), *GetNameSafe(GetOwner()), *Abilities[Slot]);
+}
+
+void UDHPlayerChoicesComponent::HandleAbilityActivated(UGameplayAbility* Ability)
+{
+	// Firing, melee or a grenade ends the cloak.
+	static const FGameplayTagContainer Attacks = FGameplayTagContainer::CreateFromArray(TArray<FGameplayTag>{
+		FGameplayTag::RequestGameplayTag(TEXT("Ability.Type.Action.WeaponFire")),
+		FGameplayTag::RequestGameplayTag(TEXT("Ability.Type.Action.Melee")),
+		FGameplayTag::RequestGameplayTag(TEXT("Ability.Type.Action.Grenade")) });
+	AController* Controller = GetController<AController>();
+	if (Ability && Controller && Ability->GetAssetTags().HasAny(Attacks))
+	{
+		DHAbilities::EndCloak(Controller->PlayerState);
+	}
 }
 
 void UDHPlayerChoicesComponent::ClientShowKiller_Implementation(APlayerState* Killer, float KillerHealth, float Distance)

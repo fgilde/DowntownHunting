@@ -4,6 +4,8 @@
 #include "AbilitySystemGlobals.h"
 #include "Camera/LyraCameraComponent.h"
 #include "Camera/LyraCameraMode.h"
+#include "DHAbilities.h"
+#include "DHAbilityHud.h"
 #include "DHGameRulesComponent.h"
 #include "DHFreeForAllScoring.h"
 #include "DHGunGameHud.h"
@@ -156,6 +158,8 @@ UDHPlayerRulesComponent::UDHPlayerRulesComponent(const FObjectInitializer& Objec
 	ToggleAction = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/DowntownCore/Input/IA_DH_TogglePerspective.IA_DH_TogglePerspective")));
 	InputMapping = TSoftObjectPtr<UInputMappingContext>(FSoftObjectPath(TEXT("/DowntownCore/Input/IMC_DH_Perspective.IMC_DH_Perspective")));
 	ScoreboardAction = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/ShooterCore/Input/Actions/IA_ShowScoreboard.IA_ShowScoreboard")));
+	AbilityAction = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/Game/Input/Actions/IA_Ability_Dash.IA_Ability_Dash")));
+	Ability2Action = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/DowntownCore/Input/IA_DH_Ability2.IA_DH_Ability2")));
 }
 
 void UDHPlayerRulesComponent::BeginPlay()
@@ -184,20 +188,29 @@ void UDHPlayerRulesComponent::BeginPlay()
 		}
 	}, RetryInterval, true);
 
-	// Killstreak hunter mode and the infected: faster; attachments on the equipped weapon. On the server and the owning
-	// client alike (movement corrections, client-side spread).
+	// Killstreak hunter mode, the infected and adrenaline: faster; attachments on the equipped weapon. On the server and
+	// the owning client alike (movement corrections, client-side spread). Cloak everywhere.
 	GetWorld()->GetTimerManager().SetTimer(HunterTimer, [this]()
 	{
 		ApplyAttachments();
 		EnableHairSkinning();
+		DHAbilities::UpdateCloak(GetPawn<APawn>(), CloakHidden, bCloakHiddenFromBots);
 		ACharacter* Character = GetPawn<ACharacter>();
 		UCharacterMovementComponent* Movement = Character ? Character->GetCharacterMovement() : nullptr;
 		if (Movement)
 		{
+			if (Character->HasAuthority())
+			{
+				RemoveLyraDash();
+			}
 			const float Base = CastChecked<UCharacterMovementComponent>(Movement->GetArchetype())->MaxWalkSpeed;
 			const UDHInfectedScoring* Infected = Cast<UDHInfectedScoring>(UDHFreeForAllScoring::Find(this));
+			const UDHPlayerChoicesComponent* Choices = Character->GetController() ? Character->GetController()->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
+			const bool bAdrenaline = DHAbilities::HasAdrenaline(Character->GetPlayerState())
+				|| (Choices && Character->IsLocallyControlled() && Choices->GetLocalAdrenalineUntil() > GetWorld()->GetTimeSeconds());
 			Movement->MaxWalkSpeed = Base * (DHKillstreaks::IsHunting(Character->GetPlayerState()) ? DHKillstreaks::HunterSpeed : 1.f)
-				* (Infected && Infected->IsInfected(Character->GetPlayerState()) ? UDHInfectedScoring::InfectedSpeed : 1.f);
+				* (Infected && Infected->IsInfected(Character->GetPlayerState()) ? UDHInfectedScoring::InfectedSpeed : 1.f)
+				* (bAdrenaline ? DHAbilities::AdrenalineSpeed : 1.f);
 		}
 	}, 0.25f, true);
 }
@@ -221,6 +234,11 @@ void UDHPlayerRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	{
 		ScopeOverlay->RemoveFromParent();
 		ScopeOverlay = nullptr;
+	}
+	if (AbilityHud)
+	{
+		AbilityHud->RemoveFromParent();
+		AbilityHud = nullptr;
 	}
 
 	const APawn* Pawn = GetPawn<APawn>();
@@ -350,6 +368,14 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 		{
 			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::TryWallJump);
 		}
+		if (UInputAction* Action = AbilityAction.LoadSynchronous())
+		{
+			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::UseAbility1);
+		}
+		if (UInputAction* Action = Ability2Action.LoadSynchronous())
+		{
+			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::UseAbility2);
+		}
 		BoundInputComponent = InputComponent;
 	}
 	const UDHGameRulesComponent* Rules = UDHGameRulesComponent::Find(this);
@@ -357,6 +383,11 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 	{
 		ScopeOverlay = CreateWidget<UDHScopeOverlay>(const_cast<APlayerController*>(PC));
 		ScopeOverlay->AddToViewport(4);
+	}
+	if (!AbilityHud && PC)
+	{
+		AbilityHud = CreateWidget<UDHAbilityHud>(const_cast<APlayerController*>(PC));
+		AbilityHud->AddToViewport(5);
 	}
 	if (!Minimap && PC && !(Rules && Rules->IsHardcore()))
 	{
@@ -483,6 +514,37 @@ void UDHPlayerRulesComponent::TryWallJump()
 		LastWallJump = Now;
 		DHMovement::WallJump(Character, WallNormal);
 		Choices->ServerWallJump(WallNormal);
+	}
+}
+
+void UDHPlayerRulesComponent::UseAbility(int32 Slot)
+{
+	const APawn* Pawn = GetPawn<APawn>();
+	if (UDHPlayerChoicesComponent* Choices = Pawn && Pawn->GetController() ? Pawn->GetController()->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr)
+	{
+		Choices->UseAbility(Slot);
+	}
+}
+
+void UDHPlayerRulesComponent::RemoveLyraDash()
+{
+	// Lyra's hero ability set brings its dash with every pawn; the dash is a loadout ability here (DHAbilities).
+	UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPawn<APawn>());
+	if (!ASC)
+	{
+		return;
+	}
+	TArray<FGameplayAbilitySpecHandle> Dashes;
+	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+	{
+		if (Spec.Ability && Spec.Ability->GetClass()->GetName().Contains(TEXT("Dash")))
+		{
+			Dashes.Add(Spec.Handle);
+		}
+	}
+	for (const FGameplayAbilitySpecHandle& Handle : Dashes)
+	{
+		ASC->ClearAbility(Handle);
 	}
 }
 

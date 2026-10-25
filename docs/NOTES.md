@@ -332,3 +332,9 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Loadout: die Primärwaffe wird beim Spawn ausgerüstet (vorher die Startpistole in Slot 1).
 - Gamepad (in `IMC_DH_Perspective`, Priorität 10 über ShooterCore): Nahkampf rechter Stick, Y Waffe wechseln, RB reserviert für die zweite Fähigkeit (`IA_DH_Ability2`, blockiert Lyras RB-Nahkampf), Steuerkreuz oben Ego/Schulter.
 - Spiel-Exe: `DowntownHunting.exe` (Target `Source/DowntownHunting.Target.cs`, Lyras Spiel-Target mit Steam-Konfiguration).
+
+## Spielauswahl, Loadouts, Fähigkeiten (2026-10-25)
+- Spielen-Bildschirm: erst Modus (jeder einmal), darunter die Maps, die den Modus haben; Karte anklicken startet. Gehostet wird weiter die passende Lyra-Experience (Modus × Map).
+- 5 Loadouts (GameUserSettings `Loadout`, `Loadout2`..`Loadout5`, `ActiveLoadout`), Einträge: Primär, Sekundär (je mit Aufsatz), Fähigkeit, Perk, 2. Fähigkeit. Der gewählte Tab ist das aktive Loadout.
+- Fähigkeiten (`DHAbilities`, Katalog in `UDHLoadoutSettings::GetAbilities`): Dash 6 s, Mega-Sprung 10 s (Level 2), Adrenalin 4 s +50 % Tempo, 20 s (Level 3), Recon-Puls 5 s Radar fürs Team, 30 s (Level 4), Tarnung 5 s unsichtbar für alle und für die Bots (AI-Sicht abgemeldet, Gedächtnis gelöscht), endet beim Schießen/Nahkampf/Granate, 35 s (Level 6). Perks: Schnell aufladen −25 % Abklingzeit (Level 5), Lang anhaltend +50 % Dauer (Level 7). 2. Fähigkeit ab Level 8.
+- Auslösen: Lyras Dash-Taste (Shift) für die erste, RB / `IA_DH_Ability2` für die zweite. Lyras eigene Dash-Fähigkeit wird dem Pawn auf dem Server genommen. Client stößt sofort an (wie Slide), der Server prüft die Abklingzeit selbst; zeitliche Effekte als Server-Endzeit in Stat-Tags am Player State (wie die Killstreaks). HUD unten Mitte (`UDHAbilityHud`).
