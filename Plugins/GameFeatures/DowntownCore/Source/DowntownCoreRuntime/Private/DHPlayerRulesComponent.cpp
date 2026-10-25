@@ -7,6 +7,7 @@
 #include "DHAbilities.h"
 #include "DHAbilityHud.h"
 #include "DHControllerScreen.h"
+#include "DHProgression.h"
 #include "DHGameRulesComponent.h"
 #include "DHFreeForAllScoring.h"
 #include "DHGunGameHud.h"
@@ -429,6 +430,11 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 		Input->AddMappingContext(Mapping, 10);
 		bMappingAdded = true;
 		UDHControllerScreen::ApplyBindings(PC->GetLocalPlayer());
+	}
+	// Developer mode (fg.txt): Lyra's cheats (God, UnlimitedHealth, ...) for the local player; real on the host.
+	if (PC && !PC->CheatManager && FDHProgression::IsDevMode())
+	{
+		const_cast<APlayerController*>(PC)->AddCheats(true);
 	}
 }
 

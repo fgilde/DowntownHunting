@@ -35,7 +35,7 @@ private:
 
 	struct FCard
 	{
-		TObjectPtr<UButton> Button;
+		TObjectPtr<class UDHCardButton> Button;
 		EKind Kind = EKind::Weapon;
 		int32 Entry = 0;  // UDHLoadoutSettings::EEntry, or the loadout index on tabs
 		FString Id;       // weapon, attachment, ability or perk id, empty for "none"

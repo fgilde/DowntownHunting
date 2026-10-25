@@ -1,6 +1,9 @@
 #include "DHProgression.h"
 
+#include "HAL/PlatformProcess.h"
 #include "Misc/ConfigCacheIni.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
 
 namespace DHProgressionSettings
 {
@@ -72,4 +75,29 @@ TArray<FString> FDHProgression::UnlocksAt(int32 Level)
 		}
 	}
 	return Ids;
+}
+
+bool FDHProgression::IsDevMode()
+{
+	static const bool bDev = []()
+	{
+		// RootDir: the packaged game's folder with DowntownHunting.exe; BaseDir: the real exe in Binaries/Win64.
+		for (const FString& Dir : { FPaths::RootDir(), FString(FPlatformProcess::BaseDir()), FPaths::ProjectDir() })
+		{
+			TArray<FString> Lines;
+			if (FFileHelper::LoadFileToStringArray(Lines, *(Dir / TEXT("fg.txt"))))
+			{
+				for (const FString& Line : Lines)
+				{
+					if (Line.Replace(TEXT(" "), TEXT("")).Equals(TEXT("DEVDBG=true"), ESearchCase::IgnoreCase))
+					{
+						UE_LOG(LogTemp, Log, TEXT("DH dev mode on (%s)"), *(Dir / TEXT("fg.txt")));
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}();
+	return bDev;
 }

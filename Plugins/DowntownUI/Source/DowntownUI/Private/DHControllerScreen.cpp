@@ -364,6 +364,7 @@ void UDHControllerScreen::NativeOnInitialized()
 		Button->SetBackgroundColor(DHScreenStyle::Card);
 		Button->CardId = Id;
 		Button->CardSlot = Index;
+		Button->PopScale = 0.02f;  // wide rows
 		Button->OnCardClicked.BindUObject(this, &ThisClass::HandleCardClicked);
 		Button->AddChild(Content);
 		Parent->AddChild(Button);
@@ -422,7 +423,8 @@ void UDHControllerScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaT
 	{
 		const bool bFocused = Buttons[Index]->HasAnyUserFocus() || Buttons[Index]->IsHovered();
 		const bool bWaiting = Buttons[Index]->CardId == TEXT("Row") && Buttons[Index]->CardSlot == CapturingRow;
-		Buttons[Index]->SetBackgroundColor(bWaiting ? DHScreenStyle::Accent : bFocused ? DHScreenStyle::Focus : DHScreenStyle::Card);
+		Buttons[Index]->SetBackgroundColor(bWaiting ? DHScreenStyle::Selected : bFocused ? DHScreenStyle::Focus : DHScreenStyle::Card);
+		Buttons[Index]->Animate(InDeltaTime);
 	}
 }
 

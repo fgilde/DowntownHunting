@@ -22,7 +22,13 @@ public:
 
 	/** Level a weapon or attachment id unlocks at (1 = from the start). */
 	static int32 UnlockLevel(const FString& Id);
-	static bool IsUnlocked(const FString& Id) { return GetLevel() >= UnlockLevel(Id); }
+	static bool IsUnlocked(const FString& Id) { return IsDevMode() || GetLevel() >= UnlockLevel(Id); }
+
+	/**
+	 * Developer mode: a file fg.txt next to the game's exe (or in the project folder) with the line DEVDBG=true.
+	 * Unlocks everything, shows a DEV badge in the menu and gives the host's player Lyra's cheats.
+	 */
+	static bool IsDevMode();
 
 	/** Ids that unlock exactly at this level, for the level-up message. */
 	static TArray<FString> UnlocksAt(int32 Level);

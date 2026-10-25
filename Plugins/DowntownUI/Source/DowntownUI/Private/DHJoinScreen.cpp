@@ -124,6 +124,7 @@ void UDHJoinScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		const bool bFocused = Button->HasAnyUserFocus() || Button->IsHovered();
 		Button->SetBackgroundColor(bFocused ? DHScreenStyle::Focus : DHScreenStyle::Card);
+		Button->Animate(InDeltaTime);
 	}
 }
 
@@ -203,6 +204,7 @@ void UDHJoinScreen::HandleSearchFinished(bool bSucceeded, const FText& Error)
 		UDHCardButton* Row = WidgetTree->ConstructWidget<UDHCardButton>();
 		Row->CardId = TEXT("Session");
 		Row->CardSlot = Index;
+		Row->PopScale = 0.02f;  // wide rows
 		Row->OnCardClicked.BindUObject(this, &ThisClass::HandleCardClicked);
 		UHorizontalBox* Cells = WidgetTree->ConstructWidget<UHorizontalBox>();
 		FString Host;

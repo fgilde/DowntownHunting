@@ -35,6 +35,7 @@ private:
 		FText Subtitle;
 		TObjectPtr<UDHCardButton> Button;
 		TObjectPtr<UBorder> Bar;
+		TObjectPtr<UTextBlock> TitleText;
 		TObjectPtr<UTextBlock> SubtitleText;
 		float Focus = 0.f;  // animated 0..1
 	};
@@ -43,7 +44,6 @@ private:
 	void HandleEntryClicked(UDHCardButton* Button);
 	void ShowBackground(const FString& Id);
 	void Open(const FString& Id);
-	void PlayUISound(const TCHAR* Path);
 	void RefreshLevel();
 
 	TArray<FEntry> Entries;

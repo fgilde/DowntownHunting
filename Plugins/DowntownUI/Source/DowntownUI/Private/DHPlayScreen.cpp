@@ -229,11 +229,11 @@ void UDHPlayScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	auto Highlight = [this](UDHCardButton* Card, bool bSelected, const FText& Description)
+	auto Highlight = [this, InDeltaTime](UDHCardButton* Card, bool bSelected, const FText& Description)
 	{
 		const bool bFocused = Card->HasAnyUserFocus() || Card->IsHovered();
-		Card->SetBackgroundColor(bFocused ? DHScreenStyle::Focus : bSelected ? DHScreenStyle::Accent : DHScreenStyle::Card);
-		Card->SetRenderScale(FVector2D(bFocused ? 1.04f : 1.f));
+		Card->SetBackgroundColor(bFocused ? DHScreenStyle::Focus : bSelected ? DHScreenStyle::Selected : DHScreenStyle::Card);
+		Card->Animate(InDeltaTime);
 		if (Card->HasAnyUserFocus())
 		{
 			DescriptionText->SetText(Description);
@@ -257,6 +257,7 @@ void UDHPlayScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		const bool bFocused = Switch->HasAnyUserFocus() || Switch->IsHovered();
 		Switch->SetBackgroundColor(bFocused ? DHScreenStyle::Focus : DHScreenStyle::Card);
+		Switch->Animate(InDeltaTime);
 	}
 }
 

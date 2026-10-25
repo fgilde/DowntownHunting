@@ -1,9 +1,9 @@
 #include "DHCharacterSelectScreen.h"
 
 #include "Blueprint/WidgetTree.h"
+#include "Components/AudioComponent.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
-#include "Components/ButtonSlot.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
 #include "Components/OverlaySlot.h"
@@ -18,6 +18,13 @@
 #include "DHScreenStyle.h"
 #include "Engine/Font.h"
 #include "Engine/Texture2D.h"
+#include "FileMediaSource.h"
+#include "HAL/FileManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "MediaPlayer.h"
+#include "MediaTexture.h"
+#include "Misc/Paths.h"
+#include "Sound/SoundBase.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DHCharacterSelectScreen)
 
@@ -25,11 +32,26 @@ namespace
 {
 	const int32 Columns = 5;
 	const FLinearColor CardColor = DHScreenStyle::Card;
+	const FVector2D SplashSize(660.f, 880.f);  // the art is 3:4
 
-	UTexture2D* Portrait(const FString& Id)
+	/** Splash art (arcade comic style), else the old portrait photo. */
+	UTexture2D* Picture(const FString& Id)
 	{
-		const FString Path = FString::Printf(TEXT("/Game/DH/UI/Portraits/T_DH_Portrait_%s.T_DH_Portrait_%s"), *Id, *Id);
-		return LoadObject<UTexture2D>(nullptr, *Path, nullptr, LOAD_NoWarn | LOAD_Quiet);
+		const FString Name = Id.IsEmpty() ? TEXT("Random") : Id;
+		for (const TCHAR* Prefix : { TEXT("/Game/DH/UI/Splash/T_DH_Splash_"), TEXT("/Game/DH/UI/Portraits/T_DH_Portrait_") })
+		{
+			const FString Asset = FString(Prefix) + Name;
+			if (UTexture2D* Texture = LoadObject<UTexture2D>(nullptr, *(Asset + TEXT(".") + FPaths::GetCleanFilename(Asset)), nullptr, LOAD_NoWarn | LOAD_Quiet))
+			{
+				return Texture;
+			}
+		}
+		return nullptr;
+	}
+
+	FString ClipPath(const FString& Id)
+	{
+		return FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir() / TEXT("Movies/Characters") / FString::Printf(TEXT("DH_Char_%s.mp4"), Id.IsEmpty() ? TEXT("Random") : *Id));
 	}
 }
 
@@ -53,20 +75,67 @@ void UDHCharacterSelectScreen::NativeOnInitialized()
 	DimSlot->SetHorizontalAlignment(HAlign_Fill);
 	DimSlot->SetVerticalAlignment(VAlign_Fill);
 
+	// Splash panel, left: still picture, the clip above it, the name across the bottom.
+	USizeBox* SplashBox = WidgetTree->ConstructWidget<USizeBox>();
+	SplashBox->SetWidthOverride(SplashSize.X);
+	SplashBox->SetHeightOverride(SplashSize.Y);
+	UBorder* Frame = WidgetTree->ConstructWidget<UBorder>();  // comic panel: thick black frame
+	Frame->SetBrushColor(FLinearColor::Black);
+	Frame->SetPadding(FMargin(7.f));
+	SplashBox->AddChild(Frame);
+	UOverlay* SplashLayers = WidgetTree->ConstructWidget<UOverlay>();
+	Frame->SetContent(SplashLayers);
+	auto Fill = [](UOverlaySlot* LayerSlot)
+	{
+		LayerSlot->SetHorizontalAlignment(HAlign_Fill);
+		LayerSlot->SetVerticalAlignment(VAlign_Fill);
+	};
+	SplashImage = WidgetTree->ConstructWidget<UImage>();
+	Fill(SplashLayers->AddChildToOverlay(SplashImage));
+	VideoPlayer = NewObject<UMediaPlayer>(this);
+	VideoPlayer->SetLooping(true);
+	VideoPlayer->PlayOnOpen = true;
+	UMediaTexture* VideoTexture = NewObject<UMediaTexture>(this);
+	VideoTexture->SetMediaPlayer(VideoPlayer);
+	VideoTexture->UpdateResource();
+	KeepAlive.Add(VideoTexture);
+	SplashVideo = WidgetTree->ConstructWidget<UImage>();
+	SplashVideo->SetBrushResourceObject(VideoTexture);
+	SplashVideo->SetRenderOpacity(0.f);
+	Fill(SplashLayers->AddChildToOverlay(SplashVideo));
+	SplashName = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 72, DHScreenStyle::Accent);
+	FSlateFontInfo NameFont = SplashName->GetFont();
+	NameFont.OutlineSettings.OutlineSize = 5;  // readable on the bright art
+	NameFont.OutlineSettings.OutlineColor = FLinearColor::Black;
+	SplashName->SetFont(NameFont);
+	SplashName->SetShadowOffset(FVector2D(5, 5));
+	SplashName->SetShadowColorAndOpacity(DHScreenStyle::Selected);
+	SplashName->SetRenderTransformAngle(-5.f);
+	UOverlaySlot* NameSlot = SplashLayers->AddChildToOverlay(SplashName);
+	NameSlot->SetHorizontalAlignment(HAlign_Left);
+	NameSlot->SetVerticalAlignment(VAlign_Bottom);
+	NameSlot->SetPadding(FMargin(28, 0, 0, 30));
+	Splash = SplashBox;
+	Splash->SetRenderTransformPivot(FVector2D(0.5f, 1.f));
+	UOverlaySlot* SplashSlot = Root->AddChildToOverlay(SplashBox);
+	SplashSlot->SetHorizontalAlignment(HAlign_Left);
+	SplashSlot->SetVerticalAlignment(VAlign_Center);
+	SplashSlot->SetPadding(FMargin(70, 0, 0, 0));
+
 	UVerticalBox* Column = WidgetTree->ConstructWidget<UVerticalBox>();
 	UOverlaySlot* ColumnSlot = Root->AddChildToOverlay(Column);
-	ColumnSlot->SetHorizontalAlignment(HAlign_Center);
+	ColumnSlot->SetHorizontalAlignment(HAlign_Right);
 	ColumnSlot->SetVerticalAlignment(VAlign_Center);
+	ColumnSlot->SetPadding(FMargin(0, 0, 80, 0));
 
-	UTextBlock* Title = WidgetTree->ConstructWidget<UTextBlock>();
+	UTextBlock* Title = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 44, DHScreenStyle::Accent);
 	Title->SetText(NSLOCTEXT("DowntownHunting", "ChooseHunter", "CHOOSE YOUR HUNTER"));
-	Title->SetFont(DHScreenStyle::Font(TEXT("Orbitron"), 40));
-	Title->SetColorAndOpacity(DHScreenStyle::Accent);
+	Title->SetShadowOffset(FVector2D(4, 4));
+	Title->SetShadowColorAndOpacity(DHScreenStyle::Selected);
+	Title->SetRenderTransformAngle(-2.f);
 	Column->AddChildToVerticalBox(Title)->SetHorizontalAlignment(HAlign_Center);
 
-	CurrentText = WidgetTree->ConstructWidget<UTextBlock>();
-	CurrentText->SetFont(DHScreenStyle::Font(TEXT("NotoSans"), 18));
-	CurrentText->SetColorAndOpacity(DHScreenStyle::Text);
+	CurrentText = DHScreenStyle::MakeText(WidgetTree, TEXT("NotoSans"), 18, DHScreenStyle::Text);
 	UVerticalBoxSlot* CurrentSlot = Column->AddChildToVerticalBox(CurrentText);
 	CurrentSlot->SetHorizontalAlignment(HAlign_Center);
 	CurrentSlot->SetPadding(FMargin(0, 6, 0, 24));
@@ -101,7 +170,7 @@ void UDHCharacterSelectScreen::NativeOnInitialized()
 	BackSlot->SetPadding(FMargin(0, 28, 0, 0));
 }
 
-UButton* UDHCharacterSelectScreen::MakeCard(const FString& Id, const FText& Label)
+UDHCardButton* UDHCharacterSelectScreen::MakeCard(const FString& Id, const FText& Label)
 {
 	UDHCardButton* Card = WidgetTree->ConstructWidget<UDHCardButton>();
 	Card->SetBackgroundColor(CardColor);
@@ -109,11 +178,11 @@ UButton* UDHCharacterSelectScreen::MakeCard(const FString& Id, const FText& Labe
 	Card->OnCardClicked.BindUObject(this, &ThisClass::HandleCardClicked);
 
 	UVerticalBox* Content = WidgetTree->ConstructWidget<UVerticalBox>();
-	USizeBox* PortraitBox = WidgetTree->ConstructWidget<USizeBox>();
-	PortraitBox->SetWidthOverride(176.f);
-	PortraitBox->SetHeightOverride(220.f);
+	USizeBox* PictureBox = WidgetTree->ConstructWidget<USizeBox>();
+	PictureBox->SetWidthOverride(120.f);
+	PictureBox->SetHeightOverride(160.f);
 	UImage* Image = WidgetTree->ConstructWidget<UImage>();
-	if (UTexture2D* Texture = Portrait(Id.IsEmpty() ? TEXT("Random") : Id))
+	if (UTexture2D* Texture = Picture(Id))
 	{
 		Image->SetBrushFromTexture(Texture);
 	}
@@ -121,12 +190,11 @@ UButton* UDHCharacterSelectScreen::MakeCard(const FString& Id, const FText& Labe
 	{
 		Image->SetColorAndOpacity(FLinearColor(0.12f, 0.11f, 0.1f));
 	}
-	PortraitBox->AddChild(Image);
-	Content->AddChildToVerticalBox(PortraitBox);
+	PictureBox->AddChild(Image);
+	Content->AddChildToVerticalBox(PictureBox);
 
-	UTextBlock* Name = WidgetTree->ConstructWidget<UTextBlock>();
+	UTextBlock* Name = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 15, DHScreenStyle::Text);
 	Name->SetText(Label);
-	Name->SetFont(DHScreenStyle::Font(TEXT("Orbitron"), 16));
 	UVerticalBoxSlot* NameSlot = Content->AddChildToVerticalBox(Name);
 	NameSlot->SetHorizontalAlignment(HAlign_Center);
 	NameSlot->SetPadding(FMargin(0, 6, 0, 2));
@@ -154,12 +222,86 @@ void UDHCharacterSelectScreen::NativeTick(const FGeometry& MyGeometry, float InD
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	// UButton draws no focus state; show which card the gamepad/keyboard is on.
+	FString Shown = CurrentId;
 	for (int32 Index = 0; Index < Cards.Num(); ++Index)
 	{
-		const bool bFocused = Cards[Index]->HasAnyUserFocus() || Cards[Index]->IsHovered();
-		Cards[Index]->SetBackgroundColor(CardIds[Index] == CurrentId ? DHScreenStyle::Accent : bFocused ? DHScreenStyle::Focus : CardColor);
-		Cards[Index]->SetRenderScale(FVector2D(bFocused ? 1.06f : 1.f));
+		const bool bFocused = Cards[Index]->IsActive();
+		Cards[Index]->SetBackgroundColor(CardIds[Index] == CurrentId ? DHScreenStyle::Selected : bFocused ? DHScreenStyle::Focus : CardColor);
+		Cards[Index]->Animate(InDeltaTime);
+		if (bFocused)
+		{
+			Shown = CardIds[Index];
+		}
 	}
+	ShowSplash(Shown);
+
+	// Splash springs in from the left, overshoots a little; the clip fades in over the still once it plays.
+	const float Step = FMath::Min(InDeltaTime, 1.f / 30.f);
+	SplashVelocity += -SplashOffset * 220.f * Step - SplashVelocity * 15.f * Step;
+	SplashOffset += SplashVelocity * Step;
+	FWidgetTransform Transform;
+	Transform.Translation = FVector2D(SplashOffset, 0.f);
+	Transform.Angle = SplashOffset * 0.012f;
+	Transform.Shear = FVector2D(-4.f, 0.f);
+	Splash->SetRenderTransform(Transform);
+	Splash->SetRenderOpacity(FMath::Clamp(1.f + SplashOffset / 450.f, 0.f, 1.f));
+	VideoFade = FMath::FInterpConstantTo(VideoFade, VideoPlayer->IsPlaying() ? 1.f : 0.f, InDeltaTime, 4.f);
+	SplashVideo->SetRenderOpacity(VideoFade);
+
+	if (VoiceAllowedAt > 0.0 && FPlatformTime::Seconds() >= VoiceAllowedAt)
+	{
+		VoiceAllowedAt = 0.0;
+		const FString Name = SplashId.IsEmpty() ? TEXT("Random") : SplashId;
+		const FString Path = FString::Printf(TEXT("/Game/DH/UI/Voices/DH_Voice_%s.DH_Voice_%s"), *Name, *Name);
+		if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, *Path, nullptr, LOAD_NoWarn | LOAD_Quiet))
+		{
+			Voice = UGameplayStatics::SpawnSound2D(this, Sound);
+		}
+	}
+}
+
+void UDHCharacterSelectScreen::NativeDestruct()
+{
+	VideoPlayer->Close();
+	if (Voice)
+	{
+		Voice->Stop();
+	}
+	Super::NativeDestruct();
+}
+
+void UDHCharacterSelectScreen::ShowSplash(const FString& Id)
+{
+	if (Id == SplashId)
+	{
+		return;
+	}
+	SplashId = Id;
+	UTexture2D* Texture = Picture(Id);
+	SplashImage->SetBrushFromTexture(Texture);
+	SplashImage->SetColorAndOpacity(Texture ? FLinearColor::White : FLinearColor(0.f, 0.f, 0.f, 0.f));
+	SplashName->SetText(FText::FromString(Id.IsEmpty() ? TEXT("RANDOM") : Id.ToUpper()));
+	SplashOffset = -420.f;
+	SplashVelocity = 0.f;
+
+	VideoFade = 0.f;
+	VideoPlayer->Close();
+	const FString Clip = ClipPath(Id);
+	if (IFileManager::Get().FileExists(*Clip))
+	{
+		UFileMediaSource* Source = NewObject<UFileMediaSource>(this);
+		Source->SetFilePath(Clip);
+		KeepAlive.Add(Source);
+		VideoPlayer->OpenSource(Source);
+	}
+
+	// The voice line once the selection rests for a moment, not for every card scrolled past.
+	if (Voice)
+	{
+		Voice->FadeOut(0.15f, 0.f);
+		Voice = nullptr;
+	}
+	VoiceAllowedAt = FPlatformTime::Seconds() + 0.3;
 }
 
 void UDHCharacterSelectScreen::HandleCardClicked(UDHCardButton* Card)

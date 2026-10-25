@@ -146,18 +146,19 @@ void UDHMainMenu::AddEntry(UVerticalBox* Column, const FString& Id, const FText&
 	BarSlot->SetPadding(FMargin(0, 6, 18, 6));
 
 	UVerticalBox* Texts = WidgetTree->ConstructWidget<UVerticalBox>();
-	UTextBlock* TitleText = WidgetTree->ConstructWidget<UTextBlock>();
-	TitleText->SetText(Title);
-	TitleText->SetFont(DHScreenStyle::Font(TEXT("Orbitron"), 34));
-	TitleText->SetShadowOffset(FVector2D(2, 2));
-	TitleText->SetShadowColorAndOpacity(FLinearColor(0, 0, 0, 0.6f));
-	Texts->AddChildToVerticalBox(TitleText);
+	Entry.Button->PopScale = 0.05f;
+	Entry.TitleText = WidgetTree->ConstructWidget<UTextBlock>();
+	Entry.TitleText->SetText(Title);
+	Entry.TitleText->SetFont(DHScreenStyle::Font(TEXT("Orbitron"), 36));
+	Entry.TitleText->SetShadowOffset(FVector2D(3, 3));
+	Entry.TitleText->SetShadowColorAndOpacity(FLinearColor(DHScreenStyle::Selected.R, DHScreenStyle::Selected.G, DHScreenStyle::Selected.B, 0.9f));
+	Texts->AddChildToVerticalBox(Entry.TitleText)->SetPadding(FMargin(10, 0, 18, 0));
 	Entry.SubtitleText = WidgetTree->ConstructWidget<UTextBlock>();
 	Entry.SubtitleText->SetText(Subtitle);
 	Entry.SubtitleText->SetFont(DHScreenStyle::Font(TEXT("NotoSans"), 15));
 	Entry.SubtitleText->SetColorAndOpacity(DHScreenStyle::Text);
 	Entry.SubtitleText->SetRenderOpacity(0.f);
-	Texts->AddChildToVerticalBox(Entry.SubtitleText);
+	Texts->AddChildToVerticalBox(Entry.SubtitleText)->SetPadding(FMargin(10, 0, 18, 4));
 	Row->AddChildToHorizontalBox(Texts);
 	Entry.Button->AddChild(Row);
 
@@ -174,7 +175,9 @@ void UDHMainMenu::RefreshLevel()
 	const int32 Level = FDHProgression::LevelForXP(XP);
 	const int32 From = FDHProgression::LevelStartXP(Level), To = FDHProgression::LevelStartXP(Level + 1);
 	LevelText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "MenuLevel", "LEVEL {0}"), Level));
-	XPText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "MenuXP", "{0} / {1} XP"), XP, To));
+	XPText->SetText(FDHProgression::IsDevMode()
+		? FText::Format(NSLOCTEXT("DowntownHunting", "MenuXPDev", "{0} / {1} XP  ·  DEV MODE: all unlocked, cheats"), XP, To)
+		: FText::Format(NSLOCTEXT("DowntownHunting", "MenuXP", "{0} / {1} XP"), XP, To));
 	XPBar->SetPercent(float(XP - From) / FMath::Max(1, To - From));
 }
 
@@ -210,26 +213,19 @@ void UDHMainMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		FEntry& Entry = Entries[Index];
 		Entry.Focus = FMath::FInterpTo(Entry.Focus, Index == Focused ? 1.f : 0.f, InDeltaTime, 12.f);
 		Entry.Bar->SetRenderOpacity(Entry.Focus);
-		Entry.SubtitleText->SetRenderOpacity(Entry.Focus * 0.85f);
-		Entry.Button->SetRenderTranslation(FVector2D(-28.f * Entry.Focus, 0.f));
-		Entry.Button->SetRenderOpacity(0.55f + 0.45f * Entry.Focus);
+		Entry.SubtitleText->SetRenderOpacity(Entry.Focus * 0.9f);
+		// Arcade highlight: a slanted neon yellow band behind the entry, black title, magenta drop shadow.
+		Entry.Button->SetBackgroundColor(FLinearColor(DHScreenStyle::Accent.R, DHScreenStyle::Accent.G, DHScreenStyle::Accent.B, 0.95f * Entry.Focus));
+		Entry.TitleText->SetColorAndOpacity(FMath::Lerp(DHScreenStyle::Text, FLinearColor(0.02f, 0.01f, 0.03f), Entry.Focus));
+		Entry.SubtitleText->SetColorAndOpacity(FMath::Lerp(DHScreenStyle::Text, FLinearColor(0.1f, 0.03f, 0.12f), Entry.Focus));
+		Entry.Button->SetRenderTranslation(FVector2D(-34.f * Entry.Focus, 0.f));
+		Entry.Button->SetRenderOpacity(0.7f + 0.3f * Entry.Focus);
+		Entry.Button->Animate(InDeltaTime);
 	}
 	if (Entries.IsValidIndex(Focused) && Focused != LastFocused)
 	{
-		if (LastFocused != INDEX_NONE)
-		{
-			PlayUISound(TEXT("/Game/Audio/Sounds/UI/sfx_UI_MainMenu_Highlight_nl_meta_Preset.sfx_UI_MainMenu_Highlight_nl_meta_Preset"));
-		}
 		LastFocused = Focused;
 		ShowBackground(Entries[Focused].Id);
-	}
-}
-
-void UDHMainMenu::PlayUISound(const TCHAR* Path)
-{
-	if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, Path))
-	{
-		UGameplayStatics::PlaySound2D(this, Sound);
 	}
 }
 
@@ -249,7 +245,6 @@ void UDHMainMenu::ShowBackground(const FString& Id)
 
 void UDHMainMenu::HandleEntryClicked(UDHCardButton* Button)
 {
-	PlayUISound(TEXT("/Game/Audio/Sounds/UI/sfx_UI_MainMenu_Select_nl_meta_Preset.sfx_UI_MainMenu_Select_nl_meta_Preset"));
 	Open(Button->CardId);
 }
 

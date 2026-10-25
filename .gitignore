@@ -42,3 +42,4 @@ Plugins/**/Intermediate/
 /Build/Windows/ChunkLayerInfo/
 /Build/Windows/FileOpenOrder/
 __pycache__/
+/fg.txt

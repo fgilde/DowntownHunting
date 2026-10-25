@@ -262,8 +262,8 @@ void UDHLoadoutScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 	for (const FCard& Card : Cards)
 	{
 		const bool bFocused = Card.Button->HasAnyUserFocus() || Card.Button->IsHovered();
-		Card.Button->SetBackgroundColor(IsChosen(Card) ? DHScreenStyle::Accent : bFocused ? DHScreenStyle::Focus : DHScreenStyle::Card);
-		Card.Button->SetRenderScale(FVector2D(bFocused ? 1.06f : 1.f));
+		Card.Button->SetBackgroundColor(IsChosen(Card) ? DHScreenStyle::Selected : bFocused ? DHScreenStyle::Focus : DHScreenStyle::Card);
+		Card.Button->Animate(InDeltaTime);
 	}
 }
 
