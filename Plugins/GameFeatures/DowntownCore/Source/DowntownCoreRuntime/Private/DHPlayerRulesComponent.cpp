@@ -6,6 +6,7 @@
 #include "Camera/LyraCameraMode.h"
 #include "DHAbilities.h"
 #include "DHAbilityHud.h"
+#include "DHControllerScreen.h"
 #include "DHGameRulesComponent.h"
 #include "DHFreeForAllScoring.h"
 #include "DHGunGameHud.h"
@@ -412,6 +413,7 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 		// Above ShooterCore's contexts: our gamepad keys (melee on the right stick, RB for the second ability) win.
 		Input->AddMappingContext(Mapping, 10);
 		bMappingAdded = true;
+		UDHControllerScreen::ApplyBindings(PC->GetLocalPlayer());
 	}
 }
 

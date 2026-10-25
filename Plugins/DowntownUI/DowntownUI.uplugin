@@ -31,6 +31,10 @@
 		{
 			"Name": "CommonUser",
 			"Enabled": true
+		},
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
 		}
 	]
 }

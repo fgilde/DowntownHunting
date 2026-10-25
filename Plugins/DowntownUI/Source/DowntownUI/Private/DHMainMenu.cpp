@@ -15,6 +15,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "DHCardButton.h"
 #include "DHCharacterSelectScreen.h"
+#include "DHControllerScreen.h"
 #include "DHLoadoutScreen.h"
 #include "DHMenuBackground.h"
 #include "DHPlayScreen.h"
@@ -115,9 +116,11 @@ void UDHMainMenu::NativeOnInitialized()
 	AddEntry(Column, TEXT("Character"), NSLOCTEXT("DowntownHunting", "MenuCharacter", "CHARACTER"),
 		NSLOCTEXT("DowntownHunting", "MenuCharacterSub", "Pick who you hunt as"));
 	AddEntry(Column, TEXT("Loadout"), NSLOCTEXT("DowntownHunting", "MenuLoadout", "LOADOUT"),
-		NSLOCTEXT("DowntownHunting", "MenuLoadoutSub", "Primary and secondary weapon"));
+		NSLOCTEXT("DowntownHunting", "MenuLoadoutSub", "Weapons, abilities and perks, five loadouts"));
 	AddEntry(Column, TEXT("Options"), NSLOCTEXT("DowntownHunting", "MenuOptions", "OPTIONS"),
 		NSLOCTEXT("DowntownHunting", "MenuOptionsSub", "Video, audio, controls, gamepad"));
+	AddEntry(Column, TEXT("Controller"), NSLOCTEXT("DowntownHunting", "MenuController", "CONTROLLER"),
+		NSLOCTEXT("DowntownHunting", "MenuControllerSub", "Gamepad button layout"));
 	AddEntry(Column, TEXT("Credits"), NSLOCTEXT("DowntownHunting", "MenuCredits", "CREDITS"),
 		NSLOCTEXT("DowntownHunting", "MenuCreditsSub", "Who made this city"));
 	AddEntry(Column, TEXT("Quit"), NSLOCTEXT("DowntownHunting", "MenuQuit", "QUIT"),
@@ -178,6 +181,7 @@ void UDHMainMenu::RefreshLevel()
 void UDHMainMenu::NativeOnActivated()
 {
 	Super::NativeOnActivated();
+	UDHControllerScreen::ApplyBindings(GetOwningLocalPlayer());
 	UDHIntroScreen::PlayOnce(GetOwningPlayer());
 	RefreshLevel();
 	if (!Entries.IsEmpty())
@@ -275,6 +279,10 @@ void UDHMainMenu::Open(const FString& Id)
 	else if (Id == TEXT("Options"))
 	{
 		Push(LoadClass<UCommonActivatableWidget>(nullptr, TEXT("/Game/UI/Settings/W_LyraSettingScreen.W_LyraSettingScreen_C")));
+	}
+	else if (Id == TEXT("Controller"))
+	{
+		Push(UDHControllerScreen::StaticClass());
 	}
 	else if (Id == TEXT("Credits"))
 	{

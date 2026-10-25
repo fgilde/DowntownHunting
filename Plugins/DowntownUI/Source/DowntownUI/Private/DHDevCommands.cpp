@@ -15,6 +15,7 @@
 #include "CommonUIExtensions.h"
 #include "Containers/Ticker.h"
 #include "DHCharacterSelectScreen.h"
+#include "DHControllerScreen.h"
 #include "DHLoadoutScreen.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
@@ -55,7 +56,11 @@ namespace
 			return;
 		}
 		UClass* Class = nullptr;
-		if (Args[0] == TEXT("Character"))
+		if (Args[0] == TEXT("Controller"))
+		{
+			Class = UDHControllerScreen::StaticClass();
+		}
+		else if (Args[0] == TEXT("Character"))
 		{
 			Class = UDHCharacterSelectScreen::StaticClass();
 		}
@@ -182,6 +187,12 @@ namespace
 
 	FAutoConsoleCommand OpenScreenCommand(TEXT("DH.OpenScreen"), TEXT("Push a menu screen: Character, Loadout, Settings or a widget class path"),
 		FConsoleCommandWithArgsDelegate::CreateStatic(&OpenScreen));
+	FAutoConsoleCommand PadDumpCommand(TEXT("DH.PadDump"), TEXT("Log the keys each gamepad layout action is mapped to"),
+		FConsoleCommandDelegate::CreateLambda([]()
+		{
+			UWorld* World = GameWorld();
+			UDHControllerScreen::LogBindings(World && World->GetGameInstance() ? World->GetGameInstance()->GetFirstGamePlayer() : nullptr);
+		}));
 	FAutoConsoleCommand KeyCommand(TEXT("DH.Key"), TEXT("Press keys through Slate, e.g. Gamepad_DPad_Down Gamepad_FaceButton_Bottom"),
 		FConsoleCommandWithArgsDelegate::CreateStatic(&PressKeys));
 	FAutoConsoleCommand ShotCommand(TEXT("DH.Shot"), TEXT("Screenshot to Saved/DHShots/<Name>.png, 'noui' as second argument hides the UI"),
