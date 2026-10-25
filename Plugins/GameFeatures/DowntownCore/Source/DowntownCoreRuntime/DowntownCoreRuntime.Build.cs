@@ -46,6 +46,7 @@ public class DowntownCoreRuntime : ModuleRules
 				"Slate",
 				"UMG",
 				"Niagara",
+				"HairStrandsCore",
 				"NavigationSystem",
 				"AIModule",
 				"SlateCore",

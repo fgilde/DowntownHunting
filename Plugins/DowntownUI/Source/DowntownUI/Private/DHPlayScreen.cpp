@@ -96,6 +96,7 @@ void UDHPlayScreen::NativeOnInitialized()
 	NetworkText = AddSwitch(TEXT("Network"));
 	BotsText = AddSwitch(TEXT("Bots"));
 	AddSwitch(TEXT("Join"))->SetText(NSLOCTEXT("DowntownHunting", "PlayJoin", "JOIN A GAME"));
+	AddSwitch(TEXT("Back"))->SetText(NSLOCTEXT("DowntownHunting", "Back", "BACK"));
 	UpdateSwitches();
 
 	// The modes, in Modes.json order.
@@ -280,6 +281,10 @@ void UDHPlayScreen::HandleCardClicked(UDHCardButton* Card)
 	{
 		bBots = !bBots;
 		UpdateSwitches();
+	}
+	else if (Card->CardId == TEXT("Back"))
+	{
+		DeactivateWidget();
 	}
 	else if (Card->CardId == TEXT("Join"))
 	{

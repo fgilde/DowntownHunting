@@ -25,14 +25,17 @@ LINES = {
     'Lou': ('Woman in her thirties, focused, calm and crisp professional', "Locked and loaded. Let's work."),
     'Mara': ('Confident young woman in her late twenties, smooth low alto voice, cocky and playful, action movie heroine',
              'Downtown is my hunting ground. Try to keep up.'),
-    'Marcus': ('Big man with a loud booming voice, battle hungry, roaring', 'Bring it on! All of you!'),
+    'Marcus': ('Big adult man in his forties, deep baritone bass voice, gruff, calm and menacing, battle hungry', 'Bring it on. All of you.'),
     'Nina': ('Cool detached young woman, quiet confidence, almost whispering', 'Two guns. Zero mercy.'),
     'Ray': ('Cheerful middle-aged man, mischievous, laughing', 'Fire in the hole! Ha ha!'),
     'Rosa': ('Determined serious woman, sharp and commanding', 'Move fast. Hit hard.'),
     'Sal': ('Smooth sly middle-aged man, mobster charm, relaxed', 'Nothing personal. Just business.'),
     'Viktor': ('Man in his thirties with a strong Eastern European accent, deep and confident', 'One shot. One kill.'),
-    'Random': ('Hyped arcade game announcer, energetic male voice, big and dramatic', 'Feeling lucky?'),
+    'Random': ('Deep male movie trailer announcer, baritone, big and dramatic', 'Feeling lucky?'),
 }
+
+# The voice design model picks the gender from the description alone and sometimes gets it wrong: say it, and check.
+MEN = {'Dex', 'Hunter', 'Jonah', 'Marcus', 'Ray', 'Sal', 'Viktor', 'Random'}
 
 
 def call(method, path, body=None):
@@ -49,6 +52,26 @@ def tail_level(path):
     rms = lambda part: math.sqrt(sum(x * x for x in part) / max(1, len(part)))
     peak = max(rms(samples[i:i + rate // 20]) for i in range(0, len(samples), rate // 20))
     return rms(samples[-rate // 10:]) / max(1.0, peak)
+
+
+def pitch(path):
+    """Median voice pitch in Hz (autocorrelation over the loud 40 ms frames): men below 165, women above."""
+    import numpy
+    with wave.open(path) as w:
+        rate, channels = w.getframerate(), w.getnchannels()
+        samples = numpy.frombuffer(w.readframes(w.getnframes()), numpy.int16)[::channels].astype(float)
+    samples /= max(1.0, numpy.abs(samples).max())
+    size, found = int(0.04 * rate), []
+    for start in range(0, len(samples) - size, size):
+        frame = samples[start:start + size] - samples[start:start + size].mean()
+        if numpy.sqrt((frame ** 2).mean()) < 0.05:
+            continue
+        corr = numpy.correlate(frame, frame, 'full')[size - 1:]
+        low, high = rate // 400, rate // 70
+        lag = low + int(numpy.argmax(corr[low:high]))
+        if corr[lag] > 0.4 * corr[0]:
+            found.append(rate / lag)
+    return float(numpy.median(found)) if found else 0.0
 
 
 def generate(description, line):
@@ -69,13 +92,23 @@ def main(ids):
     os.makedirs(OUT, exist_ok=True)
     for id in ids:
         description, line = LINES[id]
-        for attempt in range(4):
+        male = id in MEN
+        description = ('Male voice, a man. ' if male else 'Female voice, a woman. ') + description
+        for attempt in range(8):
             name = generate(description, line)
             raw = os.path.join(OUT, id + '.raw.wav')
             subprocess.run(['docker', 'cp', 'museforge:/workspace/app/outputs/%s/%s' % (WORKSPACE, name), raw], check=True)
+            hz = pitch(raw)
+            if (hz < 165) != male:
+                print('wrong voice (%d Hz), again:' % hz, id, flush=True)
+                continue
             if tail_level(raw) < 0.05:
                 break
             print('cut off, again:', id, flush=True)
+        else:
+            print('FAILED, kept the old line:', id, flush=True)
+            os.remove(raw)
+            continue
         target = os.path.join(OUT, 'DH_Voice_%s.wav' % id)
         # 0.3 s of silence at the end, so nothing clicks when the sound stops
         subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', raw, '-af',

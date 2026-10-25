@@ -30,6 +30,8 @@
 #include "DHSoundCue.h"
 #include "DHWeaponAccess.h"
 #include "Components/SkinnedMeshComponent.h"
+#include "GroomComponent.h"
+#include "AnimationRuntime.h"
 #include "Curves/CurveFloat.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -207,7 +209,7 @@ void UDHPlayerRulesComponent::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(HunterTimer, [this]()
 	{
 		ApplyAttachments();
-		EnableHairSkinning();
+		AttachHairToHead();
 		DHAbilities::UpdateCloak(GetPawn<APawn>(), CloakState);
 		ACharacter* Character = GetPawn<ACharacter>();
 		if (Character && Character->HasAuthority())
@@ -614,32 +616,40 @@ bool UDHPlayerRulesComponent::HasScope() const
 	return Weapon && Weapon->GetClass()->GetName().Contains(TEXT("Sniper"));
 }
 
-void UDHPlayerRulesComponent::EnableHairSkinning()
+void UDHPlayerRulesComponent::AttachHairToHead()
 {
-	// Groom hair follows the head through its binding only if the head mesh runs through the GPU skin cache, which
-	// Lyra leaves off by default (r.SkinCache.DefaultBehavior=0): without it the hair stays in the rest pose and floats
-	// when the head moves. Turn the cache on for every mesh a groom hangs on (character parts can change any time).
+	// City Sample's grooms are bound to the head mesh, but the binding does not deform them here (skin cache on or
+	// not): the hair stays in the head's rest pose and floats away whenever an animation moves the head (running,
+	// dying). Hang every groom rigidly on the head bone instead, where it sits in the rest pose, without the binding.
 	const APawn* Pawn = GetPawn<APawn>();
 	if (!Pawn || GetNetMode() == NM_DedicatedServer)
 	{
 		return;
 	}
+	static const FName HeadBone(TEXT("head"));
 	TArray<AActor*> Parts;
 	Pawn->GetAttachedActors(Parts, /*bResetArray=*/ true, /*bRecursivelyIncludeAttachedActors=*/ true);
 	for (const AActor* Part : Parts)
 	{
-		for (UActorComponent* Component : Part->GetComponents())
+		TInlineComponentArray<UGroomComponent*> Grooms(Part);
+		for (UGroomComponent* Groom : Grooms)
 		{
-			USceneComponent* Groom = Cast<USceneComponent>(Component);
-			USkinnedMeshComponent* Skin = Groom && Groom->GetClass()->GetFName() == TEXT("GroomComponent") ? Cast<USkinnedMeshComponent>(Groom->GetAttachParent()) : nullptr;
-			if (!Skin || HairSkins.Contains(Skin))
+			USkinnedMeshComponent* Skin = Cast<USkinnedMeshComponent>(Groom->GetAttachParent());
+			if (!Skin || !Skin->GetSkinnedAsset() || Groom->GetAttachSocketName() == HeadBone)
 			{
 				continue;
 			}
-			HairSkins.Add(Skin);
-			Skin->SkinCacheUsage.Init(ESkinCacheUsage::Enabled, FMath::Max(1, Skin->GetNumLODs()));
-			Skin->MarkRenderStateDirty();
-			Groom->MarkRenderStateDirty();
+			const FReferenceSkeleton& Skeleton = Skin->GetSkinnedAsset()->GetRefSkeleton();
+			const int32 Bone = Skeleton.FindBoneIndex(HeadBone);
+			if (Bone == INDEX_NONE)
+			{
+				continue;
+			}
+			const FTransform BoneRestPose = FAnimationRuntime::GetComponentSpaceTransformRefPose(Skeleton, Bone);
+			const FTransform Relative = Groom->GetRelativeTransform() * BoneRestPose.Inverse();
+			Groom->SetBindingAsset(nullptr);
+			Groom->AttachToComponent(Skin, FAttachmentTransformRules::KeepRelativeTransform, HeadBone);
+			Groom->SetRelativeTransform(Relative);
 		}
 	}
 }

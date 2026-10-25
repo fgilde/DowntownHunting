@@ -78,7 +78,7 @@ void UDHJoinScreen::NativeOnInitialized()
 	UHorizontalBoxSlot* TitleSlot = Header->AddChildToHorizontalBox(Title);
 	TitleSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
 	TitleSlot->SetVerticalAlignment(VAlign_Center);
-	for (const TCHAR* Id : { TEXT("Network"), TEXT("Refresh") })
+	for (const TCHAR* Id : { TEXT("Network"), TEXT("Refresh"), TEXT("Back") })
 	{
 		UDHCardButton* Button = WidgetTree->ConstructWidget<UDHCardButton>();
 		Button->CardId = Id;
@@ -88,6 +88,10 @@ void UDHJoinScreen::NativeOnInitialized()
 		if (FCString::Strcmp(Id, TEXT("Network")) == 0)
 		{
 			NetworkText = Label;
+		}
+		else if (FCString::Strcmp(Id, TEXT("Back")) == 0)
+		{
+			Label->SetText(NSLOCTEXT("DowntownHunting", "Back", "BACK"));
 		}
 		Button->AddChild(Label);
 		UHorizontalBoxSlot* ButtonSlot = Header->AddChildToHorizontalBox(Button);
@@ -114,7 +118,7 @@ void UDHJoinScreen::NativeOnActivated()
 
 UWidget* UDHJoinScreen::NativeGetDesiredFocusTarget() const
 {
-	return Buttons.Num() > 2 ? Buttons[2].Get() : Buttons.Num() > 1 ? Buttons[1].Get() : nullptr;
+	return Buttons.Num() > 3 ? Buttons[3].Get() : Buttons.Num() > 1 ? Buttons[1].Get() : nullptr;
 }
 
 void UDHJoinScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -141,6 +145,10 @@ void UDHJoinScreen::HandleCardClicked(UDHCardButton* Card)
 		UpdateNetworkText();
 		Search();
 	}
+	else if (Card->CardId == TEXT("Back"))
+	{
+		DeactivateWidget();
+	}
 	else if (Card->CardId == TEXT("Refresh"))
 	{
 		Search();
@@ -154,9 +162,9 @@ void UDHJoinScreen::HandleCardClicked(UDHCardButton* Card)
 
 void UDHJoinScreen::Search()
 {
-	// Drop the old rows (keep the two switches).
+	// Drop the old rows (keep the header buttons).
 	List->ClearChildren();
-	Buttons.SetNum(2);
+	Buttons.SetNum(3);
 	Results.Reset();
 	StatusText->SetText(NSLOCTEXT("DowntownHunting", "JoinSearching", "Searching..."));
 
@@ -233,8 +241,8 @@ void UDHJoinScreen::HandleSearchFinished(bool bSucceeded, const FText& Error)
 		List->AddChildToVerticalBox(Row)->SetPadding(FMargin(0, 3));
 		Buttons.Add(Row);
 	}
-	if (Buttons.Num() > 2 && (HasAnyUserFocus() || HasFocusedDescendants()))
+	if (Buttons.Num() > 3 && (HasAnyUserFocus() || HasFocusedDescendants()))
 	{
-		Buttons[2]->SetFocus();
+		Buttons[3]->SetFocus();
 	}
 }

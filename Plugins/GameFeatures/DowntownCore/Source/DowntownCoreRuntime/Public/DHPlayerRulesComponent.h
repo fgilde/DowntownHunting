@@ -97,7 +97,7 @@ private:
 	void PrepareLyraDash();
 	void HandleAbilityActivated(class UGameplayAbility* Ability);
 	void ApplyAttachments();
-	void EnableHairSkinning();
+	void AttachHairToHead();
 	bool HasScope() const;
 	bool IsFirstPerson() const;
 	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
@@ -116,7 +116,6 @@ private:
 	bool bDevGod = false;
 	TWeakObjectPtr<UObject> ModifiedWeapon;
 	TWeakObjectPtr<const UObject> LoggedWeapon;
-	TSet<TWeakObjectPtr<class USkinnedMeshComponent>> HairSkins;
 	FDHCloakState CloakState;
 	int32 Retries = 0;
 	double LastWallJump = -1.0;

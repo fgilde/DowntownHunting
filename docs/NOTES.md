@@ -390,5 +390,10 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 ## Character outfits and hair
 
 - `colors` in Characters.json (sRGB, per part Top/Bottom/Shoes) overrides the crowd colour variation so each hunter wears what the splash art shows. sync_characters.py converts to linear (^2.2) and sets `A_CrowdColor_main`, pattern colour = 55 % of it. Linear values straight in looked washed out (purple came out pink).
-- Flying hair: City Sample's crowd hair materials (M_Crowd_Hair_Cards/Helmet, the card LODs at distance) need the AnimToTexture plugin, which was off: they loaded with missing functions. The plugin is now enabled in the .uproject, and `r.HairStrands.Simulation=0` turns the strand physics off (crowd grooms are not set up for it).
+- Flying hair: the groom binding never deformed the hair here (skin cache on or off), so the hair stayed in the head's rest pose and floated away from the animated head (running, jumping, dying). UDHPlayerRulesComponent::AttachHairToHead hangs every groom rigidly on the `head` bone (relative transform from the rest pose) without its binding. Also: the crowd hair card materials need the AnimToTexture plugin (now enabled), and `r.HairStrands.Simulation=0`.
 - Check: `Tools/Test-Game.ps1` with `Character=<Id>` in Saved/Config/WindowsEditor/GameUserSettings.ini, third-person shot after ~30 s.
+
+## Voices and menu music
+
+- make_voice_lines.py: Qwen3 voice design picks the gender from the description and got it wrong for several men. Each description now starts with "Male voice, a man." / "Female voice, a woman." and the median pitch is checked (men below 165 Hz). Shouted lines measure high even for men: keep lines calm-ish.
+- Menu music: three K-pop style instrumentals from ElevenLabs' free library (Tools/Branding/Music/Licensed/README.md).
