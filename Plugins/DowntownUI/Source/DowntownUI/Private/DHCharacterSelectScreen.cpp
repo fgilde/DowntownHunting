@@ -283,6 +283,10 @@ void UDHCharacterSelectScreen::ShowSplash(const FString& Id)
 	SplashName->SetText(FText::FromString(Id.IsEmpty() ? TEXT("RANDOM") : Id.ToUpper()));
 	SplashOffset = -420.f;
 	SplashVelocity = 0.f;
+	if (USoundBase* Whoosh = LoadObject<USoundBase>(nullptr, TEXT("/Game/Audio/MetaSounds/sfx_MeleeWhoosh_nl_meta_Preset.sfx_MeleeWhoosh_nl_meta_Preset")))
+	{
+		UGameplayStatics::PlaySound2D(this, Whoosh, 0.35f, FMath::FRandRange(1.25f, 1.45f));
+	}
 
 	VideoFade = 0.f;
 	VideoPlayer->Close();
