@@ -10,11 +10,10 @@
 #include "Components/Image.h"
 #include "Components/Overlay.h"
 #include "Components/OverlaySlot.h"
+#include "Components/ScaleBox.h"
 #include "Components/ScrollBox.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
-#include "Components/UniformGridPanel.h"
-#include "Components/UniformGridSlot.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "DHCardButton.h"
@@ -29,8 +28,6 @@
 
 namespace
 {
-	constexpr int32 GridColumns = 4;
-
 	FText TextOf(const UObject* Object, FName Name)
 	{
 		const FTextProperty* Property = FindFProperty<FTextProperty>(Object->GetClass(), Name);
@@ -115,63 +112,47 @@ void UDHPlayScreen::NativeOnInitialized()
 	}
 	Modes.Sort([](const FMode& A, const FMode& B) { return MenuOrder(A.Definition) < MenuOrder(B.Definition); });
 
-	UScrollBox* Scroll = WidgetTree->ConstructWidget<UScrollBox>();
-	UVerticalBoxSlot* ScrollSlot = Column->AddChildToVerticalBox(Scroll);
-	ScrollSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-	UUniformGridPanel* Grid = WidgetTree->ConstructWidget<UUniformGridPanel>();
-	Grid->SetSlotPadding(FMargin(8));
-	Scroll->AddChild(Grid);
+	auto Row = [this, Column](const FText& Label) -> UHorizontalBox*
+	{
+		UTextBlock* Heading = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 20, DHScreenStyle::Text);
+		Heading->SetText(Label);
+		Column->AddChildToVerticalBox(Heading)->SetPadding(FMargin(8, 10, 8, 4));
+		UScrollBox* Scroll = WidgetTree->ConstructWidget<UScrollBox>();
+		Scroll->SetOrientation(Orient_Horizontal);
+		Scroll->SetScrollBarVisibility(ESlateVisibility::Collapsed);
+		Column->AddChildToVerticalBox(Scroll);
+		UHorizontalBox* Cards = WidgetTree->ConstructWidget<UHorizontalBox>();
+		Scroll->AddChild(Cards);
+		return Cards;
+	};
 
+	// Modes, each once, in the order they first appear.
+	UHorizontalBox* KindRow = Row(NSLOCTEXT("DowntownHunting", "PlayModes", "MODE"));
 	for (int32 Index = 0; Index < Modes.Num(); ++Index)
 	{
-		FMode& Mode = Modes[Index];
-		Mode.Button = WidgetTree->ConstructWidget<UDHCardButton>();
-		Mode.Button->SetBackgroundColor(DHScreenStyle::Card);
-		Mode.Button->CardSlot = Index;
-		Mode.Button->CardId = TEXT("Mode");
-		Mode.Button->OnCardClicked.BindUObject(this, &ThisClass::HandleCardClicked);
-
-		UVerticalBox* Content = WidgetTree->ConstructWidget<UVerticalBox>();
-		USizeBox* ImageBox = WidgetTree->ConstructWidget<USizeBox>();
-		ImageBox->SetWidthOverride(320.f);
-		ImageBox->SetHeightOverride(160.f);
-		UImage* Tile = WidgetTree->ConstructWidget<UImage>();
-		const FObjectProperty* Icon = FindFProperty<FObjectProperty>(Mode.Definition->GetClass(), TEXT("TileIcon"));
-		if (UTexture2D* Texture = Icon ? Cast<UTexture2D>(Icon->GetObjectPropertyValue_InContainer(Mode.Definition)) : nullptr)
+		KeepAlive.Add(Modes[Index].Definition);
+		const FString Kind = Modes[Index].Title.ToString();
+		if (!Kinds.Contains(Kind))
 		{
-			Tile->SetBrushFromTexture(Texture);
+			UDHCardButton* Card = MakeCard(Modes[Index], FText::FromString(Kind.ToUpper()), 240.f, TEXT("Kind"), Kinds.Num());
+			KindRow->AddChildToHorizontalBox(Card)->SetPadding(FMargin(8));
+			Kinds.Add(Kind);
+			KindButtons.Add(Card);
 		}
-		ImageBox->AddChild(Tile);
-		Content->AddChildToVerticalBox(ImageBox);
-		const FString TitleText = Mode.Title.ToString().ToUpper();
-		UTextBlock* ModeTitle = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), TitleText.Len() > 22 ? 12 : 16, DHScreenStyle::Text);
-		ModeTitle->SetText(FText::FromString(TitleText));
-		ModeTitle->SetClipping(EWidgetClipping::ClipToBounds);
-		ModeTitle->SetTextOverflowPolicy(ETextOverflowPolicy::Ellipsis);
-		Content->AddChildToVerticalBox(ModeTitle)->SetPadding(FMargin(4, 6, 4, 0));
-		UTextBlock* ModeMap = DHScreenStyle::MakeText(WidgetTree, TEXT("NotoSans"), 13, DHScreenStyle::Accent);
-		ModeMap->SetText(Mode.Subtitle);
-		Content->AddChildToVerticalBox(ModeMap)->SetPadding(FMargin(4, 0, 4, 4));
-		USizeBox* CardBox = WidgetTree->ConstructWidget<USizeBox>();  // same width for every card
-		CardBox->SetWidthOverride(320.f);
-		CardBox->AddChild(Content);
-		Mode.Button->AddChild(CardBox);
-
-		Grid->AddChildToUniformGrid(Mode.Button, Index / GridColumns, Index % GridColumns);
-		KeepAlive.Add(Mode.Button);
-		KeepAlive.Add(Mode.Definition);
 	}
+	MapRow = Row(NSLOCTEXT("DowntownHunting", "PlayMaps", "MAP"));
+	SelectMode(0);
 
-	// Gamepad: from the top row up to the switches, from the switches down into the cards.
-	for (int32 Index = 0; Index < FMath::Min(GridColumns, Modes.Num()); ++Index)
+	// Gamepad: from the modes up to the switches, from the switches down into the modes.
+	for (int32 Index = 0; Index < KindButtons.Num(); ++Index)
 	{
-		Modes[Index].Button->SetNavigationRuleExplicit(EUINavigation::Up, Switches[FMath::Min(Index, Switches.Num() - 1)]);
+		KindButtons[Index]->SetNavigationRuleExplicit(EUINavigation::Up, Switches[FMath::Min(Index, Switches.Num() - 1)]);
 	}
 	for (UDHCardButton* Switch : Switches)
 	{
-		if (!Modes.IsEmpty())
+		if (!KindButtons.IsEmpty())
 		{
-			Switch->SetNavigationRuleExplicit(EUINavigation::Down, Modes[0].Button);
+			Switch->SetNavigationRuleExplicit(EUINavigation::Down, KindButtons[0]);
 		}
 	}
 
@@ -181,28 +162,96 @@ void UDHPlayScreen::NativeOnInitialized()
 	DescriptionSlot->SetPadding(FMargin(8, 16, 8, 0));
 }
 
+UDHCardButton* UDHPlayScreen::MakeCard(const FMode& Entry, const FText& Caption, float Width, const FString& Id, int32 CardIndex)
+{
+	UDHCardButton* Card = WidgetTree->ConstructWidget<UDHCardButton>();
+	Card->SetBackgroundColor(DHScreenStyle::Card);
+	Card->CardSlot = CardIndex;
+	Card->CardId = Id;
+	Card->OnCardClicked.BindUObject(this, &ThisClass::HandleCardClicked);
+
+	UVerticalBox* Content = WidgetTree->ConstructWidget<UVerticalBox>();
+	USizeBox* ImageBox = WidgetTree->ConstructWidget<USizeBox>();
+	ImageBox->SetWidthOverride(Width);
+	ImageBox->SetHeightOverride(Width / 2.f);
+	UImage* Tile = WidgetTree->ConstructWidget<UImage>();
+	const FObjectProperty* Icon = FindFProperty<FObjectProperty>(Entry.Definition->GetClass(), TEXT("TileIcon"));
+	if (UTexture2D* Texture = Icon ? Cast<UTexture2D>(Icon->GetObjectPropertyValue_InContainer(Entry.Definition)) : nullptr)
+	{
+		Tile->SetBrushFromTexture(Texture);
+	}
+	ImageBox->AddChild(Tile);
+	Content->AddChildToVerticalBox(ImageBox);
+	UTextBlock* Label = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 15, DHScreenStyle::Text);
+	Label->SetText(Caption);
+	UScaleBox* Fit = WidgetTree->ConstructWidget<UScaleBox>();  // long names shrink instead of being cut
+	Fit->SetStretch(EStretch::ScaleToFit);
+	Fit->SetStretchDirection(EStretchDirection::DownOnly);
+	Fit->AddChild(Label);
+	UVerticalBoxSlot* LabelSlot = Content->AddChildToVerticalBox(Fit);
+	LabelSlot->SetPadding(FMargin(4, 6, 4, 6));
+	LabelSlot->SetHorizontalAlignment(HAlign_Left);
+	USizeBox* CardBox = WidgetTree->ConstructWidget<USizeBox>();  // same width for every card of a row
+	CardBox->SetWidthOverride(Width);
+	CardBox->AddChild(Content);
+	Card->AddChild(CardBox);
+	KeepAlive.Add(Card);
+	return Card;
+}
+
+void UDHPlayScreen::SelectMode(int32 Kind)
+{
+	if (!Kinds.IsValidIndex(Kind))
+	{
+		return;
+	}
+	SelectedKind = Kind;
+	MapRow->ClearChildren();
+	MapButtons.Reset();
+	for (int32 Index = 0; Index < Modes.Num(); ++Index)
+	{
+		if (Modes[Index].Title.ToString() == Kinds[Kind])
+		{
+			UDHCardButton* Card = MakeCard(Modes[Index], FText::FromString(Modes[Index].Subtitle.ToString().ToUpper()), 320.f, TEXT("Map"), Index);
+			Card->SetNavigationRuleExplicit(EUINavigation::Up, KindButtons[Kind]);
+			MapRow->AddChildToHorizontalBox(Card)->SetPadding(FMargin(8));
+			MapButtons.Add(Card);
+		}
+	}
+}
+
 UWidget* UDHPlayScreen::NativeGetDesiredFocusTarget() const
 {
-	return Modes.IsEmpty() ? nullptr : Modes[0].Button.Get();
+	return KindButtons.IsEmpty() ? nullptr : KindButtons[0].Get();
 }
 
 void UDHPlayScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	for (const FMode& Mode : Modes)
+	auto Highlight = [this](UDHCardButton* Card, bool bSelected, const FText& Description)
 	{
-		const bool bFocused = Mode.Button->HasAnyUserFocus() || Mode.Button->IsHovered();
-		Mode.Button->SetBackgroundColor(bFocused ? DHScreenStyle::Focus : DHScreenStyle::Card);
-		Mode.Button->SetRenderScale(FVector2D(bFocused ? 1.04f : 1.f));
-		if (Mode.Button->HasAnyUserFocus())
+		const bool bFocused = Card->HasAnyUserFocus() || Card->IsHovered();
+		Card->SetBackgroundColor(bFocused ? DHScreenStyle::Focus : bSelected ? DHScreenStyle::Accent : DHScreenStyle::Card);
+		Card->SetRenderScale(FVector2D(bFocused ? 1.04f : 1.f));
+		if (Card->HasAnyUserFocus())
 		{
-			DescriptionText->SetText(Mode.Description);
-			if (UScrollBox* Scroll = Cast<UScrollBox>(Mode.Button->GetParent() ? Mode.Button->GetParent()->GetParent() : nullptr))
+			DescriptionText->SetText(Description);
+			if (UScrollBox* Scroll = Cast<UScrollBox>(Card->GetParent() ? Card->GetParent()->GetParent() : nullptr))
 			{
-				Scroll->ScrollWidgetIntoView(Mode.Button, true, EDescendantScrollDestination::IntoView);
+				Scroll->ScrollWidgetIntoView(Card, true, EDescendantScrollDestination::IntoView);
 			}
 		}
+	};
+	for (int32 Index = 0; Index < KindButtons.Num(); ++Index)
+	{
+		// A mode's description: the first map's (they describe mode and map together).
+		const FMode* First = Modes.FindByPredicate([this, Index](const FMode& Mode) { return Mode.Title.ToString() == Kinds[Index]; });
+		Highlight(KindButtons[Index], Index == SelectedKind, First ? First->Description : FText::GetEmpty());
+	}
+	for (UDHCardButton* Card : MapButtons)
+	{
+		Highlight(Card, false, Modes.IsValidIndex(Card->CardSlot) ? Modes[Card->CardSlot].Description : FText::GetEmpty());
 	}
 	for (UDHCardButton* Switch : Switches)
 	{
@@ -234,6 +283,14 @@ void UDHPlayScreen::HandleCardClicked(UDHCardButton* Card)
 	else if (Card->CardId == TEXT("Join"))
 	{
 		UCommonUIExtensions::PushContentToLayer_ForPlayer(GetOwningLocalPlayer(), FGameplayTag::RequestGameplayTag(TEXT("UI.Layer.Menu")), UDHJoinScreen::StaticClass());
+	}
+	else if (Card->CardId == TEXT("Kind"))
+	{
+		SelectMode(Card->CardSlot);
+		if (!MapButtons.IsEmpty())
+		{
+			MapButtons[0]->SetFocus();
+		}
 	}
 	else if (Modes.IsValidIndex(Card->CardSlot))
 	{
