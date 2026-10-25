@@ -124,6 +124,7 @@ void UDHGameRulesComponent::BeginPlay()
 
 	bWeaponSwitch = UGameplayStatics::GetIntOption(Options, TEXT("WeaponSwitch"), 1) != 0;
 	bHardcore = UGameplayStatics::GetIntOption(Options, TEXT("Hardcore"), 0) != 0;
+	BotSkill = FMath::Clamp(UGameplayStatics::GetIntOption(Options, TEXT("BotSkill"), 1), 0, 3);
 
 	TArray<FString> Names;
 	UGameplayStatics::ParseOption(Options, TEXT("Loadout")).ParseIntoArray(Names, TEXT(","));
@@ -523,6 +524,12 @@ namespace DHHitFeedback
 		const float Falloff = Curve && Curve->GetRichCurveConst()->GetNumKeys() > 0 ? Curve->GetRichCurveConst()->Eval(Distance) : 1.f;
 		return Falloff > 0.01f ? Damage / Falloff : Damage;
 	}
+}
+
+int32 UDHGameRulesComponent::GetBotSkill(const APlayerState* Bot) const
+{
+	// Mixed: fixed per bot (from its id), so a bot keeps its skill through respawns.
+	return BotSkill < 3 ? BotSkill : (Bot ? int32(GetTypeHash(Bot->GetPlayerId()) % 3) : 1);
 }
 
 void UDHGameRulesComponent::OnDamage(FGameplayTag Channel, const FLyraVerbMessage& Message)

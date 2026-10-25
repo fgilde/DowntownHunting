@@ -18,7 +18,8 @@ class UUserWidget;
  * - locally controlled player: picks the camera mode (first or third person) and, if the mode allows it,
  *   lets the player switch with ToggleAction (V / D-pad up by default); the loadout's abilities on Lyra's dash input
  *   and on Ability2Action (DHAbilities), with their HUD; the killstreaks with their HUD (UDHStreakHud: 4 / 5 / 6,
- *   D-pad left to call one in, D-pad down to select),
+ *   D-pad left to call one in, D-pad down to select); in a sniper scope its own look speed (Lyra's settings,
+ *   Sniper Scope Sensitivity), a slow sway, and holding the breath on the sprint input (Shift, stick click) to steady it,
  * - every machine: speed (sprint, killstreak hunter, infected, adrenaline) and cloak,
  * - developer mode (FDHProgression::DevFlag) on the host's own pawn: god mode and endless ammo.
  * Added to every Lyra character by the DH experiences.
@@ -41,6 +42,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera")
 	TSoftClassPtr<ULyraCameraMode> ThirdPersonMode;
@@ -106,6 +108,12 @@ private:
 	void ApplyAttachments();
 	void AttachHairToHead();
 	bool HasScope() const;
+	bool IsScoped() const;
+	// Countdown at the start of the match or a round (UDHFreeForAllScoring::IsCountingDown): no moving, no shooting.
+	void UpdateRoundFreeze();
+	void HandleLookMouse(const struct FInputActionValue& Value);
+	void HandleLookStick(const struct FInputActionValue& Value);
+	void LookBy(const FVector2D& Delta);
 	bool IsFirstPerson() const;
 	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
 
@@ -121,6 +129,12 @@ private:
 	bool bSprintWanted = false;  // owning client: key held, or the gamepad toggle waiting for the player to move
 	double SprintWantedAt = 0.0;
 	bool bDevGod = false;
+	// Sniper scope (owning client): breath held, breath left (0..1, empty = shaky for a while), sway clock and offset.
+	bool bRoundFrozen = false;
+	bool bHoldingBreath = false;
+	float Breath = 1.f;
+	float SwayTime = 0.f;
+	FVector2D SwayOffset = FVector2D::ZeroVector;
 	TWeakObjectPtr<UObject> ModifiedWeapon;
 	TWeakObjectPtr<const UObject> LoggedWeapon;
 	FDHCloakState CloakState;

@@ -23,6 +23,9 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UTexture2D> LensTexture;
 
+	UPROPERTY(Transient)
+	TObjectPtr<class UTextBlock> BreathHint;
+
 	float Opacity = 0.f;
 	float AimSeconds = 0.f;
 };

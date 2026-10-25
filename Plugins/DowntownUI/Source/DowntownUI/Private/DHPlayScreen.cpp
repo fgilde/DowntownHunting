@@ -267,7 +267,11 @@ void UDHPlayScreen::UpdateSwitches()
 	static const FText NetworkNames[] = {
 		NSLOCTEXT("DowntownHunting", "NetOffline", "OFFLINE"), NSLOCTEXT("DowntownHunting", "NetLan", "LAN"), NSLOCTEXT("DowntownHunting", "NetOnline", "ONLINE") };
 	NetworkText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "PlayNetwork", "NETWORK: {0}"), NetworkNames[Network]));
-	BotsText->SetText(bBots ? NSLOCTEXT("DowntownHunting", "PlayBotsOn", "BOTS: ON") : NSLOCTEXT("DowntownHunting", "PlayBotsOff", "BOTS: OFF"));
+	static const FText BotNames[] = {
+		NSLOCTEXT("DowntownHunting", "PlayBotsOff", "BOTS: OFF"), NSLOCTEXT("DowntownHunting", "PlayBotsEasy", "BOTS: EASY"),
+		NSLOCTEXT("DowntownHunting", "PlayBotsNormal", "BOTS: NORMAL"), NSLOCTEXT("DowntownHunting", "PlayBotsHard", "BOTS: HARD"),
+		NSLOCTEXT("DowntownHunting", "PlayBotsMixed", "BOTS: MIXED") };
+	BotsText->SetText(BotNames[Bots]);
 }
 
 void UDHPlayScreen::HandleCardClicked(UDHCardButton* Card)
@@ -279,7 +283,7 @@ void UDHPlayScreen::HandleCardClicked(UDHCardButton* Card)
 	}
 	else if (Card->CardId == TEXT("Bots"))
 	{
-		bBots = !bBots;
+		Bots = (Bots + 1) % 5;
 		UpdateSwitches();
 	}
 	else if (Card->CardId == TEXT("Back"))
@@ -351,9 +355,13 @@ void UDHPlayScreen::Host(UObject* Definition)
 		return;
 	}
 	Request->OnlineMode = ECommonSessionOnlineMode(Network);
-	if (!bBots)
+	if (Bots == 0)
 	{
 		Request->ExtraArgs.Add(TEXT("NumBots"), TEXT("0"));
+	}
+	else
+	{
+		Request->ExtraArgs.Add(TEXT("BotSkill"), FString::FromInt(Bots - 1));  // UDHGameRulesComponent
 	}
 	GetGameInstance()->GetSubsystem<UCommonSessionSubsystem>()->HostSession(GetOwningPlayer(), Request);
 }

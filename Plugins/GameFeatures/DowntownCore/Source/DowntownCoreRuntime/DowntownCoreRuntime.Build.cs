@@ -53,6 +53,7 @@ public class DowntownCoreRuntime : ModuleRules
 				"CommonInput",
 				"CommonUI",
 				"CommonGame",
+				"GameSubtitles",
 				"InputCore",
 				"UIExtension",
 				// ... add private dependencies that you statically link with here ...	

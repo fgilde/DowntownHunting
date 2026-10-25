@@ -46,6 +46,12 @@ public:
 	// Round result or similar announcement for the HUD, empty when there is none.
 	const FString& GetAnnouncement() const { return Announcement; }
 
+	// Start of the match and of every round: 3, 2, 1, GO. Everybody stands still and holds fire until the server
+	// world time GoTime (UDHPlayerRulesComponent freezes the pawns, UDHStreakHud shows the count).
+	static constexpr float CountdownSeconds = 3.f;
+	double GetGoTime() const { return GoTime; }
+	bool IsCountingDown() const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -71,6 +77,7 @@ protected:
 	// Team modes: ForcedWinnerTeam wins instead of the team with the best score.
 	void EndMatch(int32 ForcedWinnerTeam = INDEX_NONE);
 	void SetClock(double Seconds);
+	void BeginCountdown();
 
 	// Server: removes the player's pawn and has Lyra spawn a new one (fresh loadout).
 	void RestartPlayer(AController* Controller) const;
@@ -81,11 +88,16 @@ protected:
 	UPROPERTY(Replicated)
 	FString Announcement;
 
+	UPROPERTY(Replicated)
+	double GoTime = 0.0;
+
 	int32 MatchMinutes = 10;
 	FTimerHandle ClockTimer;
 
 private:
 	void ReadRules();
+	// Player starts from which no path leads to the middle of the map (walled-in yards) are taken out.
+	void RemoveTrappedStarts();
 	void OnElimination(FGameplayTag Channel, const FLyraVerbMessage& Message);
 	void StartPhase(const TSoftClassPtr<ULyraGamePhaseAbility>& Phase, FName EndedCallback);
 	UFUNCTION()
@@ -140,6 +152,8 @@ protected:
 	virtual void CheckRoundOver();
 	void EndRound(int32 RoundWinner, const FString& Reason = FString());
 	void StartNextRound();
+	// Each team together at its own end of the map (the two player starts furthest apart, swapped every round).
+	void ArrangeTeams();
 	// Players alive per team.
 	TMap<int32, int32> CountAlive() const;
 

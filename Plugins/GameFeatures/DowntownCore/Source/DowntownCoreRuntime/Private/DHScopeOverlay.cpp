@@ -8,7 +8,13 @@
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/Image.h"
 #include "Components/ScaleBox.h"
+#include "Components/Overlay.h"
+#include "Components/OverlaySlot.h"
+#include "Components/TextBlock.h"
+#include "DHControllerScreen.h"
+#include "DHScreenStyle.h"
 #include "DHWeaponAccess.h"
+#include "GameFramework/PlayerController.h"
 #include "Engine/Texture2D.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DHScopeOverlay)
@@ -53,8 +59,12 @@ void UDHScopeOverlay::NativeOnInitialized()
 	LensTexture = DHScope::MakeLens();
 
 	// Lens square in the middle (screen height), black on both sides.
+	UOverlay* Root = WidgetTree->ConstructWidget<UOverlay>();
+	WidgetTree->RootWidget = Root;
 	UHorizontalBox* Row = WidgetTree->ConstructWidget<UHorizontalBox>();
-	WidgetTree->RootWidget = Row;
+	UOverlaySlot* RowSlot = Root->AddChildToOverlay(Row);
+	RowSlot->SetHorizontalAlignment(HAlign_Fill);
+	RowSlot->SetVerticalAlignment(VAlign_Fill);
 	auto Side = [this, Row]()
 	{
 		UBorder* Black = WidgetTree->ConstructWidget<UBorder>();
@@ -71,6 +81,13 @@ void UDHScopeOverlay::NativeOnInitialized()
 	UHorizontalBoxSlot* LensSlot = Row->AddChildToHorizontalBox(Fit);
 	LensSlot->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));
 	Side();
+
+	// How to steady the aim (UDHPlayerRulesComponent: the sprint input holds the breath).
+	BreathHint = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 15, DHScreenStyle::Accent);
+	UOverlaySlot* HintSlot = Root->AddChildToOverlay(BreathHint);
+	HintSlot->SetHorizontalAlignment(HAlign_Center);
+	HintSlot->SetVerticalAlignment(VAlign_Bottom);
+	HintSlot->SetPadding(FMargin(0, 0, 0, 40));
 }
 
 void UDHScopeOverlay::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -85,4 +102,10 @@ void UDHScopeOverlay::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	AimSeconds = bAiming ? AimSeconds + InDeltaTime : 0.f;
 	Opacity = FMath::FInterpConstantTo(Opacity, AimSeconds > 0.12f ? 1.f : 0.f, InDeltaTime, 8.f);
 	SetRenderOpacity(Opacity);
+	if (bAiming && AimSeconds - InDeltaTime <= 0.f)
+	{
+		const APlayerController* PC = GetOwningPlayer();
+		BreathHint->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "ScopeBreath", "HOLD BREATH  {0}"),
+			UDHControllerScreen::ActionKeyLabel(PC ? PC->GetLocalPlayer() : nullptr, TEXT("/DowntownCore/Input/IA_DH_Sprint.IA_DH_Sprint"), /*bShort=*/ true)));
+	}
 }

@@ -25,6 +25,7 @@ enum class EDHPerspectiveRule : uint8
  * playlist entry puts there (ExtraArgs), and replicated to clients:
  *   Perspective=TP|FP|Choice   WeaponSwitch=1|0   Loadout=Pistol,Rifle,Shotgun,AK47,MP5,M1911 | Player
  *   ScoreLimit=<points to win, 0 = Lyra's default>   TimeLimit=<minutes, 0 = Lyra's default>
+ *   BotSkill=0 easy | 1 normal | 2 hard | 3 mixed (each bot its own)
  *   GunGame=<weapon list>: everybody starts with the first weapon, each kill gives the next one, a kill with the last
  *   one wins the match for the team (no weapon switching, Loadout is ignored).
  * Loadout=Player: each player brings the loadout from the loadout builder (UDHPlayerChoicesComponent), bots get a random primary + pistol.
@@ -47,6 +48,9 @@ public:
 	bool IsHardcore() const { return bHardcore; }
 
 	static constexpr float HardcoreHealth = 30.f;
+
+	/** Server: how well a bot shoots, 0 easy, 1 normal, 2 hard (rule BotSkill; mixed picks one per bot). */
+	int32 GetBotSkill(const APlayerState* Bot) const;
 
 	// Rule values, 0 = not set (server only).
 	int32 GetScoreLimit() const { return ScoreLimit; }
@@ -99,6 +103,7 @@ private:
 	void ShowKiller(APlayerState* Killer, APlayerState* Victim) const;
 	void WinGunGame(const FLyraVerbMessage& Message);
 
+	int32 BotSkill = 1;
 	int32 ScoreLimit = 0;
 	int32 TimeLimit = 0;
 	bool bTimeLimitApplied = false;

@@ -15,7 +15,9 @@
 #include "DHLoadoutSettings.h"
 #include "DHPlayerChoicesComponent.h"
 #include "DHScreenStyle.h"
+#include "DHFreeForAllScoring.h"
 #include "DHStrikeMap.h"
+#include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
@@ -66,6 +68,13 @@ void UDHStreakHud::NativeOnInitialized()
 	ColumnSlot->SetHorizontalAlignment(HAlign_Right);
 	ColumnSlot->SetVerticalAlignment(VAlign_Center);
 	ColumnSlot->SetPadding(FMargin(0, 120, 24, 0));
+
+	CountdownText = Outlined(WidgetTree, TEXT("Orbitron"), 120, DHScreenStyle::Accent);
+	CountdownText->SetRenderTransformPivot(FVector2D(0.5f, 0.5f));
+	UOverlaySlot* CountdownSlot = Root->AddChildToOverlay(CountdownText);
+	CountdownSlot->SetHorizontalAlignment(HAlign_Center);
+	CountdownSlot->SetVerticalAlignment(VAlign_Center);
+	CountdownSlot->SetPadding(FMargin(0, 0, 0, 160));
 
 	StreakText = Outlined(WidgetTree, TEXT("Orbitron"), 14, DHScreenStyle::Accent);
 	Column->AddChildToVerticalBox(StreakText)->SetHorizontalAlignment(HAlign_Right);
@@ -149,6 +158,26 @@ void UDHStreakHud::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		return;
 	}
+
+	// 3, 2, 1, GO: each number pops in with a beep, GO stays a moment.
+	const UDHFreeForAllScoring* Scoring = UDHFreeForAllScoring::Find(this);
+	const AGameStateBase* GameState = GetWorld()->GetGameState();
+	const double Left = Scoring && GameState ? Scoring->GetGoTime() - GameState->GetServerWorldTimeSeconds() : -10.0;
+	const int32 Count = Left > 0.0 ? FMath::CeilToInt(Left) : (Left > -0.9 ? 0 : INDEX_NONE);
+	if (Count != ShownCount)
+	{
+		ShownCount = Count;
+		CountdownPop = 1.f;
+		CountdownText->SetText(Count > 0 ? FText::AsNumber(Count) : NSLOCTEXT("DowntownHunting", "CountdownGo", "GO!"));
+		if (Count != INDEX_NONE)
+		{
+			PlayUiSound(this, TEXT("/Game/Audio/Sounds/UI/sfx_UI_MainMenu_Select_nl_meta_Preset.sfx_UI_MainMenu_Select_nl_meta_Preset"), 1.f, Count > 0 ? 0.7f : 1.4f);
+		}
+	}
+	CountdownPop = FMath::Max(0.f, CountdownPop - InDeltaTime * 3.f);
+	CountdownText->SetVisibility(Count == INDEX_NONE ? ESlateVisibility::Collapsed : ESlateVisibility::HitTestInvisible);
+	CountdownText->SetRenderScale(FVector2D(1.f + 0.6f * CountdownPop * CountdownPop));
+	CountdownText->SetColorAndOpacity(Count > 0 ? DHScreenStyle::Accent : DHScreenStyle::Cyan);
 	const TArray<FString> Streaks = CurrentStreaks();
 	const int32 Streak = Player->GetStatTagStackCount(FGameplayTag::RequestGameplayTag(TEXT("DH.Streak")));
 	StreakText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "StreakHudCount", "STREAK  {0}"), Streak));

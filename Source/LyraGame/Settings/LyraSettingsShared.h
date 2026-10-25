@@ -327,6 +327,12 @@ public:
 	UFUNCTION()
 	void SetTargetingMultiplier(double NewValue) { ChangeValueAndDirty(TargetingMultiplier, NewValue); ApplyInputSensitivity(); }
 
+	// Downtown Hunting: look speed in a sniper scope, on top of the targeting (ADS) one (mouse and gamepad).
+	UFUNCTION()
+	double GetScopeMultiplier() const { return ScopeMultiplier; }
+	UFUNCTION()
+	void SetScopeMultiplier(double NewValue) { ChangeValueAndDirty(ScopeMultiplier, NewValue); }
+
 	UFUNCTION()
 	bool GetInvertVerticalAxis() const { return bInvertVerticalAxis; }
 	UFUNCTION()
@@ -349,6 +355,10 @@ private:
 	/** Multiplier applied while Aiming down sights. */
 	UPROPERTY()
 	double TargetingMultiplier = 0.5;
+
+	/** Multiplier applied on top while looking through a sniper scope (Downtown Hunting). */
+	UPROPERTY()
+	double ScopeMultiplier = 0.6;
 
 	/** If true then the vertical look axis should be inverted */
 	UPROPERTY()

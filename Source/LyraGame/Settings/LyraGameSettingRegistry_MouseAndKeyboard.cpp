@@ -99,6 +99,24 @@ UGameSettingCollection* ULyraGameSettingRegistry::InitializeMouseAndKeyboardSett
 		}
 		//----------------------------------------------------------------------------------
 		{
+			// Downtown Hunting: the sniper scope gets its own speed (DowntownCore's UDHPlayerRulesComponent applies it).
+			UGameSettingValueScalarDynamic* Setting = NewObject<UGameSettingValueScalarDynamic>();
+			Setting->SetDevName(TEXT("MouseScopeMultiplier"));
+			Setting->SetDisplayName(LOCTEXT("ScopeMultiplier_Name", "Sniper Scope Sensitivity"));
+			Setting->SetDescriptionRichText(LOCTEXT("ScopeMultiplier_Description", "How fast your view turns while looking through a sniper scope, on top of the aim (ADS) sensitivity. 100% turns as fast as aiming down sights, lower is slower and steadier."));
+
+			Setting->SetDynamicGetter(GET_SHARED_SETTINGS_FUNCTION_PATH(GetScopeMultiplier));
+			Setting->SetDynamicSetter(GET_SHARED_SETTINGS_FUNCTION_PATH(SetScopeMultiplier));
+			Setting->SetDefaultValue(GetDefault<ULyraSettingsShared>()->GetScopeMultiplier());
+			Setting->SetDisplayFormat(UGameSettingValueScalarDynamic::ZeroToOnePercent);
+			Setting->SetSourceRangeAndStep(TRange<double>(0.1, 1.5), 0.05);
+
+			Setting->AddEditCondition(WhenPlatformSupportsMouseAndKeyboard);
+
+			Sensitivity->AddSetting(Setting);
+		}
+		//----------------------------------------------------------------------------------
+		{
 			UGameSettingValueDiscreteDynamic_Bool* Setting = NewObject<UGameSettingValueDiscreteDynamic_Bool>();
 			Setting->SetDevName(TEXT("InvertVerticalAxis"));
 			Setting->SetDisplayName(LOCTEXT("InvertVerticalAxis_Name", "Invert Vertical Axis"));

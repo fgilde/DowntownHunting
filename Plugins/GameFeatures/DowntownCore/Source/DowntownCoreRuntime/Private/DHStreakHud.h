@@ -12,7 +12,8 @@ class UVerticalBox;
  * Killstreaks on the right edge, CoD style: the three the player took along (DHKillstreaks::ChosenStreaks), each with
  * its kill count, how far the current streak is, and READY with the button to call it in once earned. Keyboard: 4 / 5 / 6
  * call in the first, second, third; gamepad: D-pad left calls in the selected one, D-pad down selects the next (a newly
- * earned one is selected by itself). Strikes open the map to pick the spot (UDHStrikeMap). Added and driven by
+ * earned one is selected by itself). Strikes open the map to pick the spot (UDHStrikeMap). Also the big 3, 2, 1, GO in
+ * the middle at the start of the match and every round (UDHFreeForAllScoring::GetGoTime). Added and driven by
  * UDHPlayerRulesComponent for the local player.
  */
 UCLASS()
@@ -58,4 +59,10 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTextBlock> StreakText;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UTextBlock> CountdownText;
+
+	int32 ShownCount = INDEX_NONE;
+	float CountdownPop = 0.f;
 };

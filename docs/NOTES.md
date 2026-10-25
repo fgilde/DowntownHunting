@@ -405,3 +405,10 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 - Client: UDHStreakHud on the right (progress, READY, key badge). Keys 4 / 5 / 6, gamepad D-pad left calls in the selected one, D-pad down selects (Tools/Python/setup_input.py makes the actions). Strikes open UDHStrikeMap (minimap capture, cropped 10 % per side, target circle as big as the strike, mouse or left stick). Hardcore has no capture: the strike goes where the player aims.
 - HUD widgets added to the viewport sit above Lyra's menu layers: they hide themselves while UDHStreakHud::IsMenuOpen.
 - Test: `DH.Streak 5` credits kills; `DH.Key Five` then `DH.Key Enter` calls in an airstrike on the own position.
+
+## Fairness, sniper scope, round starts
+
+- Damage per hit is the same both ways (logged with `-LogCmds="LogDHRules Verbose"`: 18 body / 36 head for the pistol). What felt unfair: Lyra bots aim dead on, and City Sample bodies are wider than the mannequin that takes the hits. Now: bots get a wider spread cone by skill (rule BotSkill 0 easy, 1 normal (default), 2 hard, 3 mixed; Play screen switch BOTS: OFF / EASY / NORMAL / HARD / MIXED), players' weapons sweep with a 10 cm radius when the line trace misses (BulletTraceSweepRadius).
+- Sniper scope: own look speed "Sniper Scope Sensitivity" in Lyra's mouse and gamepad options (ULyraSettingsShared::ScopeMultiplier, the one Lyra core addition), applied on top of ADS by UDHPlayerRulesComponent (it binds IA_Look_Mouse/Stick next to Lyra's handlers and adds the difference). Slow sway in the scope; the sprint input (Shift / stick click) holds the breath for up to 5 s.
+- Match and round start: 3, 2, 1, GO (UDHFreeForAllScoring::GoTime, replicated); pawns are frozen and cannot fire until then (UDHPlayerRulesComponent::UpdateRoundFreeze, server and owning client). Round modes put each team together at one of the two player starts furthest apart, swapped every round.
+- Player starts with no navigation path to the middle start are destroyed at match start (DH_Block had two in walled-in yards: X=-57000 Y=28500 and X=-55500 Y=20500).

@@ -69,6 +69,8 @@ void UDHFreeForAllScoring::BeginPlay()
 	StartPhase(WarmupPhase, GET_FUNCTION_NAME_CHECKED(ThisClass, OnWarmupEnded));
 	// Next tick: the rules component may begin play after this one.
 	GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &ThisClass::ReadRules));
+	FTimerHandle TrappedTimer;  // once the navigation mesh is there
+	GetWorld()->GetTimerManager().SetTimer(TrappedTimer, FTimerDelegate::CreateUObject(this, &ThisClass::RemoveTrappedStarts), 1.f, false);
 }
 
 void UDHFreeForAllScoring::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -85,6 +87,7 @@ void UDHFreeForAllScoring::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UDHFreeForAllScoring, KillLimit);
+	DOREPLIFETIME(UDHFreeForAllScoring, GoTime);
 	DOREPLIFETIME(UDHFreeForAllScoring, MatchEndTime);
 	DOREPLIFETIME(UDHFreeForAllScoring, WinnerName);
 	DOREPLIFETIME(UDHFreeForAllScoring, WinnerTeam);
@@ -131,6 +134,67 @@ void UDHFreeForAllScoring::OnWarmupEnded(const ULyraGamePhaseAbility* Phase)
 void UDHFreeForAllScoring::StartClock()
 {
 	SetClock(MatchMinutes * 60.0);
+	BeginCountdown();
+}
+
+void UDHFreeForAllScoring::BeginCountdown()
+{
+	GoTime = GetGameStateChecked<AGameStateBase>()->GetServerWorldTimeSeconds() + CountdownSeconds;
+}
+
+bool UDHFreeForAllScoring::IsCountingDown() const
+{
+	const AGameStateBase* GameState = GetWorld() ? GetWorld()->GetGameState() : nullptr;
+	return GameState && GameState->GetServerWorldTimeSeconds() < GoTime;
+}
+
+void UDHFreeForAllScoring::RemoveTrappedStarts()
+{
+	UNavigationSystemV1* Navigation = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+	TArray<AActor*> Starts;
+	UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), Starts);
+	if (!Navigation || !Navigation->GetDefaultNavDataInstance() || Starts.Num() < 4)
+	{
+		UE_LOG(LogTemp, Log, TEXT("DH spawns: not checked (%d starts, navigation %d)"), Starts.Num(), Navigation && Navigation->GetDefaultNavDataInstance());
+		return;
+	}
+	// The middle: the start with the least distance to all others.
+	const AActor* Middle = nullptr;
+	double Best = TNumericLimits<double>::Max();
+	for (const AActor* Start : Starts)
+	{
+		double Sum = 0.0;
+		for (const AActor* Other : Starts)
+		{
+			Sum += FVector::Dist(Start->GetActorLocation(), Other->GetActorLocation());
+		}
+		if (Sum < Best)
+		{
+			Best = Sum;
+			Middle = Start;
+		}
+	}
+	TArray<AActor*> Trapped;
+	for (AActor* Start : Starts)
+	{
+		const UNavigationPath* Path = Start == Middle ? nullptr
+			: UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), Start->GetActorLocation(), Middle->GetActorLocation());
+		if (Start != Middle && (!Path || !Path->IsValid() || Path->IsPartial()))
+		{
+			Trapped.Add(Start);
+		}
+	}
+	if (Trapped.Num() * 2 > Starts.Num())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DH spawns: %d of %d starts look trapped, the middle start may be: kept all"), Trapped.Num(), Starts.Num());
+		return;
+	}
+	UE_LOG(LogTemp, Log, TEXT("DH spawns: %d starts, %d without a way out"), Starts.Num(), Trapped.Num());
+	for (AActor* Start : Trapped)
+	{
+		UE_LOG(LogTemp, Log, TEXT("DH spawns: %s at %s has no way out, removed"), *Start->GetName(), *Start->GetActorLocation().ToCompactString());
+		Start->Destroy();
+	}
 }
 
 void UDHFreeForAllScoring::SetClock(double Seconds)
@@ -280,7 +344,11 @@ void UDHRoundScoring::StartClock()
 	++Round;
 	bRoundOver = false;
 	Announcement = FString::Printf(TEXT("ROUND %d"), Round);
-	SetClock(MatchMinutes * 60.0);
+	SetClock(MatchMinutes * 60.0 + CountdownSeconds);
+	BeginCountdown();
+	// New pawns come a frame after the restart.
+	FTimerHandle ArrangeTimer;
+	GetWorld()->GetTimerManager().SetTimer(ArrangeTimer, FTimerDelegate::CreateWeakLambda(this, [this]() { ArrangeTeams(); }), 0.3f, false);
 	GetWorld()->GetTimerManager().SetTimer(RoundTimer, FTimerDelegate::CreateWeakLambda(this, [this]()
 	{
 		if (!bRoundOver)
@@ -423,6 +491,57 @@ void UDHRoundScoring::StartNextRound()
 	}
 	StartClock();
 	UDHGameRulesComponent::Announce(this, TEXT("NewRound"));
+}
+
+void UDHRoundScoring::ArrangeTeams()
+{
+	const ULyraTeamSubsystem* Teams = GetWorld()->GetSubsystem<ULyraTeamSubsystem>();
+	TArray<AActor*> Starts;
+	UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), Starts);
+	if (!Teams || Starts.Num() < 2)
+	{
+		return;
+	}
+	// The two starts furthest apart are the bases.
+	int32 BaseA = 0, BaseB = 1;
+	double Furthest = -1.0;
+	for (int32 I = 0; I < Starts.Num(); ++I)
+	{
+		for (int32 J = I + 1; J < Starts.Num(); ++J)
+		{
+			const double Distance = FVector::DistSquared(Starts[I]->GetActorLocation(), Starts[J]->GetActorLocation());
+			if (Distance > Furthest)
+			{
+				Furthest = Distance;
+				BaseA = I;
+				BaseB = J;
+			}
+		}
+	}
+	TArray<int32> TeamIds = Teams->GetTeamIDs();
+	TeamIds.Sort();
+	const FVector Middle = (Starts[BaseA]->GetActorLocation() + Starts[BaseB]->GetActorLocation()) * 0.5;
+	TMap<int32, int32> Placed;
+	for (const APlayerState* Player : GetGameStateChecked<AGameStateBase>()->PlayerArray)
+	{
+		APawn* Pawn = Player->GetPawn();
+		const int32 TeamIndex = TeamIds.IndexOfByKey(Teams->FindTeamFromObject(Player));
+		if (!Pawn || TeamIndex == INDEX_NONE || TeamIndex > 1)
+		{
+			continue;
+		}
+		const FVector Base = Starts[(TeamIndex + Round) % 2 == 0 ? BaseA : BaseB]->GetActorLocation();
+		// The team's n-th player on the n-th start closest to the base.
+		Starts.Sort([&Base](const AActor& A, const AActor& B) { return FVector::DistSquared(A.GetActorLocation(), Base) < FVector::DistSquared(B.GetActorLocation(), Base); });
+		const AActor* Start = Starts[FMath::Min(Placed.FindOrAdd(TeamIndex)++, Starts.Num() - 1)];
+		const FRotator Look(0.f, (Middle - Start->GetActorLocation()).Rotation().Yaw, 0.f);
+		Pawn->TeleportTo(Start->GetActorLocation(), Look, /*bIsATest=*/ false, /*bNoCheck=*/ true);
+		if (AController* Controller = Pawn->GetController())
+		{
+			Controller->ClientSetRotation(Look);
+			Controller->SetControlRotation(Look);
+		}
+	}
 }
 
 UDHSearchAndDestroyScoring::UDHSearchAndDestroyScoring(const FObjectInitializer& ObjectInitializer)

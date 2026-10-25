@@ -73,5 +73,5 @@ private:
 	TObjectPtr<UObject> PendingOnline;  // mode waiting for the online login
 
 	int32 Network = 0;  // ECommonSessionOnlineMode: offline, LAN, online
-	bool bBots = true;
+	int32 Bots = 2;  // off, easy, normal, hard, mixed
 };

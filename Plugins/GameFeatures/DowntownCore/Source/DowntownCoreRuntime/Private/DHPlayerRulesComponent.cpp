@@ -13,6 +13,9 @@
 #include "DHAbilities.h"
 #include "DHAbilityHud.h"
 #include "DHStreakHud.h"
+#include "InputActionValue.h"
+#include "Player/LyraLocalPlayer.h"
+#include "Settings/LyraSettingsShared.h"
 #include "DHControllerScreen.h"
 #include "DHDevScreen.h"
 #include "DHProgression.h"
@@ -177,6 +180,8 @@ UDHPlayerRulesComponent::UDHPlayerRulesComponent(const FObjectInitializer& Objec
 	AbilityAction = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/Game/Input/Actions/IA_Ability_Dash.IA_Ability_Dash")));
 	Ability2Action = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/DowntownCore/Input/IA_DH_Ability2.IA_DH_Ability2")));
 	SprintAction = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/DowntownCore/Input/IA_DH_Sprint.IA_DH_Sprint")));
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = false;  // the local player's scope only
 }
 
 void UDHPlayerRulesComponent::BeginPlay()
@@ -233,6 +238,7 @@ void UDHPlayerRulesComponent::BeginPlay()
 			PrepareLyraDash();  // its widget, on the owning client
 		}
 		UpdateMoveSpeed();
+		UpdateRoundFreeze();
 		const UObject* Weapon = DHWeaponAccess::ActiveWeapon(Character);
 		if (Character && Character->IsLocallyControlled() && Character->IsPlayerControlled() && Weapon != LoggedWeapon.Get())
 		{
@@ -580,6 +586,16 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 				InputComponent->BindAction(Action, ETriggerEvent::Started, this, StreakInput.Value);
 			}
 		}
+		// Next to Lyra's own look handlers: the scope's extra slow down (IsScoped).
+		if (UInputAction* Action = LoadObject<UInputAction>(nullptr, TEXT("/Game/Input/Actions/IA_Look_Mouse.IA_Look_Mouse")))
+		{
+			InputComponent->BindAction(Action, ETriggerEvent::Triggered, this, &ThisClass::HandleLookMouse);
+		}
+		if (UInputAction* Action = LoadObject<UInputAction>(nullptr, TEXT("/Game/Input/Actions/IA_Look_Stick.IA_Look_Stick")))
+		{
+			InputComponent->BindAction(Action, ETriggerEvent::Triggered, this, &ThisClass::HandleLookStick);
+		}
+		SetComponentTickEnabled(true);
 		if (UInputAction* Action = SprintAction.LoadSynchronous())
 		{
 			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::HandleSprintPressed);
@@ -718,6 +734,34 @@ void UDHPlayerRulesComponent::ApplyAttachments()
 			Property->SetPropertyValue_InContainer(Weapon, Property->GetPropertyValue_InContainer(Weapon) * Factor);
 		}
 	};
+	const APawn* Pawn = GetPawn<APawn>();
+	const AController* Controller = Pawn ? Pawn->GetController() : nullptr;
+	if (Controller && Controller->IsPlayerController())
+	{
+		// City Sample bodies are wider than the Lyra mannequin that takes the hits: a shot grazing the visible body
+		// counts (Lyra sweeps with this radius when the line trace misses).
+		if (FFloatProperty* Sweep = FindFProperty<FFloatProperty>(Weapon->GetClass(), TEXT("BulletTraceSweepRadius")))
+		{
+			Sweep->SetPropertyValue_InContainer(Weapon, FMath::Max(Sweep->GetPropertyValue_InContainer(Weapon), 10.f));
+		}
+	}
+	else if (Controller && Controller->HasAuthority())
+	{
+		// Bots aim dead on: their skill is a wider spread cone (degrees added at every heat, and the cone scaled).
+		const UDHGameRulesComponent* Rules = UDHGameRulesComponent::Find(this);
+		const int32 Skill = Rules ? Rules->GetBotSkill(Controller->PlayerState) : 1;
+		static const float ExtraDegrees[] = { 4.f, 2.2f, 0.9f };
+		static const float SpreadFactor[] = { 2.5f, 1.6f, 1.f };
+		if (FStructProperty* Property = FindFProperty<FStructProperty>(Weapon->GetClass(), TEXT("HeatToSpreadCurve")))
+		{
+			for (FRichCurveKey& Key : Property->ContainerPtrToValuePtr<FRuntimeFloatCurve>(Weapon)->GetRichCurve()->Keys)
+			{
+				Key.Value = Key.Value * SpreadFactor[Skill] + ExtraDegrees[Skill];
+			}
+		}
+		Scale(TEXT("SpreadExponent"), 0.5f);  // shots spread over the whole cone, not bunched in the middle
+		UE_LOG(LogDHRules, Verbose, TEXT("%s: bot skill %d on %s"), *GetNameSafe(Pawn), Skill, *GetNameSafe(Weapon));
+	}
 	if (DHWeaponAccess::ItemStat(Item, FGameplayTag::RequestGameplayTag(TEXT("DH.Attachment.Laser"))) > 0)
 	{
 		UE_LOG(LogDHRules, Verbose, TEXT("%s: laser on %s"), *GetNameSafe(GetPawn<APawn>()), *GetNameSafe(Weapon));
@@ -759,8 +803,124 @@ bool UDHPlayerRulesComponent::IsGamepadInput() const
 	return CommonInput && CommonInput->GetCurrentInputType() == ECommonInputType::Gamepad;
 }
 
+void UDHPlayerRulesComponent::UpdateRoundFreeze()
+{
+	// On the server (every pawn, bots too) and on the owning client (its own movement and fire input).
+	ACharacter* Character = GetPawn<ACharacter>();
+	const UDHFreeForAllScoring* Scoring = UDHFreeForAllScoring::Find(this);
+	const bool bFrozen = Character && Scoring && Scoring->IsCountingDown();
+	if (!Character || bFrozen == bRoundFrozen || !(Character->HasAuthority() || Character->IsLocallyControlled()))
+	{
+		return;
+	}
+	bRoundFrozen = bFrozen;
+	if (UCharacterMovementComponent* Movement = Character->GetCharacterMovement())
+	{
+		if (bFrozen)
+		{
+			Movement->StopMovementImmediately();
+			Movement->DisableMovement();
+		}
+		else
+		{
+			Movement->SetMovementMode(MOVE_Walking);
+		}
+	}
+	if (UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Character))
+	{
+		static const FGameplayTag InputBlocked = FGameplayTag::RequestGameplayTag(TEXT("Gameplay.AbilityInputBlocked"));
+		const FGameplayTagContainer Fire(FGameplayTag::RequestGameplayTag(TEXT("Ability.Type.Action.WeaponFire")));
+		if (bFrozen)
+		{
+			ASC->AddLooseGameplayTag(InputBlocked);
+			ASC->BlockAbilitiesWithTags(Fire);  // bots fire without input
+		}
+		else
+		{
+			ASC->RemoveLooseGameplayTag(InputBlocked);
+			ASC->UnBlockAbilitiesWithTags(Fire);
+		}
+	}
+}
+
+bool UDHPlayerRulesComponent::IsScoped() const
+{
+	static const FGameplayTag AimTag = FGameplayTag::RequestGameplayTag(TEXT("Event.Movement.ADS"));
+	const UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetPawn<APawn>());
+	return ASC && ASC->HasMatchingGameplayTag(AimTag) && HasScope();
+}
+
+namespace
+{
+	// Lyra's ULyraHeroComponent::Input_LookStick turns this fast at full tilt (degrees per second).
+	constexpr float StickYawRate = 300.f;
+	constexpr float StickPitchRate = 165.f;
+
+	double ScopeMultiplier(const APawn* Pawn)
+	{
+		const APlayerController* PC = Pawn ? Pawn->GetController<APlayerController>() : nullptr;
+		const ULyraLocalPlayer* Player = PC ? Cast<ULyraLocalPlayer>(PC->GetLocalPlayer()) : nullptr;
+		const ULyraSettingsShared* Settings = Player ? Player->GetSharedSettings() : nullptr;
+		return Settings ? Settings->GetScopeMultiplier() : 0.6;
+	}
+}
+
+void UDHPlayerRulesComponent::LookBy(const FVector2D& Delta)
+{
+	if (APawn* Pawn = GetPawn<APawn>(); Pawn && IsScoped())
+	{
+		// Lyra already turned by Delta: take back what the scope multiplier removes.
+		const double Rest = ScopeMultiplier(Pawn) - 1.0;
+		Pawn->AddControllerYawInput(Delta.X * Rest);
+		Pawn->AddControllerPitchInput(Delta.Y * Rest);
+	}
+}
+
+void UDHPlayerRulesComponent::HandleLookMouse(const FInputActionValue& Value)
+{
+	LookBy(Value.Get<FVector2D>());
+}
+
+void UDHPlayerRulesComponent::HandleLookStick(const FInputActionValue& Value)
+{
+	const FVector2D Stick = Value.Get<FVector2D>();
+	const float DeltaSeconds = GetWorld()->GetDeltaSeconds();
+	LookBy(FVector2D(Stick.X * StickYawRate * DeltaSeconds, Stick.Y * StickPitchRate * DeltaSeconds));
+}
+
+void UDHPlayerRulesComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	// Sniper scope: a slow figure-eight sway; holding the breath stops it for a few seconds, then it comes back
+	// stronger until the breath has recovered.
+	APawn* Pawn = GetPawn<APawn>();
+	AController* Controller = Pawn ? Pawn->GetController() : nullptr;
+	const bool bScoped = Controller && IsScoped();
+	bHoldingBreath = bHoldingBreath && bScoped && Breath > 0.f;
+	Breath = FMath::Clamp(Breath + (bHoldingBreath ? -DeltaTime / 5.f : DeltaTime / 4.f), 0.f, 1.f);
+	FVector2D Target = FVector2D::ZeroVector;
+	if (bScoped && !bHoldingBreath)
+	{
+		SwayTime += DeltaTime;
+		const float Amplitude = Breath < 0.5f ? 0.9f : 0.35f;  // degrees; out of breath it shakes more
+		Target = Amplitude * FVector2D(FMath::Sin(SwayTime * 0.9f), 0.6f * FMath::Sin(SwayTime * 1.8f));
+	}
+	const FVector2D Offset = FMath::Vector2DInterpTo(SwayOffset, Target, DeltaTime, 4.f);
+	if (Controller && !Offset.Equals(SwayOffset, 1e-4))
+	{
+		const FVector2D Step = Offset - SwayOffset;
+		Controller->SetControlRotation(Controller->GetControlRotation() + FRotator(Step.Y, Step.X, 0.f));
+	}
+	SwayOffset = Offset;
+}
+
 void UDHPlayerRulesComponent::HandleSprintPressed()
 {
+	if (IsScoped())
+	{
+		bHoldingBreath = Breath > 0.2f;  // in the scope the sprint input holds the breath
+		return;
+	}
 	// The gamepad button toggles (a stick press, nobody holds that while running); the key is held. Pressed before the
 	// player moves forward, the sprint starts as soon as they do (on the gamepad within a moment).
 	if (bSprinting && IsGamepadInput())
@@ -777,6 +937,11 @@ void UDHPlayerRulesComponent::HandleSprintPressed()
 
 void UDHPlayerRulesComponent::HandleSprintReleased()
 {
+	if (bHoldingBreath)
+	{
+		bHoldingBreath = IsGamepadInput();  // the stick click toggles, the key is held
+		return;
+	}
 	if (!IsGamepadInput())
 	{
 		bSprintWanted = false;
