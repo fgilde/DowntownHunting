@@ -69,6 +69,10 @@ public:
 	static TArray<FString> GetLoadoutAt(int32 Index);
 	static int32 GetActiveLoadout();
 
+	/** The player's name for a loadout, "LOADOUT n" until renamed (stored as LoadoutName<n>). */
+	static FString GetLoadoutName(int32 Index);
+	static void SetLoadoutName(int32 Index, const FString& Name);
+
 	/** Makes another loadout the active one and tells a running match. */
 	static void SetActiveLoadout(APlayerController* Player, int32 Index);
 

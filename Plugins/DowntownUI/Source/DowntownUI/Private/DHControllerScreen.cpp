@@ -9,6 +9,7 @@
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
+#include "CommonInputSubsystem.h"
 #include "Components/VerticalBoxSlot.h"
 #include "DHCardButton.h"
 #include "DHScreenStyle.h"
@@ -38,7 +39,8 @@ namespace
 			{ TEXT("Fire"), NSLOCTEXT("DowntownHunting", "PadFire", "FIRE"), { TEXT("/Game/Input/Actions/IA_Weapon_Fire.IA_Weapon_Fire"), TEXT("/Game/Input/Actions/IA_Weapon_Fire_Auto.IA_Weapon_Fire_Auto") } },
 			{ TEXT("Aim"), NSLOCTEXT("DowntownHunting", "PadAim", "AIM"), { TEXT("/ShooterCore/Input/Actions/IA_ADS.IA_ADS") } },
 			{ TEXT("Jump"), NSLOCTEXT("DowntownHunting", "PadJump", "JUMP / WALL JUMP"), { TEXT("/Game/Input/Actions/IA_Jump.IA_Jump") } },
-			{ TEXT("Crouch"), NSLOCTEXT("DowntownHunting", "PadCrouch", "CROUCH / SLIDE"), { TEXT("/Game/Input/Actions/IA_Crouch.IA_Crouch") } },
+			{ TEXT("Sprint"), NSLOCTEXT("DowntownHunting", "PadSprint", "SPRINT"), { TEXT("/DowntownCore/Input/IA_DH_Sprint.IA_DH_Sprint") } },
+			{ TEXT("Crouch"), NSLOCTEXT("DowntownHunting", "PadCrouch", "CROUCH / SLIDE WHEN SPRINTING"), { TEXT("/Game/Input/Actions/IA_Crouch.IA_Crouch") } },
 			{ TEXT("Reload"), NSLOCTEXT("DowntownHunting", "PadReload", "RELOAD"), { TEXT("/Game/Input/Actions/IA_Weapon_Reload.IA_Weapon_Reload") } },
 			{ TEXT("Melee"), NSLOCTEXT("DowntownHunting", "PadMelee", "MELEE"), { TEXT("/ShooterCore/Input/Actions/IA_Melee.IA_Melee") } },
 			{ TEXT("Grenade"), NSLOCTEXT("DowntownHunting", "PadGrenade", "GRENADE"), { TEXT("/ShooterCore/Input/Actions/IA_Grenade.IA_Grenade") } },
@@ -144,34 +146,77 @@ namespace
 		}
 		return Keys;
 	}
+}
 
-	FText KeyName(const FKey& Key)
+FText UDHControllerScreen::KeyLabel(const FKey& Key, bool bShort)
+{
+	// Badges in the HUD need the stick and d-pad buttons short.
+	static const TMap<FName, FText> ShortNames = {
+		{ EKeys::Gamepad_LeftThumbstick.GetFName(), FText::FromString(TEXT("LS")) },
+		{ EKeys::Gamepad_RightThumbstick.GetFName(), FText::FromString(TEXT("RS")) },
+		{ EKeys::Gamepad_DPad_Up.GetFName(), FText::FromString(TEXT("DPAD UP")) },
+		{ EKeys::Gamepad_DPad_Down.GetFName(), FText::FromString(TEXT("DPAD DOWN")) },
+		{ EKeys::Gamepad_DPad_Left.GetFName(), FText::FromString(TEXT("DPAD LEFT")) },
+		{ EKeys::Gamepad_DPad_Right.GetFName(), FText::FromString(TEXT("DPAD RIGHT")) },
+		{ EKeys::Gamepad_Special_Left.GetFName(), FText::FromString(TEXT("VIEW")) },
+		{ EKeys::LeftShift.GetFName(), FText::FromString(TEXT("SHIFT")) },
+		{ EKeys::RightShift.GetFName(), FText::FromString(TEXT("SHIFT")) },
+		{ EKeys::LeftControl.GetFName(), FText::FromString(TEXT("CTRL")) },
+		{ EKeys::LeftAlt.GetFName(), FText::FromString(TEXT("ALT")) },
+		{ EKeys::SpaceBar.GetFName(), FText::FromString(TEXT("SPACE")) },
+		{ EKeys::LeftMouseButton.GetFName(), FText::FromString(TEXT("LMB")) },
+		{ EKeys::RightMouseButton.GetFName(), FText::FromString(TEXT("RMB")) },
+		{ EKeys::MiddleMouseButton.GetFName(), FText::FromString(TEXT("MMB")) },
+		{ EKeys::ThumbMouseButton.GetFName(), FText::FromString(TEXT("MOUSE 4")) },
+		{ EKeys::ThumbMouseButton2.GetFName(), FText::FromString(TEXT("MOUSE 5")) },
+	};
+	if (const FText* Name = bShort ? ShortNames.Find(Key.GetFName()) : nullptr)
 	{
-		static const TMap<FName, FText> Names = {
-			{ EKeys::Gamepad_FaceButton_Bottom.GetFName(), FText::FromString(TEXT("A")) },
-			{ EKeys::Gamepad_FaceButton_Right.GetFName(), FText::FromString(TEXT("B")) },
-			{ EKeys::Gamepad_FaceButton_Left.GetFName(), FText::FromString(TEXT("X")) },
-			{ EKeys::Gamepad_FaceButton_Top.GetFName(), FText::FromString(TEXT("Y")) },
-			{ EKeys::Gamepad_LeftShoulder.GetFName(), FText::FromString(TEXT("LB")) },
-			{ EKeys::Gamepad_RightShoulder.GetFName(), FText::FromString(TEXT("RB")) },
-			{ EKeys::Gamepad_LeftTrigger.GetFName(), FText::FromString(TEXT("LT")) },
-			{ EKeys::Gamepad_RightTrigger.GetFName(), FText::FromString(TEXT("RT")) },
-			{ EKeys::Gamepad_LeftThumbstick.GetFName(), NSLOCTEXT("DowntownHunting", "PadLS", "LEFT STICK PRESS") },
-			{ EKeys::Gamepad_RightThumbstick.GetFName(), NSLOCTEXT("DowntownHunting", "PadRS", "RIGHT STICK PRESS") },
-			{ EKeys::Gamepad_DPad_Up.GetFName(), NSLOCTEXT("DowntownHunting", "PadUp", "D-PAD UP") },
-			{ EKeys::Gamepad_DPad_Down.GetFName(), NSLOCTEXT("DowntownHunting", "PadDown", "D-PAD DOWN") },
-			{ EKeys::Gamepad_DPad_Left.GetFName(), NSLOCTEXT("DowntownHunting", "PadLeft", "D-PAD LEFT") },
-			{ EKeys::Gamepad_DPad_Right.GetFName(), NSLOCTEXT("DowntownHunting", "PadRight", "D-PAD RIGHT") },
-			{ EKeys::Gamepad_Special_Left.GetFName(), NSLOCTEXT("DowntownHunting", "PadView", "VIEW / SELECT") },
-		};
-		if (!Key.IsValid())
-		{
-			return FText::FromString(TEXT("-"));
-		}
-		const FText* Name = Names.Find(Key.GetFName());
-		return Name ? *Name : Key.GetDisplayName();
+		return *Name;
 	}
+	static const TMap<FName, FText> Names = {
+		{ EKeys::Gamepad_FaceButton_Bottom.GetFName(), FText::FromString(TEXT("A")) },
+		{ EKeys::Gamepad_FaceButton_Right.GetFName(), FText::FromString(TEXT("B")) },
+		{ EKeys::Gamepad_FaceButton_Left.GetFName(), FText::FromString(TEXT("X")) },
+		{ EKeys::Gamepad_FaceButton_Top.GetFName(), FText::FromString(TEXT("Y")) },
+		{ EKeys::Gamepad_LeftShoulder.GetFName(), FText::FromString(TEXT("LB")) },
+		{ EKeys::Gamepad_RightShoulder.GetFName(), FText::FromString(TEXT("RB")) },
+		{ EKeys::Gamepad_LeftTrigger.GetFName(), FText::FromString(TEXT("LT")) },
+		{ EKeys::Gamepad_RightTrigger.GetFName(), FText::FromString(TEXT("RT")) },
+		{ EKeys::Gamepad_LeftThumbstick.GetFName(), NSLOCTEXT("DowntownHunting", "PadLS", "LEFT STICK PRESS") },
+		{ EKeys::Gamepad_RightThumbstick.GetFName(), NSLOCTEXT("DowntownHunting", "PadRS", "RIGHT STICK PRESS") },
+		{ EKeys::Gamepad_DPad_Up.GetFName(), NSLOCTEXT("DowntownHunting", "PadUp", "D-PAD UP") },
+		{ EKeys::Gamepad_DPad_Down.GetFName(), NSLOCTEXT("DowntownHunting", "PadDown", "D-PAD DOWN") },
+		{ EKeys::Gamepad_DPad_Left.GetFName(), NSLOCTEXT("DowntownHunting", "PadLeft", "D-PAD LEFT") },
+		{ EKeys::Gamepad_DPad_Right.GetFName(), NSLOCTEXT("DowntownHunting", "PadRight", "D-PAD RIGHT") },
+		{ EKeys::Gamepad_Special_Left.GetFName(), NSLOCTEXT("DowntownHunting", "PadView", "VIEW / SELECT") },
+	};
+	if (!Key.IsValid())
+	{
+		return FText::FromString(TEXT("-"));
+	}
+	const FText* Name = Names.Find(Key.GetFName());
+	return Name ? *Name : Key.GetDisplayName(/*bLongDisplayName=*/ false);
+}
 
+FText UDHControllerScreen::ActionKeyLabel(const ULocalPlayer* Player, const TCHAR* ActionPath, bool bShort)
+{
+	const UEnhancedInputLocalPlayerSubsystem* Input = Player ? Player->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>() : nullptr;
+	const UCommonInputSubsystem* CommonInput = Player ? UCommonInputSubsystem::Get(Player) : nullptr;
+	const bool bGamepad = CommonInput && CommonInput->GetCurrentInputType() == ECommonInputType::Gamepad;
+	const UInputAction* Action = LoadObject<UInputAction>(nullptr, ActionPath);
+	for (const FKey& Key : Input && Action ? Input->QueryKeysMappedToAction(Action) : TArray<FKey>())
+	{
+		if (Key.IsGamepadKey() == bGamepad)
+		{
+			return KeyLabel(Key, bShort);
+		}
+	}
+	return FText::GetEmpty();
+}
+
+namespace
+{
 	// Buttons a game action may take: no sticks (movement, looking) and not the pause button.
 	bool IsBindable(const FKey& Key)
 	{
@@ -232,18 +277,12 @@ void UDHControllerScreen::ApplyBindings(const ULocalPlayer* Player)
 		}
 	}
 	// Every gamepad mapping of a row's actions gets the row's button (the assets have second mappings, e.g. Lyra's
-	// melee on RB besides ours on the right stick). Mappings of other actions on a chosen button are dropped.
+	// melee on RB besides ours on the right stick). Mappings of other actions on a row's button are dropped.
 	// Lyra's actions are player mappable: their keys come from the player's key profile (Enhanced Input user
 	// settings), not from the asset, so those change there; DowntownCore's mappings change in the asset.
 	const TArray<FKey> Keys = CurrentKeys();
-	TSet<FKey> Chosen;
-	for (const FRow& Row : Rows())
-	{
-		if (StoredKey(Row).IsValid())
-		{
-			Chosen.Add(StoredKey(Row));
-		}
-	}
+	TSet<FKey> Chosen(Keys);
+	Chosen.Remove(FKey());
 	TArray<bool> Mapped;
 	Mapped.Init(false, Rows().Num());
 	TMap<FName, FKey> ProfileKeys;
@@ -311,6 +350,32 @@ void UDHControllerScreen::ApplyBindings(const ULocalPlayer* Player)
 				{
 					Mapping.SetCurrentKey(Entry.Value);
 				}
+			}
+		}
+	}
+	// Keyboard defaults moved: Shift sprints now (DowntownCore's own mapping), so Lyra's dash key (the first ability)
+	// goes to E, and E leaves melee (C stays). Only while the player has not chosen other keys in Lyra's options.
+	const UInputAction* AbilityAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/Input/Actions/IA_Ability_Dash.IA_Ability_Dash"));
+	TArray<FName> RowNames;
+	if (Profile)
+	{
+		Profile->GetPlayerMappingRows().GetKeys(RowNames);
+	}
+	for (const FName& RowName : RowNames)
+	{
+		for (FPlayerKeyMapping& Mapping : Profile->FindKeyMappingRowMutable(RowName)->Mappings)
+		{
+			if (Mapping.GetDefaultKey().IsGamepadKey() || Mapping.IsCustomized())
+			{
+				continue;
+			}
+			if (Mapping.GetAssociatedInputAction() == AbilityAction && Mapping.GetDefaultKey() == EKeys::LeftShift)
+			{
+				Mapping.SetCurrentKey(EKeys::E);
+			}
+			else if (Mapping.GetAssociatedInputAction() != AbilityAction && Mapping.GetDefaultKey() == EKeys::E)
+			{
+				Mapping.SetCurrentKey(EKeys::Invalid);
 			}
 		}
 	}
@@ -492,6 +557,6 @@ void UDHControllerScreen::Refresh()
 	const TArray<FKey> Keys = CurrentKeys();
 	for (int32 Index = 0; Index < KeyTexts.Num(); ++Index)
 	{
-		KeyTexts[Index]->SetText(KeyName(Keys[Index]));
+		KeyTexts[Index]->SetText(KeyLabel(Keys[Index]));
 	}
 }

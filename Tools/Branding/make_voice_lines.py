@@ -1,14 +1,18 @@
 """Character select voice lines with a local MuseForge (http://localhost:7861, Docker container "museforge"): one designed
-voice per character (Qwen3 TTS Voice Design), one line each. Writes Tools/Branding/Voices/DH_Voice_<Id>.wav (loudness
+voice per character (Qwen3 TTS Voice Design, described anew for every line), one line each. Writes Tools/Branding/Voices/DH_Voice_<Id>.wav (loudness
 normalised). Usage: python make_voice_lines.py [Id ...]"""
+import array
 import json
+import math
 import os
 import subprocess
 import sys
 import time
 import urllib.request
+import wave
 
 API = 'http://localhost:7861/api/v1'
+WORKSPACE = 'tmp-test'  # MuseForge output folder, kept apart from the user's own work
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Voices')
 
 LINES = {
@@ -37,34 +41,45 @@ def call(method, path, body=None):
     return json.load(urllib.request.urlopen(request))
 
 
-def voice(id, description):
-    name = 'DH ' + id
-    for existing in call('GET', '/voices')['voices']:
-        if existing['name'] == name:
-            return existing['id']
-    created = call('POST', '/voices', {'name': name, 'model_type': 'qwen3_tts_voicedesign', 'language': 'English',
-                                       'description': description, 'params': {'voice_description': description}})
-    call('PUT', '/voices/' + created['id'], {'params': {'voice_description': description}})
-    return created['id']
+def tail_level(path):
+    """Loudness of the last 0.1 s against the loudest 0.05 s: high means the line was cut off mid-word."""
+    with wave.open(path) as w:
+        rate, channels = w.getframerate(), w.getnchannels()
+        samples = array.array('h', w.readframes(w.getnframes()))[::channels]
+    rms = lambda part: math.sqrt(sum(x * x for x in part) / max(1, len(part)))
+    peak = max(rms(samples[i:i + rate // 20]) for i in range(0, len(samples), rate // 20))
+    return rms(samples[-rate // 10:]) / max(1.0, peak)
+
+
+def generate(description, line):
+    # Plain /generate: the voice library's /speak cut lines off after about two seconds.
+    job = call('POST', '/generate', {'model_type': 'qwen3_tts_voicedesign', 'prompt': line, 'alt_prompt': description,
+                                     'model_mode': 'english', 'duration_seconds': 30, 'workspace': WORKSPACE})['job_id']
+    while True:
+        status = call('GET', '/status/' + job)
+        if status['status'] in ('completed', 'failed'):
+            break
+        time.sleep(2)
+    if status['status'] != 'completed':
+        raise RuntimeError(status.get('message'))
+    return status['output_files'][0]
 
 
 def main(ids):
     os.makedirs(OUT, exist_ok=True)
     for id in ids:
         description, line = LINES[id]
-        job = call('POST', '/voices/%s/speak' % voice(id, description), {'text': line})['job_id']
-        while True:
-            status = call('GET', '/status/' + job)
-            if status['status'] in ('completed', 'failed'):
+        for attempt in range(4):
+            name = generate(description, line)
+            raw = os.path.join(OUT, id + '.raw.wav')
+            subprocess.run(['docker', 'cp', 'museforge:/workspace/app/outputs/%s/%s' % (WORKSPACE, name), raw], check=True)
+            if tail_level(raw) < 0.05:
                 break
-            time.sleep(2)
-        if status['status'] != 'completed':
-            raise RuntimeError(status.get('message'))
-        raw = os.path.join(OUT, id + '.raw.wav')
-        subprocess.run(['docker', 'cp', 'museforge:/workspace/app/outputs/tmp-test/' + status['output_files'][0], raw], check=True)
+            print('cut off, again:', id, flush=True)
         target = os.path.join(OUT, 'DH_Voice_%s.wav' % id)
-        subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', raw, '-af', 'loudnorm=I=-16:TP=-1.5,aresample=44100',
-                        '-ac', '1', target], check=True)
+        # 0.3 s of silence at the end, so nothing clicks when the sound stops
+        subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', raw, '-af',
+                        'loudnorm=I=-16:TP=-1.5,aresample=44100,apad=pad_dur=0.3', '-ac', '1', target], check=True)
         os.remove(raw)
         print('done', target, flush=True)
 

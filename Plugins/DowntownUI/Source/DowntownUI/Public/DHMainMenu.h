@@ -12,7 +12,8 @@ class UWidget;
 
 /**
  * Main menu, built in code: entries on the right over a dark gradient, the city behind them as full-screen video
- * (UDHMenuBackground). Every entry has its own slow camera move through the city (Content/Movies/Menu/DH_Menu_<Entry>.mp4,
+ * (UDHMenuBackground), a stage on the left (UDHShowcase: a hunter or the loadout's weapon per entry) and its own music
+ * (/Game/DH/UI/Music, in place of Lyra's ambient front-end music). DEV TOOLS in developer mode. Every entry has its own slow camera move through the city (Content/Movies/Menu/DH_Menu_<Entry>.mp4,
  * made by Tools/Python/make_menu_backgrounds.py + Tools/Branding/make_menu_movies.py); moving the focus cross-fades to it.
  * Set as MainScreenClass of Lyra's front-end state component in place of W_LyraFrontEnd.
  */
@@ -43,6 +44,9 @@ private:
 	void AddEntry(class UVerticalBox* Column, const FString& Id, const FText& Title, const FText& Subtitle);
 	void HandleEntryClicked(UDHCardButton* Button);
 	void ShowBackground(const FString& Id);
+	void ShowShowcase(const FString& Id);
+	void StartMusic();
+	void SilenceLyraMusic();
 	void Open(const FString& Id);
 	void RefreshLevel();
 
@@ -53,6 +57,15 @@ private:
 	TArray<TObjectPtr<UObject>> KeepAlive;  // buttons, gradient texture
 
 	TWeakObjectPtr<UDHMenuBackground> Background;
+
+	// Left stage: a hunter or a weapon springs in for the focused entry.
+	UPROPERTY(Transient)
+	TObjectPtr<class UDHShowcase> Showcase;
+	FString LastRandomHunter;
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UAudioComponent> Music;
+	float MusicCheck = 0.f;
 
 	// Player level badge, top left (FDHProgression).
 	UPROPERTY(Transient)

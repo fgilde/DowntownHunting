@@ -13,7 +13,8 @@ class UWorld;
  * Front-end background: the city as full-screen video, one looping camera move per main menu entry
  * (Content/Movies/Menu/DH_Menu_<Id>.mp4). Lives on the UI.Layer.Game layer under all menu screens, so it stays
  * visible behind Play, Character, Options and so on. Show() cross-fades to another clip. Removes itself when the
- * front end is left. Pushed by UDHMainMenu.
+ * front end is left. Pushed by UDHMainMenu. Tinted to dusk, with halftone dots, travelling stripes and a vignette on top
+ * (generated textures).
  */
 UCLASS()
 class DOWNTOWNUI_API UDHMenuBackground : public UCommonActivatableWidget
@@ -42,6 +43,17 @@ private:
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UObject>> Sources;
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UOverlay> Videos;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UImage> Stripes;
+
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<UObject>> KeepAlive;  // generated textures
+
+	float StripeTime = 0.f;
 
 	TWeakObjectPtr<UWorld> FrontEndWorld;
 	int32 Front = 0;

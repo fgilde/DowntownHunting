@@ -50,6 +50,20 @@ int32 UDHLoadoutSettings::GetActiveLoadout()
 	return FMath::Clamp(Index, 0, NumLoadouts - 1);
 }
 
+FString UDHLoadoutSettings::GetLoadoutName(int32 Index)
+{
+	FString Name;
+	GConfig->GetString(LoadoutSection, *FString::Printf(TEXT("LoadoutName%d"), Index + 1), Name, GGameUserSettingsIni);
+	Name.TrimStartAndEndInline();
+	return Name.IsEmpty() ? FString::Printf(TEXT("LOADOUT %d"), Index + 1) : Name;
+}
+
+void UDHLoadoutSettings::SetLoadoutName(int32 Index, const FString& Name)
+{
+	GConfig->SetString(LoadoutSection, *FString::Printf(TEXT("LoadoutName%d"), Index + 1), *Name.TrimStartAndEnd().Left(18).ToUpper(), GGameUserSettingsIni);
+	GConfig->Flush(false, GGameUserSettingsIni);
+}
+
 void UDHLoadoutSettings::SetActiveLoadout(APlayerController* Player, int32 Index)
 {
 	GConfig->SetInt(LoadoutSection, ActiveKey, FMath::Clamp(Index, 0, NumLoadouts - 1), GGameUserSettingsIni);

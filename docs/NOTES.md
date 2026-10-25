@@ -357,3 +357,16 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 ## Packaging: UBT-Fehler (2026-10-25)
 - UBT 5.8 stürzte in `GitSourceFileWorkingSet` ab (NullReferenceException). Lokal abgeschaltet über `Saved/UnrealBuildTool/BuildConfiguration.xml` mit `<SourceFileWorkingSet><Provider>None</Provider></SourceFileWorkingSet>`. Die Datei liegt nicht in Git, nach einem Löschen von `Saved` neu anlegen.
 - `DowntownHunting.Target.cs` braucht `bOverrideBuildEnvironment = true`, weil `CustomConfig = "Steam"` sonst mit der installierten Engine abgelehnt wird.
+
+## Feedback-Runde: Lyra raus, Steuerung, HUD, Dev-Tools, Loadouts, Menü (2026-10-25)
+- Kein „Lyra“ mehr sichtbar: eigenes App-Icon (`Tools/Branding/make_icon.py` → `Build/Windows/Application.ico`), Firma/Copyright „Gilde Games“ in `DefaultGame.ini`, Credits-Zeile ersetzt (gleich lange Zeichenkette direkt im Paket, weil der Text als Pin-Default im Graph steht). `Package.cmd` leert `Build/Packaged` vorher (die alte `LyraGame.exe` lag noch im Archiv), Zip ohne `.pdb` und ohne `fg.txt`; die Projekt-`fg.txt` wird danach nur lokal neben die Exe kopiert.
+- D-Pad übersprang Karten: Slate-Navigation sucht Nachbarn über das *Render*-Rechteck; geschert/gepoppte Buttons ragten über den Nachbarn. `UDHCardButton` bleibt jetzt ein gerades Rechteck, Schräge, Pop, Farbe und Outline liegen auf einer inneren `SBorder`.
+- Y wechselte hin und zurück: `IMC_DH_Perspective` hatte Y → CycleForward ohne Trigger, Lyra feuerte jeden Frame. Alle Tasten-Aktionen dort jetzt mit `Pressed` (`Tools/Python/setup_input.py` schreibt das Mapping).
+- Neue Belegung: Sprint LS / Shift (`IA_DH_Sprint`, Gamepad Umschalten, Tastatur Halten; endet bei Schuss, Zielen, Ducken, ohne Vorwärts), Ducken im Sprint = Rutschen, Fähigkeit LB / E, 2. Fähigkeit D-Pad rechts / F, Granate RB / Q, Nahkampf RS / C, Waffe Y. Lyras Tastatur-Profil: Dash Shift → E, E nicht mehr Nahkampf (nur solange nicht selbst umgelegt).
+- Ego: neue Waffe schwingt beim Wechsel von unten ins Bild (`RaiseTime` usw. im Kamera-Modus). Im Spiel noch nicht Bild für Bild angesehen.
+- Fähigkeiten-HUD: Kachel mit Icon (`/Game/DH/UI/Abilities`, MuseForge), Tastenname des aktuellen Geräts, Abklingschatten mit Sekunden, Cyan-Rahmen wenn aktiv, Pop + Ton wenn bereit.
+- Dev-Tools (`UDHDevScreen`): F10 oder VIEW halten + Y, auch Hauptmenü „DEV TOOLS“. Schalter Keine Abklingzeit, God, Endlos-Munition (gelten auf dem Host), Zeitlupe, FPS; Level hoch, Killstreak +3, Bot +/−, Heilen, Respawn. Hinweis oben links im HUD.
+- Loadouts: links 5 Slots mit Namen (umbenennen mit Y / R, Würfel für Namen), rechts Karten, unten Detailfeld (Werte-Balken der Waffen, Abklingzeit/Dauer, Freischaltung), LB/RB bzw. Q/E wechselt Slot, Tastenhinweise unten.
+- Sprachzeilen wurden bei ~2 s abgeschnitten (MuseForge `/voices/.../speak`); `make_voice_lines.py` nutzt `/generate` und prüft das Ende.
+- Hauptmenü: Bühne links (`UDHShowcase`: Figur mit Clip bzw. Waffen-/Controller-Comic `/Game/DH/UI/MenuArt`, federt rein, großes Wort, Farbbalken), Stadtvideo abendlich getönt mit Raster/Streifen/Vignette, eigene Musik (`/Game/DH/UI/Music`, ACE-Step, Sound-Klasse Music; Lyras mx_-Musik wird gestoppt). Musik nicht probegehört.
+- MuseForge-Skripte schreiben in den Workspace `tmp-test` (sonst landet es im aktuellen Workspace des Nutzers).

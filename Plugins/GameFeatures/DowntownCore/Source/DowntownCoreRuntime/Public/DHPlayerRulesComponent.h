@@ -17,7 +17,8 @@ class UUserWidget;
  * - locally controlled player: picks the camera mode (first or third person) and, if the mode allows it,
  *   lets the player switch with ToggleAction (V / D-pad up by default); the loadout's abilities on Lyra's dash input
  *   and on Ability2Action (DHAbilities), with their HUD,
- * - every machine: speed (killstreak hunter, infected, adrenaline) and cloak.
+ * - every machine: speed (sprint, killstreak hunter, infected, adrenaline) and cloak,
+ * - developer mode (FDHProgression::DevFlag) on the host's own pawn: god mode and endless ammo.
  * Added to every Lyra character by the DH experiences.
  */
 UCLASS(meta = (BlueprintSpawnableComponent))
@@ -30,6 +31,10 @@ public:
 
 	// Server: gives the current loadout again (Gun Game swaps the weapon after a kill).
 	void RefreshLoadout() { GiveLoadout(); }
+
+	// Sprint on or off (DHMovement): set by the owning client's input, and on the server through its RPC.
+	void SetSprinting(bool bOn);
+	bool IsSprinting() const { return bSprinting; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -65,6 +70,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TSoftObjectPtr<UInputAction> Ability2Action;
 
+	// Sprint: held on the keyboard (Shift), a toggle on the gamepad (left stick press) that ends by itself.
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TSoftObjectPtr<UInputAction> SprintAction;
+
 private:
 	void GiveLoadout();
 	void SetUpLocalPlayer();
@@ -73,6 +82,13 @@ private:
 	void HideScoreboard();
 	void TrySlide();
 	void TryWallJump();
+	void HandleSprintPressed();
+	void HandleSprintReleased();
+	void SetSprintingLocal(bool bOn);
+	void CheckSprint();
+	void UpdateMoveSpeed();
+	void ApplyDevCheats();
+	bool IsGamepadInput() const;
 	void UseAbility1() { UseAbility(0); }
 	void UseAbility2() { UseAbility(1); }
 	void UseAbility(int32 Slot);
@@ -86,7 +102,13 @@ private:
 
 	FTimerHandle RetryTimer;
 	FTimerHandle HunterTimer;
+	FTimerHandle SprintTimer;
+	bool bSprinting = false;
+	bool bSprintWanted = false;  // owning client: key held, or the gamepad toggle waiting for the player to move
+	double SprintWantedAt = 0.0;
+	bool bDevGod = false;
 	TWeakObjectPtr<UObject> ModifiedWeapon;
+	TWeakObjectPtr<const UObject> LoggedWeapon;
 	TSet<TWeakObjectPtr<class USkinnedMeshComponent>> HairSkins;
 	TArray<TWeakObjectPtr<class UPrimitiveComponent>> CloakHidden;
 	bool bCloakHiddenFromBots = false;

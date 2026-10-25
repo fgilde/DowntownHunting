@@ -12,6 +12,8 @@
 #include "DHKillstreaks.h"
 #include "DHStreakBanner.h"
 #include "DHMovement.h"
+#include "DHProgression.h"
+#include "DHPlayerRulesComponent.h"
 #include "DHSoundCue.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -157,6 +159,10 @@ void UDHPlayerChoicesComponent::SetAbilities(const TArray<FString>& NewLoadout)
 float UDHPlayerChoicesComponent::GetCooldown(int32 Slot) const
 {
 	const FDHAbilityEntry* Ability = UDHLoadoutSettings::FindAbility(Abilities[Slot]);
+	if (Ability && FDHProgression::DevFlag(TEXT("NoCooldowns")))
+	{
+		return 0.5f;  // dev screen: just enough to not fire twice from one press
+	}
 	return Ability ? Ability->Cooldown * (PerkId == TEXT("QuickRecharge") ? UDHLoadoutSettings::QuickRechargeFactor : 1.f) : 0.f;
 }
 
@@ -281,6 +287,14 @@ void UDHPlayerChoicesComponent::ServerSlide_Implementation()
 	if (DHMovement::CanSlide(Character))
 	{
 		DHMovement::Slide(Character);
+	}
+}
+
+void UDHPlayerChoicesComponent::ServerSetSprint_Implementation(bool bOn)
+{
+	if (UDHPlayerRulesComponent* Rules = GetPawn<APawn>() ? GetPawn<APawn>()->FindComponentByClass<UDHPlayerRulesComponent>() : nullptr)
+	{
+		Rules->SetSprinting(bOn);
 	}
 }
 

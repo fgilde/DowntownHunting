@@ -1,5 +1,7 @@
 #include "DHMovement.h"
 
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemGlobals.h"
 #include "CollisionQueryParams.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
@@ -9,6 +11,22 @@
 
 namespace DHMovement
 {
+	bool CanSprint(const ACharacter* Character)
+	{
+		static const FGameplayTag AimTag = FGameplayTag::RequestGameplayTag(TEXT("Event.Movement.ADS"));
+		const UCharacterMovementComponent* Movement = Character ? Character->GetCharacterMovement() : nullptr;
+		const UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Character);
+		if (!Movement || Movement->IsCrouching() || (ASC && ASC->HasMatchingGameplayTag(AimTag)))
+		{
+			return false;
+		}
+		// The owning client knows the stick, the server only the acceleration it results in.
+		FVector Input = Character->IsLocallyControlled() ? Character->GetLastMovementInputVector() : Movement->GetCurrentAcceleration();
+		Input.Z = 0.f;
+		return Input.Size() > (Character->IsLocallyControlled() ? 0.3f : 1.f)
+			&& FVector::DotProduct(Input.GetSafeNormal(), Character->GetActorForwardVector()) > 0.5f;
+	}
+
 	bool CanSlide(const ACharacter* Character)
 	{
 		const UCharacterMovementComponent* Movement = Character ? Character->GetCharacterMovement() : nullptr;

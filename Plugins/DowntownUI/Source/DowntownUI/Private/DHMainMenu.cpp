@@ -15,7 +15,14 @@
 #include "Components/VerticalBoxSlot.h"
 #include "DHCardButton.h"
 #include "DHCharacterSelectScreen.h"
+#include "CommonInputSubsystem.h"
+#include "Components/AudioComponent.h"
+#include "DHCharacterSettings.h"
 #include "DHControllerScreen.h"
+#include "DHDevScreen.h"
+#include "DHLoadoutSettings.h"
+#include "DHShowcase.h"
+#include "UObject/UObjectIterator.h"
 #include "DHLoadoutScreen.h"
 #include "DHMenuBackground.h"
 #include "DHPlayScreen.h"
@@ -72,6 +79,8 @@ void UDHMainMenu::NativeOnInitialized()
 	UImage* Shade = WidgetTree->ConstructWidget<UImage>();
 	Shade->SetBrushFromTexture(Gradient);
 	Fill(Shade);
+	Showcase = WidgetTree->ConstructWidget<UDHShowcase>(UDHShowcase::StaticClass());
+	Fill(Showcase);
 
 	UVerticalBox* Column = WidgetTree->ConstructWidget<UVerticalBox>();
 	UOverlaySlot* ColumnSlot = Root->AddChildToOverlay(Column);
@@ -123,6 +132,11 @@ void UDHMainMenu::NativeOnInitialized()
 		NSLOCTEXT("DowntownHunting", "MenuControllerSub", "Gamepad button layout"));
 	AddEntry(Column, TEXT("Credits"), NSLOCTEXT("DowntownHunting", "MenuCredits", "CREDITS"),
 		NSLOCTEXT("DowntownHunting", "MenuCreditsSub", "Who made this city"));
+	if (FDHProgression::IsDevMode())
+	{
+		AddEntry(Column, TEXT("Dev"), NSLOCTEXT("DowntownHunting", "MenuDev", "DEV TOOLS"),
+			NSLOCTEXT("DowntownHunting", "MenuDevSub", "Cheats and switches (also F10 or VIEW + Y in a match)"));
+	}
 	AddEntry(Column, TEXT("Quit"), NSLOCTEXT("DowntownHunting", "MenuQuit", "QUIT"),
 		NSLOCTEXT("DowntownHunting", "MenuQuitSub", "Back to the desktop"));
 }
@@ -176,7 +190,7 @@ void UDHMainMenu::RefreshLevel()
 	const int32 From = FDHProgression::LevelStartXP(Level), To = FDHProgression::LevelStartXP(Level + 1);
 	LevelText->SetText(FText::Format(NSLOCTEXT("DowntownHunting", "MenuLevel", "LEVEL {0}"), Level));
 	XPText->SetText(FDHProgression::IsDevMode()
-		? FText::Format(NSLOCTEXT("DowntownHunting", "MenuXPDev", "{0} / {1} XP  ·  DEV MODE: all unlocked, cheats"), XP, To)
+		? FText::Format(NSLOCTEXT("DowntownHunting", "MenuXPDev", "{0} / {1} XP  ·  DEV MODE: all unlocked, dev tools on F10 or VIEW + Y"), XP, To)
 		: FText::Format(NSLOCTEXT("DowntownHunting", "MenuXP", "{0} / {1} XP"), XP, To));
 	XPBar->SetPercent(float(XP - From) / FMath::Max(1, To - From));
 }
@@ -184,12 +198,15 @@ void UDHMainMenu::RefreshLevel()
 void UDHMainMenu::NativeOnActivated()
 {
 	Super::NativeOnActivated();
+	UDHDevScreen::InstallHotkey();
+	StartMusic();
 	UDHControllerScreen::ApplyBindings(GetOwningLocalPlayer());
 	UDHIntroScreen::PlayOnce(GetOwningPlayer());
 	RefreshLevel();
 	if (!Entries.IsEmpty())
 	{
-		ShowBackground(Entries[0].Id);
+		// Back from a sub screen: the stage may show something new (another hunter, another loadout).
+		ShowBackground(Entries[Entries.IsValidIndex(LastFocused) ? LastFocused : 0].Id);
 	}
 }
 
@@ -202,9 +219,11 @@ void UDHMainMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	// Focus wins over hover, so the gamepad and the mouse never highlight two entries.
+	// Focus wins over hover, so the gamepad and the mouse never highlight two entries. With the gamepad the cursor
+	// follows the focus and may still hover the old entry for a frame: hover only counts for the mouse.
 	int32 Focused = Entries.IndexOfByPredicate([](const FEntry& Entry) { return Entry.Button->HasAnyUserFocus(); });
-	if (Focused == INDEX_NONE)
+	const UCommonInputSubsystem* Input = GetOwningLocalPlayer() ? UCommonInputSubsystem::Get(GetOwningLocalPlayer()) : nullptr;
+	if (Focused == INDEX_NONE && !(Input && Input->GetCurrentInputType() == ECommonInputType::Gamepad))
 	{
 		Focused = Entries.IndexOfByPredicate([](const FEntry& Entry) { return Entry.Button->IsHovered(); });
 	}
@@ -221,6 +240,12 @@ void UDHMainMenu::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		Entry.Button->SetRenderTranslation(FVector2D(-34.f * Entry.Focus, 0.f));
 		Entry.Button->SetRenderOpacity(0.7f + 0.3f * Entry.Focus);
 		Entry.Button->Animate(InDeltaTime);
+	}
+	MusicCheck -= InDeltaTime;
+	if (MusicCheck <= 0.f)
+	{
+		MusicCheck = 1.f;
+		SilenceLyraMusic();
 	}
 	if (Entries.IsValidIndex(Focused) && Focused != LastFocused)
 	{
@@ -240,6 +265,88 @@ void UDHMainMenu::ShowBackground(const FString& Id)
 	if (Background.IsValid())
 	{
 		Background->Show(Id);
+	}
+	ShowShowcase(Id);
+}
+
+void UDHMainMenu::ShowShowcase(const FString& Id)
+{
+	// A different hunter every time for the entries without their own subject.
+	auto RandomHunter = [this]()
+	{
+		const TArray<FDHCharacterEntry> Characters = UDHCharacterSettings::GetCharacters();
+		if (Characters.IsEmpty())
+		{
+			return FString();
+		}
+		FString Pick = LastRandomHunter;
+		for (int32 Try = 0; Try < 8 && Pick == LastRandomHunter; ++Try)
+		{
+			Pick = Characters[FMath::RandRange(0, Characters.Num() - 1)].Id;
+		}
+		LastRandomHunter = Pick;
+		return Pick;
+	};
+	const FLinearColor Magenta(1.f, 0.06f, 0.42f, 0.85f), Yellow(1.f, 0.82f, 0.f, 0.85f), Cyan(0.f, 0.8f, 1.f, 0.8f), Violet(0.45f, 0.1f, 0.9f, 0.85f);
+	if (Id == TEXT("Character"))
+	{
+		Showcase->ShowCharacter(UDHCharacterSettings::GetPreferredCharacter(), NSLOCTEXT("DowntownHunting", "ShowcaseHunter", "HUNTER"), Magenta);
+	}
+	else if (Id == TEXT("Loadout"))
+	{
+		const TArray<FString> Loadout = UDHLoadoutSettings::GetLoadout();
+		FString Primary, Secondary, Attachment;
+		UDHLoadoutSettings::SplitEntry(Loadout[UDHLoadoutSettings::Primary], Primary, Attachment);
+		UDHLoadoutSettings::SplitEntry(Loadout[UDHLoadoutSettings::Secondary], Secondary, Attachment);
+		UTexture2D* Art = LoadObject<UTexture2D>(nullptr, *FString::Printf(TEXT("/Game/DH/UI/MenuArt/T_DH_Art_%s.T_DH_Art_%s"), *Primary, *Primary), nullptr, LOAD_NoWarn | LOAD_Quiet);
+		Showcase->ShowArt(Art, FText::FromString(Secondary.IsEmpty() ? Primary.ToUpper() : Primary.ToUpper() + TEXT(" + ") + Secondary.ToUpper()),
+			NSLOCTEXT("DowntownHunting", "ShowcaseLoadout", "LOADOUT"), Cyan);
+	}
+	else if (Id == TEXT("Controller"))
+	{
+		Showcase->ShowArt(LoadObject<UTexture2D>(nullptr, TEXT("/Game/DH/UI/MenuArt/T_DH_Art_Controller.T_DH_Art_Controller"), nullptr, LOAD_NoWarn | LOAD_Quiet),
+			NSLOCTEXT("DowntownHunting", "ShowcasePad", "YOUR BUTTONS"), NSLOCTEXT("DowntownHunting", "ShowcaseControls", "CONTROLS"), Violet);
+	}
+	else if (Id == TEXT("Quit"))
+	{
+		Showcase->ShowCharacter(FString(), NSLOCTEXT("DowntownHunting", "ShowcaseQuit", "SEE YA"), Violet);
+	}
+	else
+	{
+		const FText Words[] = { NSLOCTEXT("DowntownHunting", "ShowcasePlay", "PLAY"), NSLOCTEXT("DowntownHunting", "ShowcaseOptions", "OPTIONS"),
+			NSLOCTEXT("DowntownHunting", "ShowcaseCredits", "CREDITS"), NSLOCTEXT("DowntownHunting", "ShowcaseDev", "DEV") };
+		const int32 Word = Id == TEXT("Options") ? 1 : Id == TEXT("Credits") ? 2 : Id == TEXT("Dev") ? 3 : 0;
+		Showcase->ShowCharacter(RandomHunter(), Words[Word], Word == 0 ? Yellow : Word == 1 ? Cyan : Magenta);
+	}
+}
+
+void UDHMainMenu::StartMusic()
+{
+	if (Music && Music->IsPlaying())
+	{
+		return;
+	}
+	// One of the menu tracks, looping (sound class Music: the music volume setting applies).
+	const int32 Track = FMath::RandRange(1, 3);
+	if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, *FString::Printf(TEXT("/Game/DH/UI/Music/DH_Music_Menu%d.DH_Music_Menu%d"), Track, Track), nullptr, LOAD_NoWarn | LOAD_Quiet))
+	{
+		Music = UGameplayStatics::SpawnSound2D(this, Sound, 0.7f, 1.f, 0.f, nullptr, /*bPersistAcrossLevelTransition=*/ false, /*bAutoDestroy=*/ false);
+		if (Music)
+		{
+			Music->FadeIn(1.5f, 0.7f);
+		}
+	}
+}
+
+void UDHMainMenu::SilenceLyraMusic()
+{
+	// Lyra's front end plays its ambient MetaSound music (mx_*) from a music manager component; ours replaces it.
+	for (TObjectIterator<UAudioComponent> It; It; ++It)
+	{
+		if (It->GetWorld() == GetWorld() && *It != Music && It->Sound && It->Sound->GetName().StartsWith(TEXT("mx_")) && It->IsPlaying())
+		{
+			It->Stop();
+		}
 	}
 }
 
@@ -282,6 +389,10 @@ void UDHMainMenu::Open(const FString& Id)
 	else if (Id == TEXT("Credits"))
 	{
 		Push(LoadClass<UCommonActivatableWidget>(nullptr, TEXT("/Game/UI/Credits/W_Credits.W_Credits_C")));
+	}
+	else if (Id == TEXT("Dev"))
+	{
+		UDHDevScreen::Open(Player);
 	}
 	else if (Id == TEXT("Quit"))
 	{

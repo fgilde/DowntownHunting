@@ -101,3 +101,15 @@ bool FDHProgression::IsDevMode()
 	}();
 	return bDev;
 }
+
+bool FDHProgression::DevFlag(const TCHAR* Name)
+{
+	bool bOn = false;
+	return IsDevMode() && GConfig->GetBool(DHProgressionSettings::Section, *(FString(TEXT("Dev")) + Name), bOn, GGameUserSettingsIni) && bOn;
+}
+
+void FDHProgression::SetDevFlag(const TCHAR* Name, bool bOn)
+{
+	GConfig->SetBool(DHProgressionSettings::Section, *(FString(TEXT("Dev")) + Name), bOn, GGameUserSettingsIni);
+	GConfig->Flush(false, GGameUserSettingsIni);
+}

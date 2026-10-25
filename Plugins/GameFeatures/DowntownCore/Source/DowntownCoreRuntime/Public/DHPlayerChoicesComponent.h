@@ -53,6 +53,9 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerWallJump(FVector_NetQuantizeNormal WallNormal);
 
+	UFUNCTION(Server, Reliable)
+	void ServerSetSprint(bool bOn);
+
 	/** Primary and secondary weapon; given from the next spawn. */
 	UFUNCTION(Server, Reliable)
 	void ServerSetLoadout(const TArray<FString>& NewLoadout);

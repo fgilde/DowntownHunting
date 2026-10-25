@@ -103,6 +103,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "First Person|Recoil")
 	float RecoilRecoverySpeed = 14.0f;
 
+	// Weapon switch: the new weapon rises into view over this time, from this far below (cm) and tilted (deg).
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Switch")
+	float RaiseTime = 0.35f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Switch")
+	float RaiseDrop = 30.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Switch")
+	float RaisePitch = 45.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "First Person|Switch")
+	float RaiseRoll = 25.0f;
+
 private:
 	void UpdateWeaponState(const ACharacter& Character, float DeltaTime);
 	void SetFirstPersonRendering(bool bEnabled) const;
@@ -125,5 +138,6 @@ private:
 	FDHFirstPersonWeaponView CurrentView;
 	float ADSAlpha = 0.0f;
 	float Recoil = 0.0f;
+	float Raise = 1.0f;
 	float LastTimeSinceInteracted = 0.0f;
 };

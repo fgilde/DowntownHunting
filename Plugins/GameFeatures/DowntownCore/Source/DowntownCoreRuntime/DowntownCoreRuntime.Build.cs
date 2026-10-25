@@ -49,6 +49,7 @@ public class DowntownCoreRuntime : ModuleRules
 				"NavigationSystem",
 				"AIModule",
 				"SlateCore",
+				"CommonInput",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

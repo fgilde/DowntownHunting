@@ -9,6 +9,7 @@ import time
 import urllib.request
 
 API = 'http://localhost:7861/api/v1'
+WORKSPACE = 'tmp-test'  # MuseForge output folder, kept apart from the user's own work
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, 'Splash')
 
@@ -50,7 +51,7 @@ def call(path, body=None, files=None):
 
 
 def generate(prompt, params):
-    job = call('/generate', dict(params, model_type='flux2_klein_9b', prompt=prompt))['job_id']
+    job = call('/generate', dict(params, model_type='flux2_klein_9b', prompt=prompt, workspace=WORKSPACE))['job_id']
     while True:
         status = call('/status/' + job)
         if status['status'] in ('completed', 'failed'):
@@ -61,17 +62,18 @@ def generate(prompt, params):
     return status['output_files'][0]
 
 
-def fetch(name, target):
+def fetch(name, target, trim_borders=True):
     # The API does not serve the files; copy from the container and take the single frame.
     clip = target + '.mp4'
-    subprocess.run(['docker', 'cp', 'museforge:/workspace/app/outputs/tmp-test/' + name, clip], check=True)
+    subprocess.run(['docker', 'cp', 'museforge:/workspace/app/outputs/%s/%s' % (WORKSPACE, name), clip], check=True)
     subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', clip, '-frames:v', '1', target], check=True)
     os.remove(clip)
-    trim(target)
+    if trim_borders:
+        trim(target)
 
 
 def trim(path):
-    # Flux sometimes letterboxes the picture: cut near-black border rows/columns, scale back to 768x1024.
+    # Flux sometimes letterboxes the picture: cut near-black border rows/columns, scale back to the full size.
     from PIL import Image
     image = Image.open(path).convert('RGB')
     grey = image.convert('L')

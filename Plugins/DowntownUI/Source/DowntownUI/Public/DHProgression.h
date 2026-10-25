@@ -30,6 +30,13 @@ public:
 	 */
 	static bool IsDevMode();
 
+	/**
+	 * Developer switches (dev screen, UDHDevScreen), stored as Dev<Name> in GameUserSettings.ini, always off outside dev
+	 * mode: NoCooldowns, God, InfiniteAmmo. They act where they are read, so on a listen server for the host's own player.
+	 */
+	static bool DevFlag(const TCHAR* Name);
+	static void SetDevFlag(const TCHAR* Name, bool bOn);
+
 	/** Ids that unlock exactly at this level, for the level-up message. */
 	static TArray<FString> UnlocksAt(int32 Level);
 };

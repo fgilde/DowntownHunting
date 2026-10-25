@@ -7,6 +7,7 @@
 #include "DHAbilities.h"
 #include "DHAbilityHud.h"
 #include "DHControllerScreen.h"
+#include "DHDevScreen.h"
 #include "DHProgression.h"
 #include "DHGameRulesComponent.h"
 #include "DHFreeForAllScoring.h"
@@ -14,7 +15,10 @@
 #include "DHKillstreaks.h"
 #include "DHMatchEndScreen.h"
 #include "DHMinimap.h"
+#include "CommonInputSubsystem.h"
 #include "DHMovement.h"
+#include "Equipment/LyraEquipmentManagerComponent.h"
+#include "Weapons/LyraWeaponInstance.h"
 #include "DHPlayerChoicesComponent.h"
 #include "DHScopeOverlay.h"
 #include "DHSoundCue.h"
@@ -163,6 +167,7 @@ UDHPlayerRulesComponent::UDHPlayerRulesComponent(const FObjectInitializer& Objec
 	ScoreboardAction = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/ShooterCore/Input/Actions/IA_ShowScoreboard.IA_ShowScoreboard")));
 	AbilityAction = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/Game/Input/Actions/IA_Ability_Dash.IA_Ability_Dash")));
 	Ability2Action = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/DowntownCore/Input/IA_DH_Ability2.IA_DH_Ability2")));
+	SprintAction = TSoftObjectPtr<UInputAction>(FSoftObjectPath(TEXT("/DowntownCore/Input/IA_DH_Sprint.IA_DH_Sprint")));
 }
 
 void UDHPlayerRulesComponent::BeginPlay()
@@ -199,39 +204,93 @@ void UDHPlayerRulesComponent::BeginPlay()
 		EnableHairSkinning();
 		DHAbilities::UpdateCloak(GetPawn<APawn>(), CloakHidden, bCloakHiddenFromBots);
 		ACharacter* Character = GetPawn<ACharacter>();
-		UCharacterMovementComponent* Movement = Character ? Character->GetCharacterMovement() : nullptr;
-		if (Movement)
+		if (Character && Character->HasAuthority())
 		{
-			if (Character->HasAuthority())
+			RemoveLyraDash();
+			ApplyDevCheats();
+			UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Character);
+			if (ASC && FireSource.Get() != ASC)
 			{
-				RemoveLyraDash();
-				UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Character);
-				if (ASC && FireSource.Get() != ASC)
+				if (FireSource.IsValid())
 				{
-					if (FireSource.IsValid())
-					{
-						FireSource->AbilityActivatedCallbacks.Remove(FireHandle);
-					}
-					FireSource = ASC;
-					FireHandle = ASC->AbilityActivatedCallbacks.AddUObject(this, &ThisClass::HandleAbilityActivated);
+					FireSource->AbilityActivatedCallbacks.Remove(FireHandle);
 				}
+				FireSource = ASC;
+				FireHandle = ASC->AbilityActivatedCallbacks.AddUObject(this, &ThisClass::HandleAbilityActivated);
 			}
-			const float Base = CastChecked<UCharacterMovementComponent>(Movement->GetArchetype())->MaxWalkSpeed;
-			const UDHInfectedScoring* Infected = Cast<UDHInfectedScoring>(UDHFreeForAllScoring::Find(this));
-			const UDHPlayerChoicesComponent* Choices = Character->GetController() ? Character->GetController()->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
-			const bool bAdrenaline = DHAbilities::HasAdrenaline(Character->GetPlayerState())
-				|| (Choices && Character->IsLocallyControlled() && Choices->GetLocalAdrenalineUntil() > GetWorld()->GetTimeSeconds());
-			Movement->MaxWalkSpeed = Base * (DHKillstreaks::IsHunting(Character->GetPlayerState()) ? DHKillstreaks::HunterSpeed : 1.f)
-				* (Infected && Infected->IsInfected(Character->GetPlayerState()) ? UDHInfectedScoring::InfectedSpeed : 1.f)
-				* (bAdrenaline ? DHAbilities::AdrenalineSpeed : 1.f);
+		}
+		UpdateMoveSpeed();
+		const UObject* Weapon = DHWeaponAccess::ActiveWeapon(Character);
+		if (Character && Character->IsLocallyControlled() && Character->IsPlayerControlled() && Weapon != LoggedWeapon.Get())
+		{
+			LoggedWeapon = Weapon;
+			UE_LOG(LogDHRules, Log, TEXT("%s: weapon in hand %s"), *GetNameSafe(Character), *GetNameSafe(Weapon ? Weapon->GetClass() : nullptr));
 		}
 	}, 0.25f, true);
+}
+
+void UDHPlayerRulesComponent::UpdateMoveSpeed()
+{
+	ACharacter* Character = GetPawn<ACharacter>();
+	UCharacterMovementComponent* Movement = Character ? Character->GetCharacterMovement() : nullptr;
+	if (!Movement)
+	{
+		return;
+	}
+	const float Base = CastChecked<UCharacterMovementComponent>(Movement->GetArchetype())->MaxWalkSpeed;
+	const UDHInfectedScoring* Infected = Cast<UDHInfectedScoring>(UDHFreeForAllScoring::Find(this));
+	const UDHPlayerChoicesComponent* Choices = Character->GetController() ? Character->GetController()->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
+	const bool bAdrenaline = DHAbilities::HasAdrenaline(Character->GetPlayerState())
+		|| (Choices && Character->IsLocallyControlled() && Choices->GetLocalAdrenalineUntil() > GetWorld()->GetTimeSeconds());
+	Movement->MaxWalkSpeed = Base * (DHKillstreaks::IsHunting(Character->GetPlayerState()) ? DHKillstreaks::HunterSpeed : 1.f)
+		* (Infected && Infected->IsInfected(Character->GetPlayerState()) ? UDHInfectedScoring::InfectedSpeed : 1.f)
+		* (bAdrenaline ? DHAbilities::AdrenalineSpeed : 1.f)
+		* (bSprinting ? DHMovement::SprintSpeed : 1.f);
+}
+
+void UDHPlayerRulesComponent::ApplyDevCheats()
+{
+	// Only the host's own pawn: the switches are this machine's (dev screen).
+	const APawn* Pawn = GetPawn<APawn>();
+	UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Pawn);
+	if (!ASC || !Pawn->IsLocallyControlled() || !Pawn->IsPlayerControlled())
+	{
+		return;
+	}
+	// Lyra's health set ignores damage while the owner has Cheat.GodMode.
+	static const FGameplayTag GodTag = FGameplayTag::RequestGameplayTag(TEXT("Cheat.GodMode"));
+	const bool bGod = FDHProgression::DevFlag(TEXT("God"));
+	if (bGod != bDevGod)
+	{
+		bDevGod = bGod;
+		if (bGod)
+		{
+			ASC->AddLooseGameplayTag(GodTag);
+		}
+		else
+		{
+			ASC->RemoveLooseGameplayTag(GodTag);
+		}
+	}
+	if (FDHProgression::DevFlag(TEXT("InfiniteAmmo")))
+	{
+		static const FGameplayTag MagazineSize = FGameplayTag::RequestGameplayTag(TEXT("Lyra.ShooterGame.Weapon.MagazineSize"));
+		static const FGameplayTag MagazineAmmo = FGameplayTag::RequestGameplayTag(TEXT("Lyra.ShooterGame.Weapon.MagazineAmmo"));
+		static const FGameplayTag SpareAmmo = FGameplayTag::RequestGameplayTag(TEXT("Lyra.ShooterGame.Weapon.SpareAmmo"));
+		if (ULyraInventoryItemInstance* Item = DHWeaponAccess::ItemOf(DHWeaponAccess::ActiveWeapon(Pawn)))
+		{
+			const int32 Size = DHWeaponAccess::ItemStat(Item, MagazineSize);
+			DHWeaponAccess::AddItemStat(Item, MagazineAmmo, Size - DHWeaponAccess::ItemStat(Item, MagazineAmmo));
+			DHWeaponAccess::AddItemStat(Item, SpareAmmo, FMath::Max(0, Size * 3 - DHWeaponAccess::ItemStat(Item, SpareAmmo)));
+		}
+	}
 }
 
 void UDHPlayerRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	GetWorld()->GetTimerManager().ClearTimer(RetryTimer);
 	GetWorld()->GetTimerManager().ClearTimer(HunterTimer);
+	GetWorld()->GetTimerManager().ClearTimer(SprintTimer);
 	if (FireSource.IsValid())
 	{
 		FireSource->AbilityActivatedCallbacks.Remove(FireHandle);
@@ -393,6 +452,11 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 		{
 			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::UseAbility2);
 		}
+		if (UInputAction* Action = SprintAction.LoadSynchronous())
+		{
+			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::HandleSprintPressed);
+			InputComponent->BindAction(Action, ETriggerEvent::Completed, this, &ThisClass::HandleSprintReleased);
+		}
 		BoundInputComponent = InputComponent;
 	}
 	const UDHGameRulesComponent* Rules = UDHGameRulesComponent::Find(this);
@@ -432,6 +496,8 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 		UDHControllerScreen::ApplyBindings(PC->GetLocalPlayer());
 	}
 	// Developer mode (fg.txt): Lyra's cheats (God, UnlimitedHealth, ...) for the local player; real on the host.
+	// The dev screen hotkey also when a match was started without the main menu.
+	UDHDevScreen::InstallHotkey();
 	if (PC && !PC->CheatManager && FDHProgression::IsDevMode())
 	{
 		const_cast<APlayerController*>(PC)->AddCheats(true);
@@ -521,8 +587,95 @@ void UDHPlayerRulesComponent::TrySlide()
 	UDHPlayerChoicesComponent* Choices = Character && Character->GetController() ? Character->GetController()->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
 	if (Choices && DHMovement::CanSlide(Character))
 	{
+		SetSprintingLocal(false);
 		DHMovement::Slide(Character);
 		Choices->ServerSlide();
+	}
+}
+
+bool UDHPlayerRulesComponent::IsGamepadInput() const
+{
+	const APawn* Pawn = GetPawn<APawn>();
+	const APlayerController* PC = Pawn ? Pawn->GetController<APlayerController>() : nullptr;
+	const UCommonInputSubsystem* CommonInput = PC && PC->GetLocalPlayer() ? UCommonInputSubsystem::Get(PC->GetLocalPlayer()) : nullptr;
+	return CommonInput && CommonInput->GetCurrentInputType() == ECommonInputType::Gamepad;
+}
+
+void UDHPlayerRulesComponent::HandleSprintPressed()
+{
+	// The gamepad button toggles (a stick press, nobody holds that while running); the key is held. Pressed before the
+	// player moves forward, the sprint starts as soon as they do (on the gamepad within a moment).
+	if (bSprinting && IsGamepadInput())
+	{
+		bSprintWanted = false;
+		SetSprintingLocal(false);
+		return;
+	}
+	bSprintWanted = true;
+	SprintWantedAt = GetWorld()->GetTimeSeconds();
+	CheckSprint();
+	GetWorld()->GetTimerManager().SetTimer(SprintTimer, this, &ThisClass::CheckSprint, 0.1f, true);
+}
+
+void UDHPlayerRulesComponent::HandleSprintReleased()
+{
+	if (!IsGamepadInput())
+	{
+		bSprintWanted = false;
+		SetSprintingLocal(false);
+	}
+}
+
+void UDHPlayerRulesComponent::SetSprintingLocal(bool bOn)
+{
+	const APawn* Pawn = GetPawn<APawn>();
+	if (bOn == bSprinting || !Pawn)
+	{
+		return;
+	}
+	SetSprinting(bOn);
+	UDHPlayerChoicesComponent* Choices = Pawn->GetController() ? Pawn->GetController()->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
+	if (Choices && !Pawn->HasAuthority())
+	{
+		Choices->ServerSetSprint(bOn);
+	}
+}
+
+void UDHPlayerRulesComponent::SetSprinting(bool bOn)
+{
+	bSprinting = bOn;
+	UpdateMoveSpeed();
+	UE_LOG(LogDHRules, Log, TEXT("%s: sprint %s (%s)"), *GetNameSafe(GetPawn<APawn>()), bOn ? TEXT("on") : TEXT("off"), GetOwner()->HasAuthority() ? TEXT("server") : TEXT("client"));
+}
+
+void UDHPlayerRulesComponent::CheckSprint()
+{
+	// Owning client, while the sprint is wanted or on: it ends when the stick or key lets go of forward, on aiming or
+	// crouching, and on a shot; a held key starts it again once possible, a toggle on the gamepad does not.
+	const ACharacter* Character = GetPawn<ACharacter>();
+	ULyraEquipmentManagerComponent* Equipment = Character ? Character->FindComponentByClass<ULyraEquipmentManagerComponent>() : nullptr;
+	const ULyraWeaponInstance* Weapon = Equipment ? Equipment->GetFirstInstanceOfType<ULyraWeaponInstance>() : nullptr;
+	const bool bPossible = DHMovement::CanSprint(Character) && !(Weapon && Weapon->GetTimeSinceLastInteractedWith() < 0.2f);
+	const bool bGamepad = IsGamepadInput();
+	if (bSprinting && !bPossible)
+	{
+		SetSprintingLocal(false);
+		bSprintWanted = bSprintWanted && !bGamepad;
+	}
+	else if (!bSprinting && bSprintWanted)
+	{
+		if (bPossible)
+		{
+			SetSprintingLocal(true);
+		}
+		else if (bGamepad && GetWorld()->GetTimeSeconds() - SprintWantedAt > 0.6)
+		{
+			bSprintWanted = false;
+		}
+	}
+	if (!bSprinting && !bSprintWanted)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(SprintTimer);
 	}
 }
 

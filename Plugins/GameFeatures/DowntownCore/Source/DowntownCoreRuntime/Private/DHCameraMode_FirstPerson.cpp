@@ -59,6 +59,11 @@ void UDHCameraMode_FirstPerson::UpdateView(float DeltaTime)
 	}
 	if (bWeaponsChanged || !BodyCopy.IsValid())
 	{
+		// A new weapon in hand comes up from below the view (not on the first build after spawning or switching view).
+		if (bWeaponsChanged && !CopiedWeapons.IsEmpty() && !Weapons.IsEmpty())
+		{
+			Raise = 0.f;
+		}
 		DestroyCopies();
 		BuildCopies(*Character);
 	}
@@ -92,10 +97,16 @@ void UDHCameraMode_FirstPerson::UpdateView(float DeltaTime)
 	const FQuat Facing = ViewQuat * Mesh->GetRelativeRotation().Quaternion();
 	const FQuat Correction = FQuat::FindBetweenNormals(Facing.RotateVector(Barrel).GetSafeNormal(), ViewQuat.GetForwardVector());
 	const FQuat Kick(ViewQuat.GetRightVector(), FMath::DegreesToRadians(-RecoilPitch * Recoil));
-	const FQuat BodyQuat = Kick * Correction * Facing;
+	// Weapon switch: tilted down and to the side below the view, swinging up with a little overshoot.
+	Raise = FMath::FInterpConstantTo(Raise, 1.f, DeltaTime, 1.f / RaiseTime);
+	const float Lowered = 1.f - FMath::InterpEaseOut(0.f, 1.f, Raise, 3.f) - 0.12f * FMath::Sin(Raise * PI);
+	const FQuat Tilt = FQuat(ViewQuat.GetRightVector(), FMath::DegreesToRadians(RaisePitch * Lowered))
+		* FQuat(ViewQuat.GetForwardVector(), FMath::DegreesToRadians(-RaiseRoll * Lowered));
+	const FQuat BodyQuat = Tilt * Kick * Correction * Facing;
 
 	FVector Offset = FMath::Lerp(CurrentView.HipOffset, CurrentView.ADSOffset, ADSAlpha);
 	Offset.X -= RecoilBack * Recoil;
+	Offset.Z -= RaiseDrop * Lowered;
 	const FVector Target = View.Location + ViewQuat.RotateVector(Offset);
 	Body->SetWorldLocationAndRotation(Target - BodyQuat.RotateVector(Grip * Body->GetComponentScale()), BodyQuat);
 	ShowOnlyArms();

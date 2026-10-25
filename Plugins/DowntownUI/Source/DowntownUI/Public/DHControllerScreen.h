@@ -29,6 +29,12 @@ public:
 	/** Logs the buttons the player's input really maps each action to (DH.PadDump). */
 	static void LogBindings(const ULocalPlayer* Player);
 
+	/** Name of a key for screens and the HUD: A, LB, RIGHT STICK PRESS (short: RS), E, Left Shift... */
+	static FText KeyLabel(const FKey& Key, bool bShort = false);
+
+	/** The key the player's input maps an action to (asset path), for the input type in use (gamepad or not). */
+	static FText ActionKeyLabel(const ULocalPlayer* Player, const TCHAR* ActionPath, bool bShort = false);
+
 	/** Called by the input capture: a gamepad button for the row waiting for one (none = cancelled). */
 	void FinishCapture(const FKey& Key);
 
