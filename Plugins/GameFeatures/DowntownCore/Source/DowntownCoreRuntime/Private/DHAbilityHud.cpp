@@ -21,6 +21,7 @@
 #include "DHPlayerChoicesComponent.h"
 #include "DHProgression.h"
 #include "DHScreenStyle.h"
+#include "DHStreakHud.h"
 #include "Engine/Texture2D.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
@@ -191,6 +192,7 @@ void UDHAbilityHud::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	const APlayerController* PC = GetOwningPlayer();
+	SetRenderOpacity(UDHStreakHud::IsMenuOpen(PC) ? 0.f : 1.f);
 	UpdateScreenEffects(InDeltaTime);
 	const UDHPlayerChoicesComponent* Choices = PC ? PC->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
 	// The button names follow the device in use; looked up twice a second.

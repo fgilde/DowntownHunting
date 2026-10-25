@@ -1,4 +1,4 @@
-"""DowntownCore's input: creates IA_DH_Sprint and writes the mappings of IMC_DH_Perspective (priority 10, above Lyra's and
+"""DowntownCore's input: creates IA_DH_Sprint and the killstreak actions and writes the mappings of IMC_DH_Perspective (priority 10, above Lyra's and
 ShooterCore's contexts, so its keys win and are consumed there). Gamepad defaults of the controller screen come from here.
 Discrete actions get a Pressed trigger: without one Lyra fires an ability input every frame while the button is held
 (Y switched the weapon back and forth).
@@ -16,11 +16,20 @@ def action(path):
     return asset
 
 
-sprint = u.load_asset(FOLDER + '/IA_DH_Sprint')
-if not sprint:
-    sprint = tools.create_asset('IA_DH_Sprint', FOLDER, u.InputAction, u.InputAction_Factory())
-    sprint.set_editor_property('value_type', u.InputActionValueType.BOOLEAN)
-    u.EditorAssetLibrary.save_loaded_asset(sprint, False)
+def bool_action(name):
+    asset = u.load_asset(FOLDER + '/' + name)
+    if not asset:
+        asset = tools.create_asset(name, FOLDER, u.InputAction, u.InputAction_Factory())
+        asset.set_editor_property('value_type', u.InputActionValueType.BOOLEAN)
+        u.EditorAssetLibrary.save_loaded_asset(asset, False)
+    return asset
+
+
+sprint = bool_action('IA_DH_Sprint')
+# Killstreaks (UDHStreakHud): one key each on the keyboard, call in / select on the D-pad.
+streaks = [bool_action('IA_DH_Streak%d' % n) for n in (1, 2, 3)]
+streak_use = bool_action('IA_DH_StreakUse')
+streak_next = bool_action('IA_DH_StreakNext')
 
 toggle = action(FOLDER + '/IA_DH_TogglePerspective')
 ability2 = action(FOLDER + '/IA_DH_Ability2')
@@ -38,6 +47,8 @@ MAPPINGS = [
     (grenade, 'Gamepad_RightShoulder', True),
     (melee, 'Gamepad_RightThumbstick', True),
     (cycle, 'Gamepad_FaceButton_Top', True),
+    (streaks[0], 'Four', True), (streaks[1], 'Five', True), (streaks[2], 'Six', True),
+    (streak_use, 'Gamepad_DPad_Left', True), (streak_next, 'Gamepad_DPad_Down', True),
 ]
 
 imc = u.load_asset(FOLDER + '/IMC_DH_Perspective')

@@ -16,7 +16,8 @@ class UWidget;
 /**
  * Loadout builder, built in code. Left: the NumLoadouts loadouts as slots with their name, weapons and abilities; the
  * highlighted one is in use, picking a slot switches to it (also LB / RB, or Q / E). Right: rows for the primary and
- * secondary weapon (each with an attachment), the special ability, a perk and the second ability; below them a panel
+ * secondary weapon (each with an attachment), the special ability, a perk, the second ability and three of the
+ * killstreaks (picking a fourth drops the one picked longest ago, picking a chosen one drops it); below them a panel
  * explains whatever card has the focus (weapon stats, recharge and duration, unlock level). Y / R renames the loadout
  * in use (type a name, or roll a random one). Everything above the player's level is locked (FDHProgression). Picking a
  * weapon or ability that sits in the other slot swaps the two. Stored via UDHLoadoutSettings; in a match weapons apply
@@ -39,7 +40,7 @@ protected:
 	virtual bool NativeOnHandleBackAction() override;
 
 private:
-	enum class EKind : uint8 { Slot, Weapon, Attachment, Ability, Perk, Button };
+	enum class EKind : uint8 { Slot, Weapon, Attachment, Ability, Perk, Streak, Button };
 
 	struct FCard
 	{
@@ -62,6 +63,7 @@ private:
 	void AddAttachmentRow(UVerticalBox* Column, int32 Entry);
 	void AddAbilityRow(UVerticalBox* Column, const FText& Title, int32 Entry);
 	void AddPerkRow(UVerticalBox* Column);
+	void AddStreakRow(UVerticalBox* Column);
 	UWidget* MakeDetails();
 	UWidget* MakeRenameBox();
 	UDHCardButton* MakeTextButton(const FString& Id, const FText& Label, int32 Size);

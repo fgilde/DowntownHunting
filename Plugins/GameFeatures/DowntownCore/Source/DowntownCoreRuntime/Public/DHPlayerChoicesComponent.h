@@ -42,9 +42,16 @@ public:
 	UFUNCTION(Client, Unreliable)
 	void ClientHitFeedback(bool bKill, bool bHeadshot);
 
-	/** Killstreak banner on the killer's screen (DHKillstreaks::EReward as Reward). */
+	/** Killstreak banner on the killer's screen: the streak, and the killstreak it just earned (empty if none). */
 	UFUNCTION(Client, Reliable)
-	void ClientStreak(int32 Streak, uint8 Reward);
+	void ClientStreak(int32 Streak, const FString& EarnedId);
+
+	/** Calls in an earned killstreak (DHKillstreaks::Use); Target is the spot for strikes. */
+	UFUNCTION(Server, Reliable)
+	void ServerUseStreak(const FString& Id, FVector_NetQuantize Target);
+
+	/** Killstreaks this player takes along, fewest kills first (server: as sent; owning client: own settings). */
+	TArray<FString> GetStreaks() const;
 
 	/** Moves of DHMovement, done on the owning client first and repeated here on the server. */
 	UFUNCTION(Server, Reliable)
@@ -103,6 +110,7 @@ private:
 	FString AppliedId;
 	TArray<FName> Loadout;
 	TMap<FName, FName> Attachments;
+	TArray<FString> Streaks;  // server, as sent
 	FDelegateHandle ChosenHandle;
 	FDelegateHandle LoadoutHandle;
 

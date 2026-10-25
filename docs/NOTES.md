@@ -397,3 +397,11 @@ NavMesh von L_Convolution_Blockout ebenfalls mit dem WP-Builder neu gebaut (sieh
 
 - make_voice_lines.py: Qwen3 voice design picks the gender from the description and got it wrong for several men. Each description now starts with "Male voice, a man." / "Female voice, a woman." and the median pitch is checked (men below 165 Hz). Shouted lines measure high even for men: keep lines calm-ish.
 - Menu music: three K-pop style instrumentals from ElevenLabs' free library (Tools/Branding/Music/Licensed/README.md).
+
+## Killstreaks (CoD style)
+
+- Catalog in UDHLoadoutSettings::GetStreaks (Radar 3, Mortar 4, Airstrike 5, Hunter 7, Carpet Bomb 9). A loadout takes three (entries Streak1..3, picked on the loadout screen; a fourth pushes out the oldest). Old stored loadouts without them get Radar, Airstrike, Hunter.
+- Server (DHKillstreaks): reaching a streak's kill count adds a stack of DH.Streak.Ready.<Id> (replicated stat tag, kept through deaths). UDHPlayerChoicesComponent::ServerUseStreak calls one in; bots use theirs at once (strikes on the biggest enemy group).
+- Client: UDHStreakHud on the right (progress, READY, key badge). Keys 4 / 5 / 6, gamepad D-pad left calls in the selected one, D-pad down selects (Tools/Python/setup_input.py makes the actions). Strikes open UDHStrikeMap (minimap capture, cropped 10 % per side, target circle as big as the strike, mouse or left stick). Hardcore has no capture: the strike goes where the player aims.
+- HUD widgets added to the viewport sit above Lyra's menu layers: they hide themselves while UDHStreakHud::IsMenuOpen.
+- Test: `DH.Streak 5` credits kills; `DH.Key Five` then `DH.Key Enter` calls in an airstrike on the own position.

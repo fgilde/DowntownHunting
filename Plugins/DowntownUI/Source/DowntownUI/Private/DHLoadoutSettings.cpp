@@ -40,6 +40,14 @@ TArray<FString> UDHLoadoutSettings::GetLoadoutAt(int32 Index)
 	{
 		Loadout[Ability] = TEXT("Dash");
 	}
+	if (Loadout[Streak1].IsEmpty() && Loadout[Streak2].IsEmpty() && Loadout[Streak3].IsEmpty())
+	{
+		const TArray<FString> Streaks = StreaksOf({});
+		for (int32 Index = 0; Index < Streaks.Num(); ++Index)
+		{
+			Loadout[Streak1 + Index] = Streaks[Index];
+		}
+	}
 	return Loadout;
 }
 
@@ -88,6 +96,41 @@ const FDHAbilityEntry* UDHLoadoutSettings::FindAbility(const FString& Id)
 	return Abilities.FindByPredicate([&Id](const FDHAbilityEntry& Entry) { return Entry.Id == Id; });
 }
 
+TArray<FDHStreakEntry> UDHLoadoutSettings::GetStreaks()
+{
+	return {
+		{ TEXT("Radar"), NSLOCTEXT("DowntownHunting", "StreakRadarName", "RADAR"), NSLOCTEXT("DowntownHunting", "StreakRadarInfo", "Enemies show up on the minimap of you and your team for 30 s"), 3 },
+		{ TEXT("Mortar"), NSLOCTEXT("DowntownHunting", "StreakMortarName", "MORTAR"), NSLOCTEXT("DowntownHunting", "StreakMortarInfo", "Three heavy shells on a spot you pick on the map"), 4 },
+		{ TEXT("Airstrike"), NSLOCTEXT("DowntownHunting", "StreakAirstrikeName", "AIRSTRIKE"), NSLOCTEXT("DowntownHunting", "StreakAirstrikeInfo", "Six bombs on a spot you pick on the map"), 5 },
+		{ TEXT("Hunter"), NSLOCTEXT("DowntownHunting", "StreakHunterName", "HUNTER MODE"), NSLOCTEXT("DowntownHunting", "StreakHunterInfo", "Full health and 30 % faster for 20 s"), 7 },
+		{ TEXT("CarpetBomb"), NSLOCTEXT("DowntownHunting", "StreakCarpetName", "CARPET BOMB"), NSLOCTEXT("DowntownHunting", "StreakCarpetInfo", "Sixteen bombs over a wide area you pick on the map"), 9 },
+	};
+}
+
+const FDHStreakEntry* UDHLoadoutSettings::FindStreak(const FString& Id)
+{
+	static const TArray<FDHStreakEntry> Streaks = GetStreaks();
+	return Streaks.FindByPredicate([&Id](const FDHStreakEntry& Entry) { return Entry.Id == Id; });
+}
+
+TArray<FString> UDHLoadoutSettings::StreaksOf(const TArray<FString>& Loadout)
+{
+	TArray<FString> Ids;
+	for (int32 Index = Streak1; Index <= Streak3 && Index < Loadout.Num(); ++Index)
+	{
+		if (FindStreak(Loadout[Index]))
+		{
+			Ids.AddUnique(Loadout[Index]);
+		}
+	}
+	if (Ids.IsEmpty())
+	{
+		Ids = { TEXT("Radar"), TEXT("Airstrike"), TEXT("Hunter") };
+	}
+	Ids.Sort([](const FString& A, const FString& B) { return FindStreak(A)->Kills < FindStreak(B)->Kills; });
+	return Ids;
+}
+
 TArray<FDHAbilityEntry> UDHLoadoutSettings::GetPerks()
 {
 	return {
@@ -116,6 +159,10 @@ FString UDHLoadoutSettings::DisplayName(const FString& Id)
 	if (const FDHAbilityEntry* Ability = FindAbility(Id))
 	{
 		return Ability->Name.ToString();
+	}
+	if (const FDHStreakEntry* Streak = FindStreak(Id))
+	{
+		return Streak->Name.ToString();
 	}
 	for (const FDHAbilityEntry& Perk : GetPerks())
 	{

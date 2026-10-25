@@ -20,6 +20,10 @@ class UDHMinimap : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+	/** This world's map capture (texture, centre and edge length in world units), false before the first one. */
+	static bool GetCapture(const UWorld* World, UTexture2D*& OutTexture, FVector2D& OutCentre, float& OutExtent);
+
 protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;

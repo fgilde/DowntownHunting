@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "Components/PointLightComponent.h"
+#include "DHLoadoutSettings.h"
 #include "DHPlayerChoicesComponent.h"
 #include "Engine/World.h"
 #include "HAL/IConsoleManager.h"
@@ -28,13 +29,32 @@ namespace DHKillstreaks
 	namespace
 	{
 		constexpr float StrikeDelay = 3.f;
-		constexpr float StrikeSpread = 900.f;
 		constexpr float BlastRadius = 550.f;
 		constexpr float BlastDamage = 160.f;
-		constexpr int32 StrikeImpacts = 6;
+
+		struct FStrike
+		{
+			const TCHAR* Id;
+			int32 Impacts;
+			float Spread;
+		};
+		const FStrike Strikes[] = { { TEXT("Mortar"), 3, 350.f }, { TEXT("Airstrike"), 6, 900.f }, { TEXT("CarpetBomb"), 16, 1800.f } };
+
+		const FStrike* FindStrike(const FString& Id)
+		{
+			for (const FStrike& Strike : Strikes)
+			{
+				if (Id == Strike.Id)
+				{
+					return &Strike;
+				}
+			}
+			return nullptr;
+		}
 
 		FGameplayTag StreakTag() { return FGameplayTag::RequestGameplayTag(TEXT("DH.Streak")); }
 		FGameplayTag HunterTag() { return FGameplayTag::RequestGameplayTag(TEXT("DH.Streak.HunterUntil")); }
+		FGameplayTag ReadyTag(const FString& Id) { return FGameplayTag::RequestGameplayTag(FName(TEXT("DH.Streak.Ready.") + Id), false); }
 
 		double ServerTime(const UObject* Context)
 		{
@@ -71,16 +91,16 @@ namespace DHKillstreaks
 			return Pawn && !(ASC && ASC->HasMatchingGameplayTag(DeathTag));
 		}
 
-		void CallAirstrike(APlayerState* Killer)
+		// The enemy with the most other enemies around (bots' strikes), none without enemies.
+		const APawn* BiggestGroup(const APlayerState* Player)
 		{
-			// On the enemy with the most other enemies around.
-			const AGameStateBase* GameState = Killer->GetWorld()->GetGameState();
+			const AGameStateBase* GameState = Player->GetWorld()->GetGameState();
 			const APawn* Best = nullptr;
 			int32 BestCount = -1;
 			for (const APlayerState* Target : GameState->PlayerArray)
 			{
 				const APawn* Pawn = Target->GetPawn();
-				if (!IsAlive(Pawn) || !Enemies(Killer, Target))
+				if (!IsAlive(Pawn) || !Enemies(Player, Target))
 				{
 					continue;
 				}
@@ -88,7 +108,7 @@ namespace DHKillstreaks
 				for (const APlayerState* Other : GameState->PlayerArray)
 				{
 					const APawn* OtherPawn = Other->GetPawn();
-					Count += IsAlive(OtherPawn) && Enemies(Killer, Other) && FVector::Dist(OtherPawn->GetActorLocation(), Pawn->GetActorLocation()) < 1500.f;
+					Count += IsAlive(OtherPawn) && Enemies(Player, Other) && FVector::Dist(OtherPawn->GetActorLocation(), Pawn->GetActorLocation()) < 1500.f;
 				}
 				if (Count > BestCount)
 				{
@@ -96,19 +116,14 @@ namespace DHKillstreaks
 					Best = Pawn;
 				}
 			}
-			if (Best)
-			{
-				UE_LOG(LogTemp, Log, TEXT("DH killstreak: airstrike of %s on %s (%d enemies close)"), *Killer->GetPlayerName(), *GetNameSafe(Best), BestCount);
-				ADHAirstrike* Strike = Killer->GetWorld()->SpawnActor<ADHAirstrike>(Best->GetActorLocation(), FRotator::ZeroRotator);
-				Strike->Striker = Killer;
-			}
+			return Best;
 		}
 
-		void StartHunter(ALyraPlayerState* Killer)
+		void StartHunter(ALyraPlayerState* Player)
 		{
-			SetStat(Killer, HunterTag(), FMath::CeilToInt(ServerTime(Killer) + HunterSeconds));
+			SetStat(Player, HunterTag(), FMath::CeilToInt(ServerTime(Player) + HunterSeconds));
 			// Full health (LyraHealthSet is not exported: attributes by name).
-			UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Killer->GetPawn());
+			UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Player->GetPawn());
 			const UClass* HealthSet = FindObject<UClass>(nullptr, TEXT("/Script/LyraGame.LyraHealthSet"));
 			if (ASC && HealthSet)
 			{
@@ -116,6 +131,12 @@ namespace DHKillstreaks
 				const FGameplayAttribute MaxHealth(FindFProperty<FProperty>(HealthSet, TEXT("MaxHealth")));
 				ASC->SetNumericAttributeBase(Health, ASC->GetNumericAttribute(MaxHealth));
 			}
+		}
+
+		UDHPlayerChoicesComponent* ChoicesOf(const APlayerState* Player)
+		{
+			const AController* Controller = Player ? Player->GetOwningController() : nullptr;
+			return Controller ? Controller->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
 		}
 	}
 
@@ -134,6 +155,82 @@ namespace DHKillstreaks
 		return Active(Player, Tag);
 	}
 
+	TArray<FString> ChosenStreaks(const APlayerState* Player)
+	{
+		const UDHPlayerChoicesComponent* Choices = ChoicesOf(Player);
+		return Choices ? Choices->GetStreaks() : UDHLoadoutSettings::StreaksOf({});
+	}
+
+	int32 ReadyCount(const APlayerState* Player, const FString& Id)
+	{
+		const ALyraPlayerState* LyraPlayer = Cast<ALyraPlayerState>(Player);
+		const FGameplayTag Tag = ReadyTag(Id);
+		return LyraPlayer && Tag.IsValid() ? LyraPlayer->GetStatTagStackCount(Tag) : 0;
+	}
+
+	bool IsStrike(const FString& Id)
+	{
+		return FindStrike(Id) != nullptr;
+	}
+
+	float StrikeSpread(const FString& Id)
+	{
+		const FStrike* Strike = FindStrike(Id);
+		return Strike ? Strike->Spread + BlastRadius * 0.5f : 0.f;
+	}
+
+	bool Use(APlayerState* Player, const FString& Id, const FVector& Target, bool bAutoTarget)
+	{
+		ALyraPlayerState* LyraPlayer = Cast<ALyraPlayerState>(Player);
+		const FGameplayTag Tag = ReadyTag(Id);
+		if (!LyraPlayer || !Tag.IsValid() || LyraPlayer->GetStatTagStackCount(Tag) <= 0 || !IsAlive(Player->GetPawn()))
+		{
+			return false;
+		}
+		FName Event = TEXT("Airstrike");
+		if (Id == TEXT("Radar"))
+		{
+			SetStat(LyraPlayer, RadarTag(), FMath::CeilToInt(ServerTime(Player) + RadarSeconds));
+			Event = TEXT("Radar");
+		}
+		else if (Id == TEXT("Hunter"))
+		{
+			StartHunter(LyraPlayer);
+			Event = TEXT("HunterMode");
+		}
+		else if (const FStrike* Strike = FindStrike(Id))
+		{
+			const APawn* Group = bAutoTarget ? BiggestGroup(Player) : nullptr;
+			if (bAutoTarget && !Group)
+			{
+				return false;  // kept for when there are enemies
+			}
+			// The picked spot comes without height: onto the ground (or roof) there.
+			FVector Spot = Group ? Group->GetActorLocation() : Target;
+			FHitResult Ground;
+			if (!Group && Player->GetWorld()->LineTraceSingleByChannel(Ground, Spot + FVector(0, 0, 20000), Spot - FVector(0, 0, 20000), ECC_Visibility))
+			{
+				Spot = Ground.ImpactPoint;
+			}
+			ADHAirstrike* Actor = Player->GetWorld()->SpawnActor<ADHAirstrike>(Spot, FRotator::ZeroRotator);
+			if (!Actor)
+			{
+				return false;
+			}
+			Actor->Striker = Player;
+			Actor->ImpactCount = Strike->Impacts;
+			Actor->Spread = Strike->Spread;
+		}
+		else
+		{
+			return false;
+		}
+		LyraPlayer->RemoveStatTagStack(Tag, 1);
+		UE_LOG(LogTemp, Log, TEXT("DH killstreak: %s uses %s"), *Player->GetPlayerName(), *Id);
+		UDHGameRulesComponent::Announce(Player, Event, INDEX_NONE, Player);
+		return true;
+	}
+
 	void OnElimination(APlayerState* Killer, APlayerState* Victim, bool bCountsAsKill)
 	{
 		if (ALyraPlayerState* LyraVictim = Cast<ALyraPlayerState>(Victim))
@@ -148,33 +245,25 @@ namespace DHKillstreaks
 		}
 		LyraKiller->AddStatTagStack(StreakTag(), 1);
 		const int32 Streak = LyraKiller->GetStatTagStackCount(StreakTag());
-		EReward Reward = EReward::None;
-		switch (Streak)
+		FString Earned;
+		for (const FString& Id : ChosenStreaks(Killer))
 		{
-		case 3:
-			Reward = EReward::Radar;
-			SetStat(LyraKiller, RadarTag(), FMath::CeilToInt(ServerTime(Killer) + RadarSeconds));
-			break;
-		case 5:
-			Reward = EReward::Airstrike;
-			CallAirstrike(Killer);
-			break;
-		case 7:
-			Reward = EReward::Hunter;
-			StartHunter(LyraKiller);
-			break;
-		default:
-			break;
-		}
-		if (Reward != EReward::None)
-		{
-			UDHGameRulesComponent::Announce(Killer, Reward == EReward::Radar ? TEXT("Radar") : Reward == EReward::Airstrike ? TEXT("Airstrike") : TEXT("HunterMode"), INDEX_NONE, Killer);
+			const FDHStreakEntry* Entry = UDHLoadoutSettings::FindStreak(Id);
+			if (Entry && Entry->Kills == Streak && ReadyTag(Id).IsValid())
+			{
+				LyraKiller->AddStatTagStack(ReadyTag(Id), 1);
+				Earned = Id;
+			}
 		}
 		const AController* Controller = Killer->GetOwningController();
-		UDHPlayerChoicesComponent* Choices = Controller ? Controller->FindComponentByClass<UDHPlayerChoicesComponent>() : nullptr;
-		if (Choices && Controller->IsPlayerController() && (Reward != EReward::None || Streak >= 3))
+		UDHPlayerChoicesComponent* Choices = ChoicesOf(Killer);
+		if (Controller && !Controller->IsPlayerController() && !Earned.IsEmpty())
 		{
-			Choices->ClientStreak(Streak, static_cast<uint8>(Reward));
+			Use(Killer, Earned, FVector::ZeroVector, /*bAutoTarget=*/ true);  // bots call theirs in at once
+		}
+		else if (Choices && Controller && (!Earned.IsEmpty() || Streak >= 3))
+		{
+			Choices->ClientStreak(Streak, Earned);
 		}
 	}
 
@@ -211,17 +300,6 @@ namespace DHKillstreaks
 				OnElimination(Player->PlayerState, nullptr, true);
 			}
 		}));
-
-	FText RewardText(int32 Streak, EReward Reward)
-	{
-		switch (Reward)
-		{
-		case EReward::Radar: return NSLOCTEXT("DowntownHunting", "StreakRadar", "RADAR  ·  enemies on the map");
-		case EReward::Airstrike: return NSLOCTEXT("DowntownHunting", "StreakAirstrike", "AIRSTRIKE  ·  inbound on the enemy");
-		case EReward::Hunter: return NSLOCTEXT("DowntownHunting", "StreakHunter", "HUNTER MODE  ·  full health, faster");
-		default: return FText::Format(NSLOCTEXT("DowntownHunting", "StreakCount", "{0} KILL STREAK"), Streak);
-		}
-	}
 }
 
 ADHAirstrike::ADHAirstrike()
@@ -255,14 +333,18 @@ void ADHAirstrike::Tick(float DeltaSeconds)
 	{
 		return;
 	}
-	const int32 Due = FMath::Clamp(FMath::FloorToInt((Age - StrikeDelay) / 0.3f) + 1, 0, StrikeImpacts);
+	const float Interval = FMath::Min(0.3f, 2.4f / ImpactCount);
+	const int32 Due = FMath::Clamp(FMath::FloorToInt((Age - StrikeDelay) / Interval) + 1, 0, ImpactCount);
 	while (Impacts < Due)
 	{
 		++Impacts;
-		const FVector2D Offset = FMath::RandPointInCircle(StrikeSpread);
-		Impact(GetActorLocation() + FVector(Offset, 0.f));
+		// From the sky onto whatever is there (street or roof).
+		const FVector Spot = GetActorLocation() + FVector(FMath::RandPointInCircle(Spread), 0.f);
+		FHitResult Ground;
+		const bool bHit = GetWorld()->LineTraceSingleByChannel(Ground, Spot + FVector(0, 0, 20000), Spot - FVector(0, 0, 20000), ECC_Visibility);
+		Impact(bHit ? Ground.ImpactPoint : Spot);
 	}
-	if (Impacts >= StrikeImpacts)
+	if (Impacts >= ImpactCount)
 	{
 		SetLifeSpan(1.f);
 		SetActorTickEnabled(false);

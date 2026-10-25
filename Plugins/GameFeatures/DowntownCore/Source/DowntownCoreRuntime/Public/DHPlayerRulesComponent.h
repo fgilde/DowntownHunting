@@ -17,7 +17,8 @@ class UUserWidget;
  * - server: gives the mode's loadout and puts it into the quick bar,
  * - locally controlled player: picks the camera mode (first or third person) and, if the mode allows it,
  *   lets the player switch with ToggleAction (V / D-pad up by default); the loadout's abilities on Lyra's dash input
- *   and on Ability2Action (DHAbilities), with their HUD,
+ *   and on Ability2Action (DHAbilities), with their HUD; the killstreaks with their HUD (UDHStreakHud: 4 / 5 / 6,
+ *   D-pad left to call one in, D-pad down to select),
  * - every machine: speed (sprint, killstreak hunter, infected, adrenaline) and cloak,
  * - developer mode (FDHProgression::DevFlag) on the host's own pawn: god mode and endless ammo.
  * Added to every Lyra character by the DH experiences.
@@ -93,6 +94,12 @@ private:
 	bool IsGamepadInput() const;
 	void UseAbility1() { UseAbility(0); }
 	void UseAbility2() { UseAbility(1); }
+	void UseStreak1() { UseStreak(0); }
+	void UseStreak2() { UseStreak(1); }
+	void UseStreak3() { UseStreak(2); }
+	void UseSelectedStreak() { UseStreak(INDEX_NONE); }
+	void UseStreak(int32 Slot);
+	void SelectNextStreak();
 	void UseAbility(int32 Slot);
 	void PrepareLyraDash();
 	void HandleAbilityActivated(class UGameplayAbility* Ability);
@@ -140,6 +147,9 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UUserWidget> AbilityHud;
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UDHStreakHud> StreakHud;
 
 	// Last choice of the local player, kept across respawns in "Choice" modes.
 	static bool bPreferFirstPerson;

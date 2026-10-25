@@ -144,6 +144,7 @@ void UDHPlayerChoicesComponent::ServerSetLoadout_Implementation(const TArray<FSt
 		}
 	}
 	SetAbilities(NewLoadout);
+	Streaks = UDHLoadoutSettings::StreaksOf(NewLoadout);
 	UE_LOG(LogDHRules, Log, TEXT("%s: loadout %s"), *GetNameSafe(GetOwner()), *FString::Join(NewLoadout, TEXT(",")));
 }
 
@@ -289,15 +290,32 @@ void UDHPlayerChoicesComponent::ClientHitFeedback_Implementation(bool bKill, boo
 	HitMarker->Show(bKill, bHeadshot);
 }
 
-void UDHPlayerChoicesComponent::ClientStreak_Implementation(int32 Streak, uint8 Reward)
+void UDHPlayerChoicesComponent::ClientStreak_Implementation(int32 Streak, const FString& EarnedId)
 {
 	if (APlayerController* Player = GetController<APlayerController>())
 	{
 		UDHStreakBanner* Banner = CreateWidget<UDHStreakBanner>(Player);
-		const DHKillstreaks::EReward Kind = static_cast<DHKillstreaks::EReward>(Reward);
-		Banner->Show(DHKillstreaks::RewardText(Streak, Kind), Kind != DHKillstreaks::EReward::None);
+		const FDHStreakEntry* Earned = UDHLoadoutSettings::FindStreak(EarnedId);
+		Banner->Show(Earned ? FText::Format(NSLOCTEXT("DowntownHunting", "StreakEarned", "{0} READY  ·  CALL IT IN"), Earned->Name)
+			: FText::Format(NSLOCTEXT("DowntownHunting", "StreakCount", "{0} KILL STREAK"), Streak), Earned != nullptr);
 		Banner->AddToViewport(25);
 	}
+}
+
+void UDHPlayerChoicesComponent::ServerUseStreak_Implementation(const FString& Id, FVector_NetQuantize Target)
+{
+	const AController* Controller = GetController<AController>();
+	DHKillstreaks::Use(Controller ? Controller->PlayerState : nullptr, Id, Target, /*bAutoTarget=*/ false);
+}
+
+TArray<FString> UDHPlayerChoicesComponent::GetStreaks() const
+{
+	if (!Streaks.IsEmpty())
+	{
+		return Streaks;
+	}
+	const AController* Controller = GetController<AController>();
+	return UDHLoadoutSettings::StreaksOf(Controller && Controller->IsLocalPlayerController() ? UDHLoadoutSettings::GetLoadout() : TArray<FString>());
 }
 
 void UDHPlayerChoicesComponent::ServerSlide_Implementation()

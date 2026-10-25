@@ -51,6 +51,9 @@ public class DowntownCoreRuntime : ModuleRules
 				"AIModule",
 				"SlateCore",
 				"CommonInput",
+				"CommonUI",
+				"CommonGame",
+				"InputCore",
 				"UIExtension",
 				// ... add private dependencies that you statically link with here ...	
 			}

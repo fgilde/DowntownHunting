@@ -163,6 +163,7 @@ void UDHLoadoutScreen::NativeOnInitialized()
 	AddAbilityRow(Right, NSLOCTEXT("DowntownHunting", "AbilityRow", "ABILITY"), FSettings::Ability);
 	AddPerkRow(Right);
 	AddAbilityRow(Right, NSLOCTEXT("DowntownHunting", "Ability2Row", "2ND ABILITY"), FSettings::Ability2);
+	AddStreakRow(Right);
 	Right->AddChildToVerticalBox(MakeDetails())->SetPadding(FMargin(0, 12, 0, 0));
 
 	PromptText = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 14, DHScreenStyle::Accent);
@@ -361,6 +362,33 @@ void UDHLoadoutScreen::AddPerkRow(UVerticalBox* Column)
 	}
 }
 
+void UDHLoadoutScreen::AddStreakRow(UVerticalBox* Column)
+{
+	UHorizontalBox* Row = AddRow(Column, NSLOCTEXT("DowntownHunting", "StreakRow", "KILLSTREAKS"));
+	for (const FDHStreakEntry& Streak : FSettings::GetStreaks())
+	{
+		UHorizontalBox* Content = WidgetTree->ConstructWidget<UHorizontalBox>();
+		UTextBlock* Kills = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 24, DHScreenStyle::Accent);
+		Kills->SetText(FText::AsNumber(Streak.Kills));
+		Content->AddChildToHorizontalBox(Kills)->SetVerticalAlignment(VAlign_Center);
+		UVerticalBox* Texts = WidgetTree->ConstructWidget<UVerticalBox>();
+		UTextBlock* Name = DHScreenStyle::MakeText(WidgetTree, TEXT("Orbitron"), 12, DHScreenStyle::Text);
+		Name->SetText(Streak.Name);
+		Texts->AddChildToVerticalBox(Name);
+		UTextBlock* Info = DHScreenStyle::MakeText(WidgetTree, TEXT("NotoSans"), 11, DHScreenStyle::Text);
+		Info->SetText(NSLOCTEXT("DowntownHunting", "StreakCardKills", "kills"));
+		Info->SetRenderOpacity(0.75f);
+		Texts->AddChildToVerticalBox(Info);
+		Content->AddChildToHorizontalBox(Texts)->SetPadding(FMargin(8, 0, 0, 0));
+		Cast<UHorizontalBoxSlot>(Texts->Slot)->SetVerticalAlignment(VAlign_Center);
+		USizeBox* Box = WidgetTree->ConstructWidget<USizeBox>();
+		Box->SetWidthOverride(150.f);
+		Box->SetHeightOverride(46.f);
+		Box->AddChild(Content);
+		AddCard(Row, EKind::Streak, FSettings::Streak1, Streak.Id, Box, false);
+	}
+}
+
 UWidget* UDHLoadoutScreen::MakeDetails()
 {
 	// Card on the bottom right: picture, kind, name, what it does, and for weapons four stat bars.
@@ -528,6 +556,15 @@ bool UDHLoadoutScreen::IsChosen(const FCard& Card) const
 	case EKind::Button: return false;
 	case EKind::Weapon: return WeaponOf(Entry) == Card.Id;
 	case EKind::Attachment: return AttachmentOf(Entry) == Card.Id;
+	case EKind::Streak:
+		for (int32 Index = FSettings::Streak1; Index <= FSettings::Streak3; ++Index)
+		{
+			if (CurrentLoadout.IsValidIndex(Index) && CurrentLoadout[Index] == Card.Id)
+			{
+				return true;
+			}
+		}
+		return false;
 	default: return Entry == Card.Id;
 	}
 }
@@ -636,6 +673,35 @@ void UDHLoadoutScreen::Pick(const FCard& Card)
 	case EKind::Attachment:
 		Entry = Card.Id.IsEmpty() ? WeaponOf(Entry) : WeaponOf(Entry) + TEXT(":") + Card.Id;
 		break;
+	case EKind::Streak:
+	{
+		// Three at most, kept in the order picked: a chosen one goes, a fourth pushes out the oldest.
+		TArray<FString> Streaks;
+		for (int32 Index = FSettings::Streak1; Index <= FSettings::Streak3; ++Index)
+		{
+			if (!Loadout[Index].IsEmpty())
+			{
+				Streaks.Add(Loadout[Index]);
+			}
+		}
+		if (Streaks.Remove(Card.Id) == 0)
+		{
+			Streaks.Add(Card.Id);
+			if (Streaks.Num() > 3)
+			{
+				Streaks.RemoveAt(0);
+			}
+		}
+		else if (Streaks.IsEmpty())
+		{
+			return;  // at least one
+		}
+		for (int32 Index = 0; Index < 3; ++Index)
+		{
+			Loadout[FSettings::Streak1 + Index] = Streaks.IsValidIndex(Index) ? Streaks[Index] : FString();
+		}
+		break;
+	}
 	case EKind::Ability:
 	{
 		FString& Other = Loadout[Card.Entry == FSettings::Ability ? FSettings::Ability2 : FSettings::Ability];
@@ -742,6 +808,15 @@ void UDHLoadoutScreen::ShowDetails(const FCard* Card)
 			Kind = NSLOCTEXT("DowntownHunting", "DetailAbility2", "2ND ABILITY");
 			Title = NSLOCTEXT("DowntownHunting", "AbilityNone", "NONE");
 			Text = NSLOCTEXT("DowntownHunting", "DetailNoAbility", "Only one ability.");
+		}
+		break;
+	case EKind::Streak:
+		if (const FDHStreakEntry* Streak = FSettings::FindStreak(Card->Id))
+		{
+			Kind = FText::Format(NSLOCTEXT("DowntownHunting", "DetailStreak", "KILLSTREAK  ·  {0} KILLS"), Streak->Kills);
+			Title = Streak->Name;
+			Text = FText::Format(NSLOCTEXT("DowntownHunting", "DetailStreakText", "{0}.\nReady after {1} kills in a row; you call it in yourself (4 / 5 / 6, D-pad left). Take three."),
+				Streak->Description, Streak->Kills);
 		}
 		break;
 	case EKind::Perk:

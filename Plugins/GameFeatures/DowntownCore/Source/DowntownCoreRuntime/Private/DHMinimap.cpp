@@ -28,6 +28,8 @@
 #include "Teams/LyraTeamDisplayAsset.h"
 #include "Teams/LyraTeamSubsystem.h"
 
+#include "DHStreakHud.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DHMinimap)
 
 namespace DHMinimapSettings
@@ -239,6 +241,19 @@ void UDHMinimap::Capture()
 	CapturedExtent = Extent;
 }
 
+bool UDHMinimap::GetCapture(const UWorld* World, UTexture2D*& OutTexture, FVector2D& OutCentre, float& OutExtent)
+{
+	using namespace DHMinimapSettings;
+	if (!World || CapturedWorld.Get() != World || !CapturedTarget.IsValid())
+	{
+		return false;
+	}
+	OutTexture = CapturedTarget.Get();
+	OutCentre = CapturedCentre;
+	OutExtent = CapturedExtent;
+	return true;
+}
+
 FVector2D UDHMinimap::ToWidget(const FVector& World) const
 {
 	// Capture looks straight down with yaw 0: image up is +X, image right is +Y.
@@ -260,6 +275,7 @@ void UDHMinimap::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	}
 	const APlayerController* Player = GetOwningPlayer();
 	const APawn* Pawn = Player ? Player->GetPawn() : nullptr;
+	SetRenderOpacity(UDHStreakHud::IsMenuOpen(Player) ? 0.f : 1.f);
 	if (!Pawn || Extent <= 0.f)
 	{
 		return;

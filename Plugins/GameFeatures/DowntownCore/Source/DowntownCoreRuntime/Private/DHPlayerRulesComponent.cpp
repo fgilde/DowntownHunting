@@ -12,6 +12,7 @@
 #include "Camera/LyraCameraMode.h"
 #include "DHAbilities.h"
 #include "DHAbilityHud.h"
+#include "DHStreakHud.h"
 #include "DHControllerScreen.h"
 #include "DHDevScreen.h"
 #include "DHProgression.h"
@@ -422,6 +423,11 @@ void UDHPlayerRulesComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		AbilityHud->RemoveFromParent();
 		AbilityHud = nullptr;
 	}
+	if (StreakHud)
+	{
+		StreakHud->RemoveFromParent();
+		StreakHud = nullptr;
+	}
 
 	const APawn* Pawn = GetPawn<APawn>();
 	const APlayerController* PC = Pawn ? Pawn->GetController<APlayerController>() : nullptr;
@@ -558,6 +564,22 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 		{
 			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::UseAbility2);
 		}
+		// Killstreaks: 4 / 5 / 6 for each, D-pad left / down for the selected one (Tools/Python/setup_input.py).
+		using FHandler = void (ThisClass::*)();
+		const TPair<const TCHAR*, FHandler> StreakInputs[] = {
+			{ TEXT("/DowntownCore/Input/IA_DH_Streak1.IA_DH_Streak1"), &ThisClass::UseStreak1 },
+			{ TEXT("/DowntownCore/Input/IA_DH_Streak2.IA_DH_Streak2"), &ThisClass::UseStreak2 },
+			{ TEXT("/DowntownCore/Input/IA_DH_Streak3.IA_DH_Streak3"), &ThisClass::UseStreak3 },
+			{ TEXT("/DowntownCore/Input/IA_DH_StreakUse.IA_DH_StreakUse"), &ThisClass::UseSelectedStreak },
+			{ TEXT("/DowntownCore/Input/IA_DH_StreakNext.IA_DH_StreakNext"), &ThisClass::SelectNextStreak },
+		};
+		for (const TPair<const TCHAR*, FHandler>& StreakInput : StreakInputs)
+		{
+			if (UInputAction* Action = LoadObject<UInputAction>(nullptr, StreakInput.Key))
+			{
+				InputComponent->BindAction(Action, ETriggerEvent::Started, this, StreakInput.Value);
+			}
+		}
 		if (UInputAction* Action = SprintAction.LoadSynchronous())
 		{
 			InputComponent->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::HandleSprintPressed);
@@ -575,6 +597,11 @@ void UDHPlayerRulesComponent::SetUpLocalPlayer()
 	{
 		AbilityHud = CreateWidget<UDHAbilityHud>(const_cast<APlayerController*>(PC));
 		AbilityHud->AddToViewport(5);
+	}
+	if (!StreakHud && PC)
+	{
+		StreakHud = CreateWidget<UDHStreakHud>(const_cast<APlayerController*>(PC));
+		StreakHud->AddToViewport(5);
 	}
 	if (!Minimap && PC && !(Rules && Rules->IsHardcore()))
 	{
@@ -614,6 +641,22 @@ bool UDHPlayerRulesComponent::HasScope() const
 {
 	const UObject* Weapon = DHWeaponAccess::ActiveWeapon(GetPawn<APawn>());
 	return Weapon && Weapon->GetClass()->GetName().Contains(TEXT("Sniper"));
+}
+
+void UDHPlayerRulesComponent::UseStreak(int32 Slot)
+{
+	if (StreakHud)
+	{
+		StreakHud->Activate(Slot);
+	}
+}
+
+void UDHPlayerRulesComponent::SelectNextStreak()
+{
+	if (StreakHud)
+	{
+		StreakHud->SelectNext();
+	}
 }
 
 void UDHPlayerRulesComponent::AttachHairToHead()

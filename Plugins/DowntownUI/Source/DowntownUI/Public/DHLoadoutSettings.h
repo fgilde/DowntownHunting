@@ -38,13 +38,22 @@ struct FDHAbilityEntry
 	float Duration = 0.f;  // seconds the effect lasts, 0 for a single push
 };
 
+/** A killstreak reward (DHKillstreaks in DowntownCore carries it out): ready after Kills kills without dying. */
+struct FDHStreakEntry
+{
+	FString Id;
+	FText Name;
+	FText Description;
+	int32 Kills = 0;
+};
+
 DECLARE_MULTICAST_DELEGATE_TwoParams(FDHLoadoutChosen, APlayerController* /*Player*/, const TArray<FString>& /*Loadout*/);
 
 /**
  * Weapons for the loadout builder (Config/DefaultGame.ini) and the player's loadouts, stored in GameUserSettings.ini:
  * NumLoadouts of them, one active. A loadout is an array of entries (see the E* indices): primary and secondary weapon,
  * each "Weapon" or "Weapon:Attachment" (used in modes whose rule is Loadout=Player), the special ability, a perk
- * for it and the second ability (from level SecondAbility unlocks); empty entries are allowed.
+ * for it, the second ability (from level SecondAbility unlocks) and up to three killstreaks; empty entries are allowed.
  */
 UCLASS(Config = Game)
 class DOWNTOWNUI_API UDHLoadoutSettings : public UObject
@@ -52,7 +61,7 @@ class DOWNTOWNUI_API UDHLoadoutSettings : public UObject
 	GENERATED_BODY()
 
 public:
-	enum EEntry { Primary, Secondary, Ability, Perk, Ability2, NumEntries };
+	enum EEntry { Primary, Secondary, Ability, Perk, Ability2, Streak1, Streak2, Streak3, NumEntries };
 	static constexpr int32 NumLoadouts = 5;
 
 	// Perks.
@@ -81,6 +90,13 @@ public:
 
 	/** None (empty id) first, then the perks. */
 	static TArray<FDHAbilityEntry> GetPerks();
+
+	/** All killstreaks, fewest kills first. */
+	static TArray<FDHStreakEntry> GetStreaks();
+	static const FDHStreakEntry* FindStreak(const FString& Id);
+
+	/** The killstreaks a loadout takes along, fewest kills first (Radar, Airstrike, Hunter if it names none). */
+	static TArray<FString> StreaksOf(const TArray<FString>& Loadout);
 
 	/** None (empty id) first, then the attachments. */
 	static TArray<FDHAttachmentEntry> GetAttachments();

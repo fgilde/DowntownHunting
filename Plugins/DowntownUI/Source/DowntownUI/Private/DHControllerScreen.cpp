@@ -47,6 +47,8 @@ namespace
 			{ TEXT("Switch"), NSLOCTEXT("DowntownHunting", "PadSwitch", "SWITCH WEAPON"), { TEXT("/ShooterCore/Input/Actions/IA_QuickSlot_CycleForward.IA_QuickSlot_CycleForward") } },
 			{ TEXT("Ability"), NSLOCTEXT("DowntownHunting", "PadAbility", "ABILITY"), { TEXT("/Game/Input/Actions/IA_Ability_Dash.IA_Ability_Dash") } },
 			{ TEXT("Ability2"), NSLOCTEXT("DowntownHunting", "PadAbility2", "2ND ABILITY"), { TEXT("/DowntownCore/Input/IA_DH_Ability2.IA_DH_Ability2") } },
+			{ TEXT("StreakUse"), NSLOCTEXT("DowntownHunting", "PadStreakUse", "CALL IN KILLSTREAK"), { TEXT("/DowntownCore/Input/IA_DH_StreakUse.IA_DH_StreakUse") } },
+			{ TEXT("StreakNext"), NSLOCTEXT("DowntownHunting", "PadStreakNext", "NEXT KILLSTREAK"), { TEXT("/DowntownCore/Input/IA_DH_StreakNext.IA_DH_StreakNext") } },
 			{ TEXT("Perspective"), NSLOCTEXT("DowntownHunting", "PadPerspective", "FIRST / THIRD PERSON"), { TEXT("/DowntownCore/Input/IA_DH_TogglePerspective.IA_DH_TogglePerspective") } },
 			{ TEXT("Scoreboard"), NSLOCTEXT("DowntownHunting", "PadScoreboard", "SCOREBOARD"), { TEXT("/ShooterCore/Input/Actions/IA_ShowScoreboard.IA_ShowScoreboard") } },
 		};
